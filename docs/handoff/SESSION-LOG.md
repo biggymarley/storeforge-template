@@ -2,6 +2,15 @@
 
 Condensed history of the build sessions so the next assistant has the same context I do.
 
+## Timeline — session 4 (2026-07-17, Phase E — hardening, v1.0.0)
+
+1. Read the full handoff set; found Phase C + D already committed and pushed to `origin/main` (`858ec0c template`) — the owner did this between sessions without my involvement.
+2. Verified the one item left open from session 3 (`/search` price-sort ordering) — confirmed correct both directions via a direct fetch + DOM-order price extraction.
+3. Built Phase E in order: sitemap.ts/robots.ts → JSON-LD (Organization + Product) → `/dev/*` production gating → a11y pass (skip link, focus-visible rings on pill inputs, Escape-key parity on mobile menu/filters drawer) → found and fixed a real bug (`.gitignore`'s `.env*` was excluding `.env.example`, which the README setup steps depend on existing — also had the real dev-store domain baked in, scrubbed to a placeholder) → Lighthouse (production build) on home + PDP, both ≥90 across the board → palette-flip smoke test → README/CHANGELOG updated.
+4. **Owner interrupted a Lighthouse re-run** ("ill test my self") while I was chasing a flaky-looking `meta-description` audit result (curl confirmed the tag was always present — likely a Lighthouse/headless-Chrome timing quirk in this sandbox, not a real bug). Saved to memory: this preference extends beyond browser automation to any repeated verification-tool loop — run a check once, report it, stop.
+5. Owner said "pushed the changes, lets finish this" mid-session (after I'd handed off a status summary) — confirmed via `git log`/`git status` that they'd committed+pushed everything themselves, then continued straight into finishing Phase E rather than re-asking to confirm scope.
+6. Dev server conventions unchanged (port 3199); had to stop/restart it twice this session for `next build`/`next start` (Lighthouse needs a production server, not `next dev`) — remember to bring it back up on 3199 before ending a session, the owner tests there.
+
 ## Timeline — session 3 (2026-07-17, Phase D remainder — new account, her0986516@gmail.com)
 
 1. Read the full handoff set, then built the Phase D remainder in order: `/search` + predictive dropdown → `/pages/[handle]` + `/policies/*` → 404/error pages. Details in PROGRESS.md "What was built in session 3".
@@ -38,16 +47,16 @@ Condensed history of the build sessions so the next assistant has the same conte
 
 - Communicates tersely, sometimes fragmented messages; wants **incremental phase-by-phase delivery with visible results** between steps.
 - Wants to perform external-dashboard actions **themselves** with clear numbered steps — do not drive their browser unless they ask.
-- Prefers to hands-on test in their own browser over watching repeated automation runs — give a short numbered checklist and let them report ("what u need i can test").
-- **Ask before git commits** (they rejected one). No remote is configured; they own push/hosting decisions.
+- Prefers to hands-on test in their own browser over watching repeated automation runs — give a short numbered checklist and let them report ("what u need i can test"). This extends to any repeated automated verification loop, not just browser automation — e.g. re-running Lighthouse to chase a flaky result ("ill test my self", session 4). Run a check once, report it, stop.
+- **Ask before git commits** — but the owner does sometimes commit+push their own work between sessions without saying so in advance (happened between sessions 3 and 4); check `git log`/`git status` at the start of a session rather than assuming everything is still uncommitted. Remote is `origin` → `github.com/biggymarley/storeforge-template`.
 - Appreciates web research when platform UIs/docs may have changed ("check… do web research about these docs").
 - Timezone/context: macOS, zsh, Node 22, npm 11. Editor: opens files in IDE alongside chat.
 
 ## Open items the next session should pick up
 
-1. **Owner test result pending**: mobile `/cart` sideways-scroll check (fix applied late session 2, still unverified) + the session-3 pages checklist (PROGRESS checklist item 2).
-2. **Owner action pending**: create 2–3 collections (with images), publish to Headless; optional `new-arrivals`/`top-selling` handles. Then re-verify nav, home tiles, and collection facet filters.
-3. **Uncommitted work**: Phases C + D complete but uncommitted (ask first; suggested split in PROGRESS.md).
-4. Phase E only — see PROGRESS.md "Remaining work checklist" (plus the small /search price-sort-ordering verification).
-5. Currency: store is set to GIP — owner may want to change it in Shopify admin (flagged, no answer yet).
-6. Dev-store content note: Shopify page "contact" has an empty body (renders as title-only page); "contact-us" is fine.
+Everything build-related through v1.0.0/Phase E is done as of session 4. What's left is owner-side (see PROGRESS.md "Remaining work checklist" for the full list):
+
+1. **Owner action pending**: create 2–3 real collections (with images), publish to Headless; optional `new-arrivals`/`top-selling` handles. Then re-verify nav, home tiles, and collection facet filters against real data — collections were still missing as of session 4.
+2. Currency: store is set to GIP — owner may want to change it in Shopify admin (flagged twice now, no answer yet).
+3. Dev-store content note: Shopify page "contact" has an empty body (renders as title-only page); "contact-us" is fine.
+4. **Not yet done this session**: tagging `v1.0.0` and pushing — Phase E's diff is built, checked, and documented, but not yet committed (ask first, per above).

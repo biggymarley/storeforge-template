@@ -39,11 +39,17 @@ export default async function StoreLayout({ children }: Readonly<{ children: Rea
   return (
     <ToastProvider>
       <CartProvider cart={cart}>
+        <a
+          href="#main-content"
+          className="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:left-4 focus-visible:top-4 focus-visible:z-50 focus-visible:rounded-full focus-visible:bg-primary focus-visible:px-4 focus-visible:py-2 focus-visible:text-background"
+        >
+          Skip to content
+        </a>
         {store.announcement.enabled && store.announcement.text ? (
           <AnnouncementBar text={store.announcement.text} href={store.announcement.href || undefined} />
         ) : null}
         <Header links={navLinks} />
-        <main>{children}</main>
+        <main id="main-content">{children}</main>
         <Footer shopLinks={collectionLinks} />
         <MiniCart />
       </CartProvider>

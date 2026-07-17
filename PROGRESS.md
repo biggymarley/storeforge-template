@@ -1,11 +1,11 @@
 # PROGRESS.md — Handoff state for storeforge-template
 
-> Last updated 2026-07-17 (session 3 — Phase D COMPLETE). **Full handoff set** — read in this order:
+> Last updated 2026-07-17 (session 4 — Phase E COMPLETE, v1.0.0). **Full handoff set** — read in this order:
 > 1. This file (state + what remains)
-> 2. `docs/handoff/PAGE-BLUEPRINTS.md` — measured Figma specs (node IDs) — still the spec for the remaining pages
+> 2. `docs/handoff/PAGE-BLUEPRINTS.md` — measured Figma specs (node IDs) — reference for any future visual work
 > 3. `docs/handoff/ARCHITECTURE-DECISIONS.md` — why the foundation is built this way (updated with cart architecture as built)
 > 4. `docs/handoff/SESSION-LOG.md` — session history, owner working style, open items
-> 5. `DESIGN-NOTES.md` (Figma intake + owner decisions) and `TEMPLATE-BUILD-SPEC.md` (the contract — structural source of truth)
+> 5. `DESIGN-NOTES.md` (Figma intake + owner decisions), `TEMPLATE-BUILD-SPEC.md` (the contract), `README.md` (setup/config/Lighthouse), `CHANGELOG.md` (release history)
 
 ## Where we are in the build order (spec §9)
 
@@ -14,10 +14,10 @@
 | **A — Figma intake** | ✅ Done, owner-confirmed |
 | **B — Foundation** | ✅ Done, verified |
 | **C — Design system** | ✅ Done (`/dev/components` gallery) |
-| **D — Pages** | ✅ **DONE** (session 3 finished the remainder): global layout · cart plumbing/actions · home · `/products` · `/collections/[handle]` (filters/sort/cursor pagination) · PDP (variants + add-to-cart) · mini-cart (optimistic) · `/cart` (promo codes) · toasts · loading skeletons · `/search` (+predictive dropdown) · `/pages/[handle]` · `/policies/*` · custom 404/error pages |
-| **E — Hardening** | ❌ Not started (SEO/JSON-LD/sitemap/robots, a11y, Lighthouse, README, palette-flip test, tag v1.0.0) |
+| **D — Pages** | ✅ Done — global layout · cart plumbing/actions · home · `/products` · `/collections/[handle]` (filters/sort/cursor pagination) · PDP (variants + add-to-cart) · mini-cart (optimistic) · `/cart` (promo codes) · toasts · loading skeletons · `/search` (+predictive dropdown) · `/pages/[handle]` · `/policies/*` · custom 404/error pages |
+| **E — Hardening** | ✅ **DONE** (session 4): sitemap/robots, JSON-LD, `/dev/*` production-gated, a11y pass (skip link, focus rings, Escape-key parity), Lighthouse ≥90 documented, README + CHANGELOG updated, `.env.example` fixed and committed, palette-flip smoke test, brand-leak grep clean |
 
-**Everything is UNCOMMITTED** (Phase C + all of Phase D, sessions 2+3). Owner said "ill commit later" — **ask before committing**. Suggested split: "Phase C: design system components from Figma" / "Phase D: layout, cart, home, PLP, PDP, cart page" / "Phase D: search, pages, policies, 404/error".
+**Phase C + D were committed and pushed by the owner between sessions 3 and 4** (`git log` on `main`: `858ec0c template`). Phase E (this session) is the remaining diff — **ask before committing**, per the owner's standing rule.
 
 ## Figma source
 
@@ -31,6 +31,18 @@
 - **Products exist now** (~14 e-bikes/accessories with variants, compare-at prices, many images) and are published to the Headless channel. Add-to-cart → checkout URL verified working end-to-end.
 - **Collections still missing** (only auto "frontpage"). This currently hides: header nav collection links, footer Shop column, home "Browse by Category" tiles, PLP category lists, and collection-page facet filters (Color/Size come from `collection.products.filters` — **untested against real data until collections exist**). Owner must create 2–3 collections (with images for the home tiles), publish each to Headless; optional `new-arrivals`/`top-selling` handles drive the home sections.
 - Store currency is **GIP (Gibraltar Pound)** — flagged to owner (Shopify Settings → General) in case it's unintentional. Checkout URLs resolve to `kijdh1-w0.myshopify.com` (Shopify alias of the dev store; harmless).
+
+## What was built in session 4 (Phase E — hardening, v1.0.0)
+
+- **SEO**: `app/sitemap.ts` (static routes + Shopify products/collections/pages via a new handles-only `SITEMAP_QUERY`/`getSitemapEntries()`, degrades to static-only if Shopify is unreachable), `app/robots.ts` (disallows `/dev`, `/api/`; points at the sitemap). `lib/json-ld.ts`: `organizationJsonLd()` rendered once in the root layout (every page), `productJsonLd()` rendered on the PDP — both verified against live dev-store data (curled the rendered `<script type="application/ld+json">` on `/` and a real product).
+- **`/dev/*` production-gated**: new `app/dev/layout.tsx` calls `notFound()` when `NODE_ENV === "production"` — verified via a full `next build && next start` pass (`/dev/scratch` and `/dev/components` both 404 in the production server; still reachable in dev, as intended for QA).
+- **Accessibility pass**: skip-to-content link + `#main-content` landmark on the `(store)` layout and the root `not-found.tsx`; `focus-within` rings added to the three pill text inputs that had `outline-none` with no visible focus replacement (header search, newsletter, cart promo code); `Escape` now closes the mobile nav drawer and mobile filters drawer (mini-cart already had this).
+- **`.env.example` bug fixed**: `.gitignore`'s blanket `.env*` rule was silently excluding `.env.example` from every commit — the file StoreForge/new builders are told to copy in the README setup steps didn't actually exist in git history. Added `!.env.example` and scrubbed the real dev-store domain (`uwstkm-c0.myshopify.com`) out of it in favor of a generic placeholder before committing.
+- **Verified**: `/search?sort=price-asc|desc` ordering is correct both directions (asc GIP 39→699…, desc GIP 4,168→1,799…) — the one item left open from session 3.
+- **Lighthouse** (production build, `next build && next start`, Brave as the Chrome binary via `CHROME_PATH`): home 93/96/100/100, PDP 90/97/96/92 (performance/accessibility/best-practices/SEO). Both ≥90 everywhere; scores + the two minor sub-100 findings (compare-at price contrast, discount badge contrast — both Figma-spec colors, not build bugs) documented in README.
+- **Palette-flip smoke test**: swapped `config/store.ts` to a deliberately ugly second palette + font pair, confirmed via curl that `--site-primary`/`--site-font-heading` propagate through `app/layout.tsx` → `app/globals.css` `@theme` correctly, then reverted (`git diff config/store.ts` clean).
+- **Docs**: README gained a Pages & routes table (URL filter contract, home-section collection-handle convention), a Phase E section, and a Lighthouse-scores table; CHANGELOG rolled `[Unreleased]` into `[1.0.0]` with Phase D + E entries added. `template.json`/`package.json` were already at `1.0.0` — no bump needed, this session's diff IS the 1.0.0 release.
+- typecheck/lint/build all green throughout; brand-leak grep (`grep -rn -iE "placeholder store" app components lib`) empty.
 
 ## What was built in session 3 (Phase D remainder — all verified in-browser via puppeteer screenshots)
 
@@ -72,11 +84,13 @@
 
 ## Remaining work checklist
 
-1. **Owner test pending**: `/cart` on a ~390px viewport — does the Order Summary still overflow sideways? (Fix applied session 2: grid `lg:grid-cols-[1.4fr_1fr]`, tightened line-row; still not re-verified by owner.)
-2. **Owner tests pending (session 3 pages)**: `/search` (type in header bar → dropdown appears, arrows+Enter work, filters keep `q`), a policy page, `/pages/contact-us`, any garbage URL → styled 404.
-3. Quick leftover: verify price-sort ordering on `/search?q=…&sort=price-asc|desc` (filter counts verified, ordering check was interrupted).
-4. Re-verify collection pages + facet filters once owner creates collections; then compare `/collections/[handle]` against Figma `26:855` again with real category data. (Collections were STILL missing at session-3 end.)
-5. Phase E: `generateMetadata` sweep (basic titles exist on built pages; home/OG polish), JSON-LD Product/Organization, `sitemap.ts`, `robots.ts` (disallow `/dev`), a11y pass, Lighthouse ≥90 documented in README, palette-flip smoke test, brand-leak grep (`grep -rn -iE "placeholder store" app components lib` must be empty), README (document: font allowlist, config fields incl. new `hero`, home-section collection-handle convention, `f.*` filter params), remove or gate `/dev/*` AND `/api/predictive-search` robots handling, bump/tag v1.0.0 + CHANGELOG.
+Build-wise, v1.0.0 is feature-complete (Phases A–E all done). What's left is owner-side, not build work:
+
+1. **Create 2–3 real collections** in the Shopify admin (with images), publish each to the Headless channel; optional `new-arrivals`/`top-selling` handles will then drive the home sections instead of the sort fallback. Until then, collection-dependent surfaces (nav links, footer Shop column, home tiles, PLP category list, collection facet filters) stay hidden/empty — this is correct behavior for a store with no collections yet, not a bug.
+2. Once collections exist, re-verify `/collections/[handle]` (filters/facets against real variant-option data) and re-screenshot against Figma `26:855` for a final fidelity check.
+3. **Currency**: store is set to GIP (Gibraltar Pound) — flagged twice now, still unanswered. Confirm intentional or change in Shopify Settings → General.
+4. Optional/owner call, not required for v1.0.0: darken the compare-at price opacity or the discount-badge red slightly to close the two Lighthouse contrast findings (see README's Lighthouse section) — currently exactly matches the Figma spec's 30%-opacity/red-on-red values, so this is a design trade-off, not an oversight.
+5. `/cart` on a ~390px viewport was fixed in session 2 (grid `lg:grid-cols-[1.4fr_1fr]`) but the owner's manual re-verification result was never reported back — worth a final look.
 
 ## Key design tokens (unchanged — full tables in DESIGN-NOTES §2)
 

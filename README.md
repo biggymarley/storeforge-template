@@ -60,17 +60,53 @@ Semantic color roles: `primary` (buttons/emphasis), `secondary` (surfaces/inputs
 - Caching: product/collection reads `revalidate: 60`; cart always `no-store`
 - Money: `formatPrice()` in `lib/format.ts` — Shopify's `currencyCode` wins; `storeConfig.currency` is display fallback only
 
+## Pages & routes
+
+| Route | Notes |
+|---|---|
+| `/` | Hero (config-driven, text-only without `storeConfig.hero.image`), brand strip, New Arrivals / Top Selling / collection tiles, testimonials |
+| `/products`, `/collections/[handle]` | Shared PLP shell — filters sidebar (desktop) / drawer (mobile), sort, cursor pagination |
+| `/products/[handle]` | Gallery, variant selection, add to cart, tabs (Details/Reviews — Reviews hidden with no config data), recommendations |
+| `/cart` | Line items, promo code, checkout → `cart.checkoutUrl`; mini-cart slide-over on every page (header cart icon) |
+| `/search` | Same PLP shell + predictive dropdown (debounced, `/api/predictive-search`) |
+| `/pages/[handle]` | Shopify pages (About etc.), prose layout |
+| `/policies/{privacy,terms,shipping,refund}` | Template-owned text (`lib/policies.ts`) interpolating `config/legal.ts` |
+| `/404`, error boundaries | On-brand `ErrorHero`; the root `not-found.tsx`/`error.tsx` carry their own chrome (no `CartProvider`) so unmatched URLs return a real HTTP 404 |
+
+**PLP URL contract** (`lib/plp.ts`, shared by all three grid routes): `?sort=&price_min=&price_max=&instock=1&f.<OptionName>=v1,v2&after=/before=`. `f.*` is generic per variant option (Color, Size, Material, …) rather than hardcoded — it renders whatever facets `collection.products.filters` returns. Non-PLP params (e.g. `/search`'s `q`) always survive filter/sort changes (`isPlpParam()`).
+
+**Home section convention:** a collection with handle `new-arrivals` or `top-selling` overrides the default product sort for that homepage section (`CREATED_AT desc` / `BEST_SELLING` respectively) — create those collections to control the sections directly instead of relying on the sort fallback.
+
+## SEO & hardening (Phase E)
+
+- `app/sitemap.ts` — static routes + products/collections/pages from Shopify (handles-only query, degrades to static routes if Shopify is unreachable)
+- `app/robots.ts` — disallows `/dev` and `/api/`, points at the sitemap
+- JSON-LD: `Organization` (root layout, every page) and `Product` (PDP) via `lib/json-ld.ts`
+- `/dev/*` (component gallery, scratch page) 404s in production builds (`app/dev/layout.tsx`) — dev-only QA surfaces, never shipped
+- Accessibility: skip-to-content link, landmark elements (`header`/`nav`/`main`/`footer`), focus-visible rings on the pill text inputs, `Escape` closes all slide-over/drawer overlays (mini-cart, mobile nav, filters drawer)
+- Lighthouse (home / PDP, production build): documented per release below
+
 ## Versioning & releases
 
 Git tags (`vX.Y.Z`) in lockstep with `template.json.version`. Per release:
 
 1. `npm run typecheck` && `npm run lint` && `npm run build` — all green
 2. Theming smoke test: flip `config/store.ts` to a second palette, eyeball every page, flip back
-3. Bump `template.json` version (and `package.json`)
-4. Commit, `git tag vX.Y.Z`, push with tags
-5. Add a `CHANGELOG.md` entry
+3. Lighthouse (production build, `npm run build && npm run start`) on `/` and a PDP — target ≥90 across performance/accessibility/best-practices/SEO; record scores below
+4. Bump `template.json` version (and `package.json`)
+5. Commit, `git tag vX.Y.Z`, push with tags
+6. Add a `CHANGELOG.md` entry
 
 Compatibility rules: never rename/remove a config field without a default-based fallback; never move files into/out of `protectedPaths` (see `template.json`) without flagging it first.
+
+### Lighthouse scores (v1.0.0, production build, dev-store data)
+
+| Page | Performance | Accessibility | Best Practices | SEO |
+|---|---|---|---|---|
+| `/` | 93 | 96 | 100 | 100 |
+| `/products/[handle]` | 90 | 97 | 96 | 92 |
+
+The PDP's sub-100 findings are content/design-driven, not build issues: the Figma-specified 30%-opacity compare-at price and the small discount badge fall a little short of WCAG contrast minimums, and one product's own Shopify description embeds a YouTube video (a DevTools "Issues" panel entry, not a Lighthouse fix). Re-run before every release — real product data varies score-to-score.
 
 ## Project layout
 

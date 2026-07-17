@@ -26,11 +26,17 @@ export default async function RootNotFound() {
 
   return (
     <>
+      <a
+        href="#main-content"
+        className="sr-only focus-visible:not-sr-only focus-visible:fixed focus-visible:left-4 focus-visible:top-4 focus-visible:z-50 focus-visible:rounded-full focus-visible:bg-primary focus-visible:px-4 focus-visible:py-2 focus-visible:text-background"
+      >
+        Skip to content
+      </a>
       {store.announcement.enabled && store.announcement.text ? (
         <AnnouncementBar text={store.announcement.text} href={store.announcement.href || undefined} />
       ) : null}
       <Header links={[{ label: "Shop", href: "/products" }, ...collectionLinks.slice(0, 3)]} withCart={false} />
-      <main>
+      <main id="main-content">
         <ErrorHero
           headline="Nothing to see here"
           copy="The page you're looking for doesn't exist or has been moved. Let's get you back to the good stuff."
