@@ -1,26 +1,34 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
+/*
+ * Theming pipeline (see TEMPLATE-BUILD-SPEC §2.4):
+ * app/layout.tsx writes storeConfig.colors + chosen font families to the
+ * --site-* variables on <html>. Tailwind tokens below reference those
+ * variables, so a store's entire look changes by editing config/store.ts only.
+ * The --site-* fallbacks here match DEFAULT_COLORS in lib/config.ts.
+ */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-primary: var(--site-primary, #000000);
+  --color-secondary: var(--site-secondary, #f0f0f0);
+  --color-accent: var(--site-accent, #ff3333);
+  --color-background: var(--site-background, #ffffff);
+  --color-foreground: var(--site-foreground, #000000);
+  --color-muted: var(--site-muted, #666666);
+  --color-border: color-mix(in srgb, var(--site-foreground, #000000) 10%, transparent);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Template-owned functional colors — not brand-configurable. */
+  --color-rating: #ffc633;
+  --color-success: #01ab31;
+
+  --font-heading: var(--site-font-heading, ui-sans-serif, system-ui, sans-serif);
+  --font-body: var(--site-font-body, ui-sans-serif, system-ui, sans-serif);
+
+  /* Design radii from Figma: pill controls + 20px surfaces. */
+  --radius-card: 20px;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-body);
 }
