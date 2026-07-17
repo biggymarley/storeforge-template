@@ -48,7 +48,11 @@ export async function shopifyFetch<T>({
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Shopify-Storefront-Access-Token": env.SHOPIFY_STOREFRONT_TOKEN
+        // Headless-channel private tokens (shpat_…) are server-side only and use
+        // their own header; public/custom-app tokens use the classic one.
+        ...(env.SHOPIFY_STOREFRONT_TOKEN.startsWith("shpat_")
+          ? { "Shopify-Storefront-Private-Token": env.SHOPIFY_STOREFRONT_TOKEN }
+          : { "X-Shopify-Storefront-Access-Token": env.SHOPIFY_STOREFRONT_TOKEN })
       },
       body: JSON.stringify({ query, variables }),
       ...(cache === "no-store"

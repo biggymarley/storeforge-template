@@ -17,7 +17,7 @@ export function SetupScreen() {
           project root with:
         </p>
         <pre className="mt-4 overflow-x-auto rounded-card bg-secondary p-4 text-sm leading-6">
-          {`SHOPIFY_STORE_DOMAIN=your-store.myshopify.com\nSHOPIFY_STOREFRONT_TOKEN=shpat_xxx\nNEXT_PUBLIC_SITE_URL=http://localhost:3000`}
+          {`SHOPIFY_STORE_DOMAIN=your-store.myshopify.com\nSHOPIFY_STOREFRONT_TOKEN=<your token>\nNEXT_PUBLIC_SITE_URL=http://localhost:3000`}
         </pre>
         <ul className="mt-4 space-y-1 text-sm text-accent">
           {issues.map((issue) => (

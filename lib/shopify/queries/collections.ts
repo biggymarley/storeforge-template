@@ -55,6 +55,20 @@ export const COLLECTION_BY_HANDLE_QUERY = /* GraphQL */ `
         reverse: $reverse
         filters: $filters
       ) {
+        filters {
+          id
+          label
+          type
+          values {
+            id
+            label
+            count
+            input
+            swatch {
+              color
+            }
+          }
+        }
         edges {
           cursor
           node {

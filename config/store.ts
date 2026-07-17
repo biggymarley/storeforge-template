@@ -19,5 +19,16 @@ export const storeConfig: StoreConfig = {
     text: "Sign up and get 20% off to your first order.",
     href: ""
   },
-  socials: { instagram: "", tiktok: "", x: "", facebook: "" }
+  socials: { instagram: "", tiktok: "", x: "", facebook: "" },
+  hero: {
+    image: "",
+    headline: "Find products that match your style",
+    subtext:
+      "Browse through our diverse range of meticulously crafted products, designed to bring out your individuality and cater to your sense of style.",
+    stats: [
+      { value: "200+", label: "International Brands" },
+      { value: "2,000+", label: "High-Quality Products" },
+      { value: "30,000+", label: "Happy Customers" }
+    ]
+  }
 };

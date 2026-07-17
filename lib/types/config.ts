@@ -17,6 +17,23 @@ export interface StoreColors {
   muted: string;
 }
 
+export interface HeroStat {
+  /** e.g. "2,000+" */
+  value: string;
+  /** e.g. "High-Quality Products" */
+  label: string;
+}
+
+export interface HeroConfig {
+  /** Store-owned asset, e.g. "/branding/hero.jpg". Empty → plain surface hero. */
+  image?: string;
+  /** Falls back to the store tagline. */
+  headline?: string;
+  subtext?: string;
+  /** Stats row under the hero copy. Empty → row hidden. */
+  stats?: HeroStat[];
+}
+
 export interface StoreConfig {
   name: string;
   tagline?: string;
@@ -28,6 +45,8 @@ export interface StoreConfig {
   currency?: string;
   announcement?: { enabled?: boolean; text?: string; href?: string };
   socials?: { instagram?: string; tiktok?: string; x?: string; facebook?: string };
+  /** Homepage hero content (all optional — sane template defaults apply). */
+  hero?: HeroConfig;
 }
 
 export interface LegalAddress {

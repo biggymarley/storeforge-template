@@ -16,7 +16,7 @@ Design source of truth: SHOP.CO Figma file — see `DESIGN-NOTES.md`. Structural
    | `SHOPIFY_ADMIN_TOKEN` | — | Optional; the template never requires it |
    | `NEXT_PUBLIC_SITE_URL` | — | Canonical/OG base URL; defaults to `http://localhost:3000` |
 
-   **Getting a Storefront token:** Shopify admin → Settings → Apps and sales channels → Develop apps → Create an app → Configure Storefront API scopes (`unauthenticated_read_product_listings`, `unauthenticated_read_content`, `unauthenticated_write_checkouts`, `unauthenticated_read_checkouts`) → Install → API credentials → Storefront API access token. Use a **development store** for dev.
+   **Getting a Storefront token (recommended — Headless channel):** in the store admin, install the free **Headless** channel from the Shopify App Store → **Create storefront** → copy the **private access token** (`shpat_…`). The client auto-detects the token type: `shpat_…` is sent as `Shopify-Storefront-Private-Token` (server-side), anything else as `X-Shopify-Storefront-Access-Token`. Alternative: a Dev Dashboard app with the `unauthenticated_*` Storefront scopes granted also works. Use a **development store** for dev.
 
 3. `npm run dev` — with missing/invalid credentials, dev renders a setup screen instead of crashing; production builds of data-dependent pages fail with a friendly error listing the missing vars.
 4. Verify the connection at `/dev/scratch` (renders raw `products(first: 5)` JSON).
@@ -54,7 +54,7 @@ Semantic color roles: `primary` (buttons/emphasis), `secondary` (surfaces/inputs
 
 ## Shopify integration
 
-- Storefront API (GraphQL), version pinned in `lib/shopify/constants.ts` (`2026-01`)
+- Storefront API (GraphQL), version pinned in `lib/shopify/constants.ts` (`2026-07`)
 - `shopifyFetch<T>()` in `lib/shopify/client.ts` — typed, normalized errors (`ShopifyError`)
 - Queries in `lib/shopify/queries/`, cart mutations in `lib/shopify/mutations/`
 - Caching: product/collection reads `revalidate: 60`; cart always `no-store`

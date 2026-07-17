@@ -77,6 +77,23 @@ export interface CollectionWithProducts extends Collection {
   products: Connection<ProductCard>;
 }
 
+/** Facets returned by collection.products.filters (drives the PLP sidebar). */
+export interface FilterFacetValue {
+  id: string;
+  label: string;
+  count: number;
+  /** JSON-encoded ProductFilter to apply this value. */
+  input: string;
+  swatch: { color: string | null } | null;
+}
+
+export interface FilterFacet {
+  id: string;
+  label: string;
+  type: "LIST" | "PRICE_RANGE" | "BOOLEAN";
+  values: FilterFacetValue[];
+}
+
 export interface CartLine {
   id: string;
   quantity: number;
@@ -134,7 +151,11 @@ export interface CollectionsQueryResult {
 }
 
 export interface CollectionByHandleQueryResult {
-  collection: (CollectionWithProducts & { products: Connection<ProductCard> & { pageInfo: PageInfo } }) | null;
+  collection:
+    | (CollectionWithProducts & {
+        products: Connection<ProductCard> & { pageInfo: PageInfo; filters?: FilterFacet[] };
+      })
+    | null;
 }
 
 export interface SearchQueryResult {

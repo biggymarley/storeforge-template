@@ -9,6 +9,7 @@ export const SEARCH_QUERY = /* GraphQL */ `
     $before: String
     $sortKey: SearchSortKeys
     $reverse: Boolean
+    $productFilters: [ProductFilter!]
   ) {
     search(
       query: $query
@@ -19,6 +20,7 @@ export const SEARCH_QUERY = /* GraphQL */ `
       before: $before
       sortKey: $sortKey
       reverse: $reverse
+      productFilters: $productFilters
     ) {
       totalCount
       edges {

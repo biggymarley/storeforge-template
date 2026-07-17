@@ -12,6 +12,7 @@ import { seoConfig } from "@/config/seo";
 import { contentConfig } from "@/config/content";
 import type {
   ContentConfig,
+  HeroStat,
   LegalConfig,
   SeoConfig,
   StoreColors,
@@ -36,6 +37,7 @@ export interface ResolvedStoreConfig {
   currency: string;
   announcement: { enabled: boolean; text: string; href: string };
   socials: { instagram: string; tiktok: string; x: string; facebook: string };
+  hero: { image: string; headline: string; subtext: string; stats: HeroStat[] };
 }
 
 export function resolveStoreConfig(config: StoreConfig = storeConfig): ResolvedStoreConfig {
@@ -62,6 +64,12 @@ export function resolveStoreConfig(config: StoreConfig = storeConfig): ResolvedS
       tiktok: config.socials?.tiktok ?? "",
       x: config.socials?.x ?? "",
       facebook: config.socials?.facebook ?? ""
+    },
+    hero: {
+      image: config.hero?.image ?? "",
+      headline: config.hero?.headline ?? config.tagline ?? config.name ?? "Store",
+      subtext: config.hero?.subtext ?? "",
+      stats: config.hero?.stats ?? []
     }
   };
 }

@@ -32,3 +32,53 @@ body {
   color: var(--color-foreground);
   font-family: var(--font-body);
 }
+
+/*
+ * Minimal rich-text styling for Shopify-authored HTML (product descriptions,
+ * /pages/*). Kept template-owned and tiny instead of adding a typography
+ * dependency.
+ */
+.prose-store {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+.prose-store :is(p, ul, ol, blockquote, table) {
+  margin-block: 1em;
+}
+.prose-store :is(h1, h2, h3, h4) {
+  margin-block: 1.4em 0.6em;
+  font-weight: 700;
+}
+.prose-store h1 {
+  font-size: 1.5rem;
+}
+.prose-store h2 {
+  font-size: 1.25rem;
+}
+.prose-store h3 {
+  font-size: 1.125rem;
+}
+.prose-store :is(ul, ol) {
+  padding-inline-start: 1.4em;
+}
+.prose-store ul {
+  list-style: disc;
+}
+.prose-store ol {
+  list-style: decimal;
+}
+.prose-store a {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.prose-store :is(img, video, iframe) {
+  margin-block: 1em;
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-card);
+}
+.prose-store blockquote {
+  border-inline-start: 2px solid var(--color-border);
+  padding-inline-start: 1em;
+  color: var(--color-muted);
+}

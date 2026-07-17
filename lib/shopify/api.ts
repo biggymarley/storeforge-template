@@ -1,0 +1,197 @@
+/**
+ * Typed data layer over shopifyFetch — every page/layout goes through these
+ * helpers instead of assembling queries inline. All reads use the client's
+ * default ISR caching (revalidate 60, spec §5); cart lives in cart.ts.
+ */
+import { shopifyFetch } from "@/lib/shopify/client";
+import {
+  COLLECTIONS_QUERY,
+  COLLECTION_BY_HANDLE_QUERY
+} from "@/lib/shopify/queries/collections";
+import { PAGE_BY_HANDLE_QUERY } from "@/lib/shopify/queries/pages";
+import {
+  PRODUCTS_QUERY,
+  PRODUCT_BY_HANDLE_QUERY,
+  RECOMMENDATIONS_QUERY
+} from "@/lib/shopify/queries/products";
+import { PREDICTIVE_SEARCH_QUERY, SEARCH_QUERY } from "@/lib/shopify/queries/search";
+import {
+  flattenConnection,
+  type Collection,
+  type CollectionByHandleQueryResult,
+  type CollectionsQueryResult,
+  type PageByHandleQueryResult,
+  type PageInfo,
+  type PredictiveSearchQueryResult,
+  type Product,
+  type ProductByHandleQueryResult,
+  type ProductCard,
+  type ProductsQueryResult,
+  type RecommendationsQueryResult,
+  type SearchQueryResult,
+  type ShopifyPage
+} from "@/lib/shopify/types";
+
+/** Cursor + sort arguments shared by the paginated grids (PLP/search). */
+export interface PageArgs {
+  first?: number;
+  last?: number;
+  after?: string;
+  before?: string;
+}
+
+export interface ProductFilterArg {
+  available?: boolean;
+  price?: { min?: number; max?: number };
+  variantOption?: { name: string; value: string };
+}
+
+export async function getCollections(first = 50): Promise<Collection[]> {
+  const data = await shopifyFetch<CollectionsQueryResult>({
+    query: COLLECTIONS_QUERY,
+    variables: { first }
+  });
+  // "frontpage" is Shopify's auto-created Home page collection — never a nav destination.
+  return flattenConnection(data.collections).filter((c) => c.handle !== "frontpage");
+}
+
+export async function getCollection(handle: string): Promise<Collection | null> {
+  const data = await shopifyFetch<CollectionByHandleQueryResult>({
+    query: COLLECTION_BY_HANDLE_QUERY,
+    variables: { handle, first: 1 }
+  });
+  return data.collection;
+}
+
+export interface CollectionProductsArgs extends PageArgs {
+  sortKey?: "TITLE" | "PRICE" | "BEST_SELLING" | "CREATED" | "COLLECTION_DEFAULT" | "RELEVANCE";
+  reverse?: boolean;
+  filters?: ProductFilterArg[];
+}
+
+export async function getCollectionWithProducts(
+  handle: string,
+  { first, last, after, before, sortKey, reverse, filters }: CollectionProductsArgs = {}
+): Promise<CollectionByHandleQueryResult["collection"]> {
+  const data = await shopifyFetch<CollectionByHandleQueryResult>({
+    query: COLLECTION_BY_HANDLE_QUERY,
+    variables: {
+      handle,
+      ...(last ? { last, before } : { first: first ?? 12, after }),
+      sortKey: sortKey ?? "COLLECTION_DEFAULT",
+      reverse: reverse ?? false,
+      filters
+    }
+  });
+  return data.collection;
+}
+
+export interface ProductsArgs extends PageArgs {
+  query?: string;
+  sortKey?: "TITLE" | "PRICE" | "BEST_SELLING" | "CREATED_AT" | "RELEVANCE";
+  reverse?: boolean;
+}
+
+export async function getProducts({
+  first,
+  last,
+  after,
+  before,
+  query,
+  sortKey,
+  reverse
+}: ProductsArgs = {}): Promise<{ products: ProductCard[]; pageInfo: PageInfo }> {
+  const data = await shopifyFetch<ProductsQueryResult>({
+    query: PRODUCTS_QUERY,
+    variables: {
+      ...(last ? { last, before } : { first: first ?? 12, after }),
+      query,
+      sortKey,
+      reverse
+    }
+  });
+  return { products: flattenConnection(data.products), pageInfo: data.products.pageInfo };
+}
+
+export async function getProduct(handle: string): Promise<Product | null> {
+  const data = await shopifyFetch<ProductByHandleQueryResult>({
+    query: PRODUCT_BY_HANDLE_QUERY,
+    variables: { handle }
+  });
+  return data.product;
+}
+
+export async function getProductRecommendations(productId: string): Promise<ProductCard[]> {
+  const data = await shopifyFetch<RecommendationsQueryResult>({
+    query: RECOMMENDATIONS_QUERY,
+    variables: { productId }
+  });
+  return data.productRecommendations ?? [];
+}
+
+export interface SearchArgs extends PageArgs {
+  sortKey?: "RELEVANCE" | "PRICE";
+  reverse?: boolean;
+  productFilters?: ProductFilterArg[];
+}
+
+export async function searchProducts(
+  query: string,
+  { first, last, after, before, sortKey, reverse, productFilters }: SearchArgs = {}
+): Promise<{ products: ProductCard[]; pageInfo: PageInfo; totalCount: number }> {
+  const data = await shopifyFetch<SearchQueryResult>({
+    query: SEARCH_QUERY,
+    variables: {
+      query,
+      ...(last ? { last, before } : { first: first ?? 12, after }),
+      sortKey,
+      reverse,
+      productFilters
+    }
+  });
+  return {
+    products: flattenConnection(data.search),
+    pageInfo: data.search.pageInfo,
+    totalCount: data.search.totalCount
+  };
+}
+
+export async function predictiveSearch(query: string, limit = 6): Promise<ProductCard[]> {
+  const data = await shopifyFetch<PredictiveSearchQueryResult>({
+    query: PREDICTIVE_SEARCH_QUERY,
+    variables: { query, limit }
+  });
+  return data.predictiveSearch?.products ?? [];
+}
+
+export async function getPage(handle: string): Promise<ShopifyPage | null> {
+  const data = await shopifyFetch<PageByHandleQueryResult>({
+    query: PAGE_BY_HANDLE_QUERY,
+    variables: { handle }
+  });
+  return data.page;
+}
+
+/** Highest product price in the store — the PLP price slider's ceiling. */
+export async function getMaxProductPrice(): Promise<number> {
+  const { products } = await getProducts({ first: 1, sortKey: "PRICE", reverse: true });
+  const amount = Number(products[0]?.priceRange.maxVariantPrice.amount ?? 0);
+  return Math.max(100, Math.ceil(amount / 10) * 10);
+}
+
+/**
+ * Home section convention (PAGE-BLUEPRINTS §Home, documented in README): a
+ * store owner controls a section by creating a collection with the given
+ * handle; without one we fall back to a product sort.
+ */
+export async function getHomeSectionProducts(
+  collectionHandle: string,
+  fallbackSort: { sortKey: "CREATED_AT" | "BEST_SELLING"; reverse?: boolean },
+  count = 4
+): Promise<ProductCard[]> {
+  const collection = await getCollectionWithProducts(collectionHandle, { first: count });
+  const fromCollection = collection ? flattenConnection(collection.products) : [];
+  if (fromCollection.length > 0) return fromCollection;
+  const { products } = await getProducts({ first: count, ...fallbackSort });
+  return products;
+}
