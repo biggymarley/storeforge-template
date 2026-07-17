@@ -2,6 +2,15 @@
 
 Condensed history of the build sessions so the next assistant has the same context I do.
 
+## Timeline — session 3 (2026-07-17, Phase D remainder — new account, her0986516@gmail.com)
+
+1. Read the full handoff set, then built the Phase D remainder in order: `/search` + predictive dropdown → `/pages/[handle]` + `/policies/*` → 404/error pages. Details in PROGRESS.md "What was built in session 3".
+2. Notable choices: search sort menu reduced to Relevance/Price (API limitation) via `SEARCH_SORT_OPTIONS` + `sortOptions` prop; predictive search served by a template-owned API route (`/api/predictive-search`) since the header SearchBar is a client component; policies are structured TS data in `lib/policies.ts` (not markdown) so legal values interpolate type-safely; root `not-found.tsx` carries its own chrome (`withCart={false}` — no CartProvider outside `(store)`).
+3. Fixed a latent URL bug found while wiring search: FilterPanel Apply / "Clear filters" rebuilt the querystring from PLP state only, dropping `q` on /search — added `isPlpParam()` so foreign params survive.
+4. Verified by screenshot (desktop+390): /search results, /search empty state, /policies/refund, /pages/contact, 404s, predictive dropdown incl. keyboard nav; status codes curl-checked (real 404s). typecheck+lint green. Figma MCP was disconnected by a mid-session re-login and NOT re-authorized (not needed — the new pages have no Figma frames).
+5. Owner interrupted twice to ask which email the session runs under (`/login` happened mid-session; answer: her0986516@gmail.com), then asked for progress docs to clear the session. Price-sort-ordering check on /search was interrupted — left on the checklist.
+6. Dev server was left running on port 3199 (`lsof -ti:3199 | xargs kill`). Nothing committed (unchanged rule: ask first).
+
 ## Timeline — session 2 (2026-07-17, Phase D)
 
 1. Owner authorized the Figma MCP OAuth (needs re-auth each session: call `authenticate`, give them the URL) and added ~14 real products (e-bikes) published to Headless. Collections still missing at session end.
@@ -36,8 +45,9 @@ Condensed history of the build sessions so the next assistant has the same conte
 
 ## Open items the next session should pick up
 
-1. **Owner test result pending**: mobile `/cart` sideways-scroll check (fix applied late session 2, unverified — see PROGRESS checklist item 1).
+1. **Owner test result pending**: mobile `/cart` sideways-scroll check (fix applied late session 2, still unverified) + the session-3 pages checklist (PROGRESS checklist item 2).
 2. **Owner action pending**: create 2–3 collections (with images), publish to Headless; optional `new-arrivals`/`top-selling` handles. Then re-verify nav, home tiles, and collection facet filters.
-3. **Uncommitted work**: Phases C + D (ask first; suggested split in PROGRESS.md).
-4. Remaining Phase D pages + Phase E per PROGRESS.md "Remaining work checklist".
+3. **Uncommitted work**: Phases C + D complete but uncommitted (ask first; suggested split in PROGRESS.md).
+4. Phase E only — see PROGRESS.md "Remaining work checklist" (plus the small /search price-sort-ordering verification).
 5. Currency: store is set to GIP — owner may want to change it in Shopify admin (flagged, no answer yet).
+6. Dev-store content note: Shopify page "contact" has an empty body (renders as title-only page); "contact-us" is fine.

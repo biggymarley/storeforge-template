@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { IconClose, IconMenu } from "@/components/icons";
 import type { NavLink } from "@/components/layout/nav-links";
@@ -8,6 +8,15 @@ import type { NavLink } from "@/components/layout/nav-links";
 /** Mobile nav drawer — no open state in Figma; styled after the Filters drawer (DESIGN-NOTES §6). */
 export function MobileMenu({ links }: { links: NavLink[] }) {
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [open]);
 
   return (
     <div className="lg:hidden">

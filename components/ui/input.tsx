@@ -9,7 +9,7 @@ interface PillInputProps extends InputHTMLAttributes<HTMLInputElement> {
 export function PillInput({ icon, tone = "gray", className = "", ...props }: PillInputProps) {
   return (
     <label
-      className={`flex items-center gap-3 rounded-full px-4 py-3 ${
+      className={`flex items-center gap-3 rounded-full px-4 py-3 focus-within:ring-2 focus-within:ring-foreground/30 ${
         tone === "gray" ? "bg-secondary" : "bg-background"
       } ${className}`}
     >

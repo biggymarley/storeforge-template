@@ -1,6 +1,6 @@
 # PAGE-BLUEPRINTS.md — Measured Figma specs for Phase D
 
-> **Build status lives in PROGRESS.md.** As of 2026-07-17: home, PLP, PDP, cart + mini-cart are BUILT from these specs (with per-frame screenshot comparison); the Search/pages/policies/errors section below is what remains.
+> **Build status lives in PROGRESS.md.** As of 2026-07-17 (session 3): ALL Phase D pages are BUILT — home, PLP, PDP, cart + mini-cart (per-frame screenshot comparison), and the Search/pages/policies/errors set below (no Figma frames; improvised per DESIGN-NOTES §6, screenshot-verified).
 
 Every value below was measured from the Figma file via MCP (`get_design_context` / `get_metadata`) during Phase A–C. Node IDs are included so the next builder can re-pull any section (`fileKey: 62A4MJq6lWhbal3v9Yi0oB`). Use semantic tokens, never these hexes, in components (see DESIGN-NOTES §2.1 mapping).
 

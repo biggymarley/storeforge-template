@@ -15,6 +15,7 @@ import {
   RECOMMENDATIONS_QUERY
 } from "@/lib/shopify/queries/products";
 import { PREDICTIVE_SEARCH_QUERY, SEARCH_QUERY } from "@/lib/shopify/queries/search";
+import { SITEMAP_QUERY } from "@/lib/shopify/queries/sitemap";
 import {
   flattenConnection,
   type Collection,
@@ -29,7 +30,9 @@ import {
   type ProductsQueryResult,
   type RecommendationsQueryResult,
   type SearchQueryResult,
-  type ShopifyPage
+  type ShopifyPage,
+  type SitemapEntry,
+  type SitemapQueryResult
 } from "@/lib/shopify/types";
 
 /** Cursor + sort arguments shared by the paginated grids (PLP/search). */
@@ -194,4 +197,21 @@ export async function getHomeSectionProducts(
   if (fromCollection.length > 0) return fromCollection;
   const { products } = await getProducts({ first: count, ...fallbackSort });
   return products;
+}
+
+/** Handles-only data for sitemap.ts — never used to render a page. */
+export async function getSitemapEntries(): Promise<{
+  products: SitemapEntry[];
+  collections: SitemapEntry[];
+  pages: SitemapEntry[];
+}> {
+  const data = await shopifyFetch<SitemapQueryResult>({
+    query: SITEMAP_QUERY,
+    variables: { first: 250 }
+  });
+  return {
+    products: flattenConnection(data.products),
+    collections: flattenConnection(data.collections),
+    pages: flattenConnection(data.pages)
+  };
 }

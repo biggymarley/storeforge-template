@@ -182,6 +182,17 @@ export interface CartQueryResult {
   cart: Cart | null;
 }
 
+export interface SitemapEntry {
+  handle: string;
+  updatedAt: string;
+}
+
+export interface SitemapQueryResult {
+  products: Connection<SitemapEntry>;
+  collections: Connection<SitemapEntry>;
+  pages: Connection<SitemapEntry>;
+}
+
 export interface CartCreateResult {
   cartCreate: { cart: Cart | null; userErrors: UserError[] } | null;
 }

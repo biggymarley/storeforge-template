@@ -10,6 +10,7 @@ import { ProductCardSkeleton } from "@/components/ui/skeleton";
 import { getProduct, getProductRecommendations } from "@/lib/shopify/api";
 import { ShopifyError } from "@/lib/shopify/client";
 import { getProductRating, getProductReviews } from "@/lib/reviews";
+import { productJsonLd } from "@/lib/json-ld";
 
 interface ProductPageProps {
   params: Promise<{ handle: string }>;
@@ -52,6 +53,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
     return (
       <div className="mx-auto max-w-310 px-4 pb-2 pt-5 lg:pt-6">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd(product)) }}
+        />
         <Breadcrumbs
           items={[{ label: "All Products", href: "/products" }, { label: product.title }]}
           className="text-sm lg:text-base"

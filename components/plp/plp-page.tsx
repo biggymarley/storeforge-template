@@ -8,7 +8,7 @@ import { ProductCard } from "@/components/product/product-card";
 import { ButtonLink } from "@/components/ui/button";
 import { Pagination } from "@/components/ui/pagination";
 import { IconSliders } from "@/components/icons";
-import { paginationHrefs, type SearchParamsRecord, type SortValue } from "@/lib/plp";
+import { isPlpParam, paginationHrefs, type SearchParamsRecord, type SortValue } from "@/lib/plp";
 import type { FilterFacet, PageInfo, ProductCard as ProductCardType } from "@/lib/shopify/types";
 
 export interface PlpPageProps {
@@ -56,6 +56,13 @@ export function PlpPage({
     startCursor: pageInfo.startCursor,
     endCursor: pageInfo.endCursor
   });
+  // "Clear filters" drops PLP state but keeps foreign params (search's `q`).
+  const clearParams = new URLSearchParams();
+  for (const [key, value] of Object.entries(searchParams)) {
+    const v = Array.isArray(value) ? value[0] : value;
+    if (v && !isPlpParam(key)) clearParams.set(key, v);
+  }
+  const clearHref = clearParams.size > 0 ? `${pathname}?${clearParams.toString()}` : pathname;
   const countLabel =
     totalCount !== undefined
       ? `Showing ${products.length} of ${totalCount} Products`
@@ -113,7 +120,7 @@ export function PlpPage({
               <p className="text-sm text-muted lg:text-base">
                 Try adjusting your filters, or browse everything we have.
               </p>
-              <ButtonLink href={pathname} variant="secondary" size="md">
+              <ButtonLink href={clearHref} variant="secondary" size="md">
                 Clear filters
               </ButtonLink>
             </div>

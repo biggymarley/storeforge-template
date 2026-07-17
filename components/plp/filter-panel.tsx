@@ -9,7 +9,7 @@ import { PriceSlider } from "@/components/plp/price-slider";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { ColorSwatch } from "@/components/ui/color-swatch";
-import { parsePlpParams, plpParamsToSearchString } from "@/lib/plp";
+import { isPlpParam, parsePlpParams, plpParamsToSearchString } from "@/lib/plp";
 import type { FilterFacet } from "@/lib/shopify/types";
 
 export interface FilterPanelProps {
@@ -66,16 +66,21 @@ export function FilterPanel({ categories, facets, priceCeiling, currencyCode, on
 
   const apply = () => {
     const [lo, hi] = priceRange;
-    router.push(
-      pathname +
-        plpParamsToSearchString({
-          sort: applied.sort,
-          priceMin: lo > 0 ? lo : undefined,
-          priceMax: hi < priceCeiling ? hi : undefined,
-          inStock,
-          options: selected
-        })
+    const next = new URLSearchParams(
+      plpParamsToSearchString({
+        sort: applied.sort,
+        priceMin: lo > 0 ? lo : undefined,
+        priceMax: hi < priceCeiling ? hi : undefined,
+        inStock,
+        options: selected
+      }).slice(1)
     );
+    // Non-PLP params (the search page's `q`) survive a filter change.
+    for (const [key, value] of searchParams) {
+      if (!isPlpParam(key)) next.set(key, value);
+    }
+    const qs = next.toString();
+    router.push(qs ? `${pathname}?${qs}` : pathname);
     onApplied?.();
   };
 

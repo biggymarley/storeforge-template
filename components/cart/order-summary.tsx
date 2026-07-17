@@ -69,7 +69,7 @@ export function OrderSummary() {
       </dl>
 
       <div className="mt-6 flex gap-3">
-        <div className="flex min-w-0 flex-1 items-center gap-3 rounded-full bg-secondary px-4 py-3">
+        <div className="flex min-w-0 flex-1 items-center gap-3 rounded-full bg-secondary px-4 py-3 focus-within:ring-2 focus-within:ring-foreground/30">
           <IconTag width={24} height={24} className="shrink-0" />
           <input
             type="text"

@@ -3,6 +3,7 @@ import type { CSSProperties, ReactNode } from "react";
 import { resolveSeoConfig, resolveStoreConfig } from "@/lib/config";
 import { getFonts } from "@/lib/fonts";
 import { getSiteUrl } from "@/lib/env";
+import { organizationJsonLd } from "@/lib/json-ld";
 import "./globals.css";
 
 const store = resolveStoreConfig();
@@ -41,7 +42,13 @@ export default function RootLayout({
 }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="en" style={themeVariables}>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}
+        />
+        {children}
+      </body>
     </html>
   );
 }

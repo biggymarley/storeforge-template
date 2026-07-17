@@ -26,7 +26,7 @@ export function NewsletterBand() {
               setSubscribed(true);
             }}
           >
-            <label className="flex items-center gap-3 rounded-full bg-background px-4 py-3">
+            <label className="flex items-center gap-3 rounded-full bg-background px-4 py-3 focus-within:ring-2 focus-within:ring-background/60">
               <IconMail width={24} height={24} className="shrink-0 text-foreground/40" />
               <input
                 type="email"

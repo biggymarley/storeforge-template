@@ -1,6 +1,6 @@
 # PROGRESS.md — Handoff state for storeforge-template
 
-> Last updated 2026-07-17 (session 2 — Phase D build). **Full handoff set** — read in this order:
+> Last updated 2026-07-17 (session 3 — Phase D COMPLETE). **Full handoff set** — read in this order:
 > 1. This file (state + what remains)
 > 2. `docs/handoff/PAGE-BLUEPRINTS.md` — measured Figma specs (node IDs) — still the spec for the remaining pages
 > 3. `docs/handoff/ARCHITECTURE-DECISIONS.md` — why the foundation is built this way (updated with cart architecture as built)
@@ -14,10 +14,10 @@
 | **A — Figma intake** | ✅ Done, owner-confirmed |
 | **B — Foundation** | ✅ Done, verified |
 | **C — Design system** | ✅ Done (`/dev/components` gallery) |
-| **D — Pages** | 🟡 ~80% done. ✅ global layout · cart plumbing/actions · home · `/products` · `/collections/[handle]` (filters/sort/cursor pagination) · PDP (variants + add-to-cart) · mini-cart (optimistic) · `/cart` (promo codes) · toasts · loading skeletons. ❌ remaining: `/search` (+predictive), `/pages/[handle]`, `/policies/*`, custom 404/error pages |
+| **D — Pages** | ✅ **DONE** (session 3 finished the remainder): global layout · cart plumbing/actions · home · `/products` · `/collections/[handle]` (filters/sort/cursor pagination) · PDP (variants + add-to-cart) · mini-cart (optimistic) · `/cart` (promo codes) · toasts · loading skeletons · `/search` (+predictive dropdown) · `/pages/[handle]` · `/policies/*` · custom 404/error pages |
 | **E — Hardening** | ❌ Not started (SEO/JSON-LD/sitemap/robots, a11y, Lighthouse, README, palette-flip test, tag v1.0.0) |
 
-**Everything is UNCOMMITTED** (Phase C + all of Phase D). Owner said "ill commit later" — **ask before committing**. Suggested split: "Phase C: design system components from Figma" / "Phase D: layout, cart, home, PLP, PDP, cart page".
+**Everything is UNCOMMITTED** (Phase C + all of Phase D, sessions 2+3). Owner said "ill commit later" — **ask before committing**. Suggested split: "Phase C: design system components from Figma" / "Phase D: layout, cart, home, PLP, PDP, cart page" / "Phase D: search, pages, policies, 404/error".
 
 ## Figma source
 
@@ -32,7 +32,18 @@
 - **Collections still missing** (only auto "frontpage"). This currently hides: header nav collection links, footer Shop column, home "Browse by Category" tiles, PLP category lists, and collection-page facet filters (Color/Size come from `collection.products.filters` — **untested against real data until collections exist**). Owner must create 2–3 collections (with images for the home tiles), publish each to Headless; optional `new-arrivals`/`top-selling` handles drive the home sections.
 - Store currency is **GIP (Gibraltar Pound)** — flagged to owner (Shopify Settings → General) in case it's unintentional. Checkout URLs resolve to `kijdh1-w0.myshopify.com` (Shopify alias of the dev store; harmless).
 
-## What was built this session (beyond what PROGRESS previously listed)
+## What was built in session 3 (Phase D remainder — all verified in-browser via puppeteer screenshots)
+
+- **`/search`** (`app/(store)/search/page.tsx` + loading.tsx): PLP shell + Storefront `search` with `totalCount` ("Showing 12 of 38 Products") and `productFilters` (added to SEARCH_QUERY; price filter verified: 38→14). No-query state = centered prompt + autofocused SearchBar. Reduced sort menu `SEARCH_SORT_OPTIONS` (Relevance/Price↑/Price↓ — search API has no best-selling/newest keys) via new `sortForSearch()` + optional `sortOptions` prop on PlpPage/SortSelect.
+- **Predictive search**: `app/api/predictive-search/route.ts` (GET, min 2 chars, degrades to `{products: []}` on ShopifyError) + rebuilt `search-bar.tsx`: 300ms debounce + AbortController, r20 dropdown w/ 40px thumbs + prices, full combobox a11y (ArrowUp/Down/Enter/Escape, aria-activedescendant), "View all results" footer row. Verified w/ screenshots incl. keyboard highlight.
+- **URL-contract fix**: filter Apply/Clear used to drop non-PLP params (search's `q`). New `isPlpParam()` in lib/plp.ts; FilterPanel.apply + PlpPage clear-href now preserve foreign params.
+- **`/pages/[handle]`**: prose layout via new `components/layout/prose-page.tsx` (breadcrumb + Integral h1 + 720px measure), `.prose-store` body, seo-aware generateMetadata, notFound() for unknown handles. NOTE: dev store's "contact" page has an EMPTY body in Shopify (renders title only — data, not a bug); "contact-us" has content and renders fine.
+- **`/policies/[policy]`**: `lib/policies.ts` — template-owned policy text (privacy/terms/shipping/refund) as structured sections interpolating `resolveLegalConfig` (company, legalName, address, emails, phone, returnWindowDays, processingTimeDays, shipFromCountry). `generateStaticParams` + `dynamicParams=false` (unknown → real 404). Footer already linked these paths.
+- **404/error**: shared `components/ui/error-hero.tsx` (centered Integral headline + pill CTAs, blueprint §errors). `app/(store)/not-found.tsx` (inside chrome), `app/not-found.tsx` (root — own chrome: announcement + Header withCart={false} + Footer, best-effort collections nav, this is what makes unmatched URLs return real HTTP 404 — verified), `app/(store)/error.tsx` + `app/error.tsx` (client boundaries, Try again + Back to Home; root one has no chrome since the layout itself failed).
+- Status codes verified: `/policies/refund` 200 · `/policies/nope` 404 · `/definitely-not-a-page` 404 · `/pages/nope` 404 · `/search?q=bike` 200.
+- typecheck + lint green. NOT verified yet: price-sort ordering on /search (interrupted), Figma side-by-side for new pages (no frames exist anyway — improvised per DESIGN-NOTES §6).
+
+## What was built in session 2 (beyond what PROGRESS previously listed)
 
 - `lib/shopify/cart.ts` (`getCart()`, `CART_COOKIE`) + `lib/shopify/cart-actions.ts` (`addToCart`, `updateCartLine`, `removeCartLine`, `applyDiscountCode`; dead-cart retry; `{ok, error}` results) + `revalidateTag("cart")`.
 - `lib/shopify/api.ts` — typed data layer (all pages go through it): collections, products, product, recommendations, search+predictive, page, `getMaxProductPrice`, `getHomeSectionProducts`.
@@ -61,12 +72,11 @@
 
 ## Remaining work checklist
 
-1. **Owner test pending**: `/cart` on a ~390px viewport — does the Order Summary still overflow sideways? (Fix applied: grid `lg:grid-cols-[1.4fr_1fr]`, tightened line-row; not yet re-verified.)
-2. `/search`: PLP shell + Storefront `search` (has `totalCount`) + debounced predictive dropdown under the header SearchBar (`PREDICTIVE_SEARCH_QUERY`, helper `predictiveSearch()` already in api.ts). Blueprint §Search.
-3. `/pages/[handle]` (prose layout, `.prose-store` exists) + `/policies/{privacy,terms,shipping,refund}` from `resolveLegalConfig` params (template text, company values interpolated).
-4. Custom `not-found.tsx`, `error.tsx` (big Integral-style headline + pill CTA — blueprint §errors), root-level too.
-5. Re-verify collection pages + facet filters once owner creates collections; then compare `/collections/[handle]` against Figma `26:855` again with real category data.
-6. Phase E: `generateMetadata` sweep (basic titles exist on built pages; home/OG polish), JSON-LD Product/Organization, `sitemap.ts`, `robots.ts` (disallow `/dev`), a11y pass, Lighthouse ≥90 documented in README, palette-flip smoke test, brand-leak grep (`grep -rn -iE "placeholder store" app components lib` must be empty), README (document: font allowlist, config fields incl. new `hero`, home-section collection-handle convention, `f.*` filter params), remove or gate `/dev/*`, bump/tag v1.0.0 + CHANGELOG.
+1. **Owner test pending**: `/cart` on a ~390px viewport — does the Order Summary still overflow sideways? (Fix applied session 2: grid `lg:grid-cols-[1.4fr_1fr]`, tightened line-row; still not re-verified by owner.)
+2. **Owner tests pending (session 3 pages)**: `/search` (type in header bar → dropdown appears, arrows+Enter work, filters keep `q`), a policy page, `/pages/contact-us`, any garbage URL → styled 404.
+3. Quick leftover: verify price-sort ordering on `/search?q=…&sort=price-asc|desc` (filter counts verified, ordering check was interrupted).
+4. Re-verify collection pages + facet filters once owner creates collections; then compare `/collections/[handle]` against Figma `26:855` again with real category data. (Collections were STILL missing at session-3 end.)
+5. Phase E: `generateMetadata` sweep (basic titles exist on built pages; home/OG polish), JSON-LD Product/Organization, `sitemap.ts`, `robots.ts` (disallow `/dev`), a11y pass, Lighthouse ≥90 documented in README, palette-flip smoke test, brand-leak grep (`grep -rn -iE "placeholder store" app components lib` must be empty), README (document: font allowlist, config fields incl. new `hero`, home-section collection-handle convention, `f.*` filter params), remove or gate `/dev/*` AND `/api/predictive-search` robots handling, bump/tag v1.0.0 + CHANGELOG.
 
 ## Key design tokens (unchanged — full tables in DESIGN-NOTES §2)
 

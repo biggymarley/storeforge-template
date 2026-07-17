@@ -39,6 +39,13 @@ export const SEARCH_SORT_OPTIONS: { value: SortValue; label: string }[] = [
 
 export type SearchParamsRecord = Record<string, string | string[] | undefined>;
 
+const PLP_KEYS = new Set(["sort", "price_min", "price_max", "instock", "after", "before"]);
+
+/** Keys owned by the PLP filter/sort/paging state. Anything else (e.g. the search page's `q`) must survive filter changes. */
+export function isPlpParam(key: string): boolean {
+  return PLP_KEYS.has(key) || key.startsWith("f.");
+}
+
 export interface PlpParams {
   sort: SortValue;
   priceMin?: number;
