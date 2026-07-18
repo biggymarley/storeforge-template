@@ -14,6 +14,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
   title: { default: seo.defaultTitle, template: seo.titleTemplate },
   description: seo.description,
+  icons: { icon: store.favicon, shortcut: store.favicon, apple: store.favicon },
   openGraph: {
     siteName: store.name,
     title: seo.defaultTitle,

@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.1.0] — 2026-07-18
+
+- New optional `storeConfig.favicon` field (store-owned asset, e.g. `/branding/favicon.png`) wired into root layout `metadata.icons` (icon/shortcut/apple). Falls back to the static `app/favicon.ico` when unset — old stores built before this field existed are unaffected.
+
 ## [1.0.0] — 2026-07-17
 
 ### Phase E — Hardening

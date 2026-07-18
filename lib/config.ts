@@ -32,6 +32,7 @@ export interface ResolvedStoreConfig {
   name: string;
   tagline: string;
   logo: { src: string; alt: string };
+  favicon: string;
   colors: StoreColors;
   fonts: { heading: string; body: string };
   currency: string;
@@ -48,6 +49,7 @@ export function resolveStoreConfig(config: StoreConfig = storeConfig): ResolvedS
       src: config.logo?.src ?? "/branding/logo.svg",
       alt: config.logo?.alt ?? config.name ?? "Store"
     },
+    favicon: config.favicon ?? "/favicon.ico",
     colors: { ...DEFAULT_COLORS, ...config.colors },
     fonts: {
       heading: config.fonts?.heading ?? "Archivo Black",

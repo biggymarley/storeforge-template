@@ -38,6 +38,8 @@ export interface StoreConfig {
   name: string;
   tagline?: string;
   logo?: { src: string; alt?: string };
+  /** Store-owned asset, e.g. "/branding/favicon.png". Empty → template's static app/favicon.ico. */
+  favicon?: string;
   colors?: Partial<StoreColors>;
   /** Font names from the curated allowlist in lib/fonts.ts; unknown → default. */
   fonts?: { heading?: string; body?: string };
