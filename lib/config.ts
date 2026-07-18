@@ -35,6 +35,7 @@ export interface ResolvedStoreConfig {
   favicon: string;
   colors: StoreColors;
   fonts: { heading: string; body: string };
+  customFonts: { heading?: { src: string; format?: string }; body?: { src: string; format?: string } };
   currency: string;
   announcement: { enabled: boolean; text: string; href: string };
   socials: { instagram: string; tiktok: string; x: string; facebook: string };
@@ -54,6 +55,10 @@ export function resolveStoreConfig(config: StoreConfig = storeConfig): ResolvedS
     fonts: {
       heading: config.fonts?.heading ?? "Archivo Black",
       body: config.fonts?.body ?? "Inter"
+    },
+    customFonts: {
+      heading: config.fonts?.customHeading,
+      body: config.fonts?.customBody
     },
     currency: config.currency ?? "USD",
     announcement: {

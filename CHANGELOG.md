@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.2.0] — 2026-07-18
+
+- New optional `storeConfig.fonts.customHeading` / `customBody` fields (store-owned font files, e.g. `/branding/fonts/heading.woff2`) take priority over the curated allowlist when set. Loaded via a plain `@font-face` rule injected in root layout (not `next/font/local`, since the file may not exist at build time for stores that don't use it) — falls back to the existing allowlist-based fonts when unset.
+
 ## [1.1.0] — 2026-07-18
 
 - New optional `storeConfig.favicon` field (store-owned asset, e.g. `/branding/favicon.png`) wired into root layout `metadata.icons` (icon/shortcut/apple). Falls back to the static `app/favicon.ico` when unset — old stores built before this field existed are unaffected.

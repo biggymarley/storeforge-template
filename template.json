@@ -1,5 +1,5 @@
 {
   "name": "storeforge-template",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "protectedPaths": ["config/", "public/branding/", "store.meta.json", ".env", ".env.*"]
 }

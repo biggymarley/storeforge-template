@@ -66,3 +66,15 @@ export function getFonts(fonts: { heading: string; body: string }): {
     body: FONT_ALLOWLIST[fonts.body] ?? FONT_ALLOWLIST[DEFAULT_BODY]
   };
 }
+
+/**
+ * Store-owned custom font upload (StoreForge writes it to public/branding/fonts/).
+ * Loaded via a plain @font-face rule rather than next/font/local, since the
+ * file may or may not exist at build time depending on whether the store
+ * owner uploaded one — next/font/local requires a literal, always-present path.
+ */
+export function customFontFace(family: "storeforge-heading" | "storeforge-body", asset?: { src: string; format?: string }): string {
+  if (!asset) return "";
+  const format = asset.format ?? "woff2";
+  return `@font-face { font-family: "${family}"; src: url("${asset.src}") format("${format}"); font-display: swap; }`;
+}

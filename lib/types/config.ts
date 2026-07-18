@@ -42,7 +42,13 @@ export interface StoreConfig {
   favicon?: string;
   colors?: Partial<StoreColors>;
   /** Font names from the curated allowlist in lib/fonts.ts; unknown → default. */
-  fonts?: { heading?: string; body?: string };
+  fonts?: {
+    heading?: string;
+    body?: string;
+    /** Store-owned uploaded font file, e.g. "/branding/fonts/heading.woff2". Takes priority over `heading`/`body` when set. */
+    customHeading?: { src: string; format?: string };
+    customBody?: { src: string; format?: string };
+  };
   /** ISO 4217 code — display fallback only; Shopify's returned currencyCode wins. */
   currency?: string;
   announcement?: { enabled?: boolean; text?: string; href?: string };

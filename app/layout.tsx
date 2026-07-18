@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type { CSSProperties, ReactNode } from "react";
 import { resolveSeoConfig, resolveStoreConfig } from "@/lib/config";
-import { getFonts } from "@/lib/fonts";
+import { getFonts, customFontFace } from "@/lib/fonts";
 import { getSiteUrl } from "@/lib/env";
 import { organizationJsonLd } from "@/lib/json-ld";
 import "./globals.css";
@@ -9,6 +9,16 @@ import "./globals.css";
 const store = resolveStoreConfig();
 const seo = resolveSeoConfig();
 const fonts = getFonts(store.fonts);
+
+/** Custom uploaded fonts take priority over the allowlist pick for that slot. */
+const headingFamily = store.customFonts.heading ? `"storeforge-heading", ${fonts.heading.style.fontFamily}` : fonts.heading.style.fontFamily;
+const bodyFamily = store.customFonts.body ? `"storeforge-body", ${fonts.body.style.fontFamily}` : fonts.body.style.fontFamily;
+const customFontFaceCss = [
+  customFontFace("storeforge-heading", store.customFonts.heading),
+  customFontFace("storeforge-body", store.customFonts.body)
+]
+  .filter(Boolean)
+  .join("\n");
 
 export const metadata: Metadata = {
   metadataBase: new URL(getSiteUrl()),
@@ -34,8 +44,8 @@ const themeVariables = {
   "--site-background": store.colors.background,
   "--site-foreground": store.colors.foreground,
   "--site-muted": store.colors.muted,
-  "--site-font-heading": fonts.heading.style.fontFamily,
-  "--site-font-body": fonts.body.style.fontFamily
+  "--site-font-heading": headingFamily,
+  "--site-font-body": bodyFamily
 } as CSSProperties;
 
 export default function RootLayout({
@@ -43,6 +53,7 @@ export default function RootLayout({
 }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="en" style={themeVariables}>
+      <head>{customFontFaceCss && <style dangerouslySetInnerHTML={{ __html: customFontFaceCss }} />}</head>
       <body className="antialiased">
         <script
           type="application/ld+json"
