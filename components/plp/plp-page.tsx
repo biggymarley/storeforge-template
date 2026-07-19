@@ -32,8 +32,7 @@ export interface PlpPageProps {
 /**
  * Shared PLP shell (Figma 26:855 desktop / 38:234 mobile): breadcrumb,
  * filter sidebar (drawer below lg), title row with count + sort, 3-col grid
- * (2-col mobile), cursor pagination. Used by /products, /collections/* and
- * /search.
+ * (2-col mobile), cursor pagination. Used by /products and /collections/*.
  */
 export function PlpPage({
   title,

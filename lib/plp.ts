@@ -1,7 +1,7 @@
 /**
- * Shared PLP state: the URL-searchParams contract used by /products,
- * /collections/[handle] and /search, and its mapping onto Storefront
- * queries. URL scheme:
+ * Shared PLP state: the URL-searchParams contract used by /products and
+ * /collections/[handle], and its mapping onto Storefront queries. URL
+ * scheme:
  *
  *   ?sort=newest|best-selling|price-asc|price-desc
  *   &price_min=10&price_max=200
@@ -26,22 +26,11 @@ export const SORT_OPTIONS: { value: SortValue; label: string }[] = [
   { value: "price-desc", label: "Price: High to Low" }
 ];
 
-/**
- * The Storefront `search` connection only sorts by RELEVANCE | PRICE, so the
- * search page offers a reduced menu. The default slot ("best-selling", i.e. no
- * `sort` param) reads as "Relevance" there.
- */
-export const SEARCH_SORT_OPTIONS: { value: SortValue; label: string }[] = [
-  { value: "best-selling", label: "Relevance" },
-  { value: "price-asc", label: "Price: Low to High" },
-  { value: "price-desc", label: "Price: High to Low" }
-];
-
 export type SearchParamsRecord = Record<string, string | string[] | undefined>;
 
 const PLP_KEYS = new Set(["sort", "price_min", "price_max", "instock", "after", "before"]);
 
-/** Keys owned by the PLP filter/sort/paging state. Anything else (e.g. the search page's `q`) must survive filter changes. */
+/** Keys owned by the PLP filter/sort/paging state. Anything else must survive filter changes. */
 export function isPlpParam(key: string): boolean {
   return PLP_KEYS.has(key) || key.startsWith("f.");
 }
@@ -133,7 +122,7 @@ export function paginationHrefs(
 
 /* ---- Storefront mappings ---- */
 
-/** ProductFilter[] for collection.products / search (supports variant options). */
+/** ProductFilter[] for collection.products (supports variant options). */
 export function plpParamsToProductFilters(params: PlpParams): ProductFilterArg[] {
   const filters: ProductFilterArg[] = [];
   if (params.inStock) filters.push({ available: true });
@@ -150,7 +139,7 @@ export function plpParamsToProductFilters(params: PlpParams): ProductFilterArg[]
 /**
  * products(query:) string for /products — the products connection has no
  * `filters` arg, so variant options can't be applied there (price and
- * availability can). Option facets are a collection/search-page feature.
+ * availability can). Option facets are a collection-page feature.
  */
 export function plpParamsToProductsQuery(params: PlpParams): string | undefined {
   const parts: string[] = [];
@@ -190,21 +179,6 @@ export function sortForCollection(sort: SortValue): {
       return { sortKey: "PRICE", reverse: true };
     default:
       return { sortKey: "BEST_SELLING", reverse: false };
-  }
-}
-
-export function sortForSearch(sort: SortValue): {
-  sortKey: "RELEVANCE" | "PRICE";
-  reverse: boolean;
-} {
-  switch (sort) {
-    case "price-asc":
-      return { sortKey: "PRICE", reverse: false };
-    case "price-desc":
-      return { sortKey: "PRICE", reverse: true };
-    default:
-      // "newest"/"best-selling" aren't search sort keys — relevance is the default.
-      return { sortKey: "RELEVANCE", reverse: false };
   }
 }
 

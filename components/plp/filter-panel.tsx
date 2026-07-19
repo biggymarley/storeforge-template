@@ -15,7 +15,7 @@ import type { FilterFacet } from "@/lib/shopify/types";
 export interface FilterPanelProps {
   /** Category rows (collection links) — navigation, not query filters. */
   categories: NavLink[];
-  /** Option facets from Shopify (collection/search pages); empty on /products. */
+  /** Option facets from Shopify (collection pages); empty on /products. */
   facets: FilterFacet[];
   priceCeiling: number;
   currencyCode?: string;

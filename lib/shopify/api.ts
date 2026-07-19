@@ -14,7 +14,6 @@ import {
   PRODUCT_BY_HANDLE_QUERY,
   RECOMMENDATIONS_QUERY
 } from "@/lib/shopify/queries/products";
-import { PREDICTIVE_SEARCH_QUERY, SEARCH_QUERY } from "@/lib/shopify/queries/search";
 import { SITEMAP_QUERY } from "@/lib/shopify/queries/sitemap";
 import {
   flattenConnection,
@@ -23,19 +22,17 @@ import {
   type CollectionsQueryResult,
   type PageByHandleQueryResult,
   type PageInfo,
-  type PredictiveSearchQueryResult,
   type Product,
   type ProductByHandleQueryResult,
   type ProductCard,
   type ProductsQueryResult,
   type RecommendationsQueryResult,
-  type SearchQueryResult,
   type ShopifyPage,
   type SitemapEntry,
   type SitemapQueryResult
 } from "@/lib/shopify/types";
 
-/** Cursor + sort arguments shared by the paginated grids (PLP/search). */
+/** Cursor + sort arguments shared by the paginated PLP grids. */
 export interface PageArgs {
   first?: number;
   last?: number;
@@ -132,40 +129,6 @@ export async function getProductRecommendations(productId: string): Promise<Prod
   return data.productRecommendations ?? [];
 }
 
-export interface SearchArgs extends PageArgs {
-  sortKey?: "RELEVANCE" | "PRICE";
-  reverse?: boolean;
-  productFilters?: ProductFilterArg[];
-}
-
-export async function searchProducts(
-  query: string,
-  { first, last, after, before, sortKey, reverse, productFilters }: SearchArgs = {}
-): Promise<{ products: ProductCard[]; pageInfo: PageInfo; totalCount: number }> {
-  const data = await shopifyFetch<SearchQueryResult>({
-    query: SEARCH_QUERY,
-    variables: {
-      query,
-      ...(last ? { last, before } : { first: first ?? 12, after }),
-      sortKey,
-      reverse,
-      productFilters
-    }
-  });
-  return {
-    products: flattenConnection(data.search),
-    pageInfo: data.search.pageInfo,
-    totalCount: data.search.totalCount
-  };
-}
-
-export async function predictiveSearch(query: string, limit = 6): Promise<ProductCard[]> {
-  const data = await shopifyFetch<PredictiveSearchQueryResult>({
-    query: PREDICTIVE_SEARCH_QUERY,
-    variables: { query, limit }
-  });
-  return data.predictiveSearch?.products ?? [];
-}
 
 export async function getPage(handle: string): Promise<ShopifyPage | null> {
   const data = await shopifyFetch<PageByHandleQueryResult>({

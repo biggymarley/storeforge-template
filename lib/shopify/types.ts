@@ -158,14 +158,6 @@ export interface CollectionByHandleQueryResult {
     | null;
 }
 
-export interface SearchQueryResult {
-  search: Connection<ProductCard> & { pageInfo: PageInfo; totalCount: number };
-}
-
-export interface PredictiveSearchQueryResult {
-  predictiveSearch: { products: ProductCard[] } | null;
-}
-
 export interface PageByHandleQueryResult {
   page: ShopifyPage | null;
 }
