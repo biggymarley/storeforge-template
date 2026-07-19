@@ -53,7 +53,7 @@ export default function RootLayout({
 }: Readonly<{ children: ReactNode }>) {
   return (
     <html lang="en" style={themeVariables}>
-      <head>{customFontFaceCss && <style dangerouslySetInnerHTML={{ __html: customFontFaceCss }} />}</head>
+      <head>{customFontFaceCss ? <style dangerouslySetInnerHTML={{ __html: customFontFaceCss }} /> : null}</head>
       <body className="antialiased">
         <script
           type="application/ld+json"
