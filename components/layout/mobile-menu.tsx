@@ -1,52 +1,103 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { IconClose, IconMenu } from "@/components/icons";
+import { IconChevronDown, IconClose, IconMenu } from "@/components/icons";
 import type { NavLink } from "@/components/layout/nav-links";
 
-/** Mobile nav drawer — no open state in Figma; styled after the Filters drawer (DESIGN-NOTES §6). */
+/**
+ * Mobile nav drawer — right-side slide-over, mirrors the mini-cart's visual
+ * language (rounded-l-card, shadow-xl, bg-foreground/40 backdrop) so the
+ * app's two right-anchored panels feel like one system.
+ */
 export function MobileMenu({ links }: { links: NavLink[] }) {
-  const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  const open = () => {
+    setMounted(true);
+    requestAnimationFrame(() => requestAnimationFrame(() => setVisible(true)));
+  };
+
+  const close = () => setVisible(false);
 
   useEffect(() => {
-    if (!open) return;
+    if (!mounted) return;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mounted]);
+
+  useEffect(() => {
+    if (mounted && visible) closeRef.current?.focus();
+  }, [mounted, visible]);
+
+  useEffect(() => {
+    if (!mounted) return;
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setOpen(false);
+      if (event.key === "Escape") close();
     };
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [open]);
+  }, [mounted]);
 
   return (
     <div className="lg:hidden">
-      <button type="button" aria-label="Open menu" aria-expanded={open} onClick={() => setOpen(true)}>
+      <button
+        ref={triggerRef}
+        type="button"
+        aria-label="Open menu"
+        aria-expanded={mounted}
+        onClick={open}
+        className="flex size-10 items-center justify-center transition-opacity hover:opacity-60"
+      >
         <IconMenu width={24} height={24} />
       </button>
-      {open ? (
-        <div className="fixed inset-0 z-50">
+      {mounted ? (
+        <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="Menu">
           <button
             type="button"
             aria-label="Close menu"
-            onClick={() => setOpen(false)}
-            className="absolute inset-0 bg-primary/40"
+            onClick={close}
+            className={`absolute inset-0 bg-foreground/40 transition-opacity duration-300 ease-out ${
+              visible ? "opacity-100" : "opacity-0"
+            }`}
           />
-          <div className="absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col gap-6 overflow-y-auto rounded-r-card bg-background p-6">
-            <div className="flex items-center justify-between">
+          <div
+            onTransitionEnd={(event) => {
+              if (event.target !== event.currentTarget || visible) return;
+              setMounted(false);
+              triggerRef.current?.focus();
+            }}
+            className={`absolute inset-y-0 right-0 flex w-80 max-w-[85vw] flex-col rounded-l-card bg-background shadow-xl transition-transform duration-300 ease-out ${
+              visible ? "translate-x-0" : "translate-x-full"
+            }`}
+          >
+            <div className="flex items-center justify-between border-b border-border px-6 py-5">
               <span className="text-xl font-bold">Menu</span>
-              <button type="button" aria-label="Close menu" onClick={() => setOpen(false)} className="text-muted">
+              <button
+                ref={closeRef}
+                type="button"
+                aria-label="Close menu"
+                onClick={close}
+                className="flex size-9 items-center justify-center rounded-full text-muted transition-colors hover:bg-secondary hover:text-foreground"
+              >
                 <IconClose width={20} height={20} />
               </button>
             </div>
-            <nav className="flex flex-col gap-5">
+            <nav aria-label="Mobile" className="flex flex-1 flex-col overflow-y-auto px-3 py-3">
               {links.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  onClick={() => setOpen(false)}
-                  className="flex items-center justify-between text-base text-muted transition-colors hover:text-foreground"
+                  onClick={close}
+                  className="flex items-center justify-between rounded-2xl px-3 py-4 text-base font-medium text-foreground transition-colors hover:bg-secondary"
                 >
                   {link.label}
+                  <IconChevronDown width={16} height={16} className="-rotate-90" />
                 </Link>
               ))}
             </nav>

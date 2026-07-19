@@ -3,14 +3,15 @@ import { Hero } from "@/components/home/hero";
 import { ProductSection } from "@/components/home/product-section";
 import { TestimonialCarousel } from "@/components/home/testimonial-carousel";
 import { BrandStrip } from "@/components/layout/brand-strip";
-import { resolveContentConfig } from "@/lib/config";
-import { getCollections, getHomeSectionProducts } from "@/lib/shopify/api";
+import { resolveContentConfig, resolveStoreConfig } from "@/lib/config";
+import { getCollections, getHomeSectionProducts, getProduct } from "@/lib/shopify/api";
 import { ShopifyError } from "@/lib/shopify/client";
 import type { Collection, ProductCard } from "@/lib/shopify/types";
 
 const HOME_SECTION_HANDLES = ["new-arrivals", "top-selling"];
 
 export default async function HomePage() {
+  const store = resolveStoreConfig();
   const content = resolveContentConfig();
 
   let newArrivals: ProductCard[] = [];
@@ -31,10 +32,26 @@ export default async function HomePage() {
     dataError = error.message;
   }
 
+  // Hero visual: a store-owned image always wins. Otherwise feature a live
+  // product — the pinned config.hero.productHandle if set, else the best
+  // seller/newest arrival already fetched above. A bad/missing handle never
+  // breaks the page — it just falls through to the automatic pick.
+  let heroProduct: ProductCard | null = null;
+  if (!store.hero.image) {
+    if (store.hero.productHandle) {
+      try {
+        heroProduct = await getProduct(store.hero.productHandle);
+      } catch {
+        heroProduct = null;
+      }
+    }
+    heroProduct ??= topSelling[0] ?? newArrivals[0] ?? null;
+  }
+
   return (
     <div className="flex flex-col gap-10 pb-2 lg:gap-16">
       <div>
-        <Hero />
+        <Hero heroProduct={heroProduct} />
         <BrandStrip />
       </div>
       {dataError ? (

@@ -32,6 +32,11 @@ export interface HeroConfig {
   subtext?: string;
   /** Stats row under the hero copy. Empty → row hidden. */
   stats?: HeroStat[];
+  /**
+   * Shopify product handle to feature as the hero visual. Ignored when
+   * `image` is set. Unset → template auto-picks a best-selling/new product.
+   */
+  productHandle?: string;
 }
 
 export interface StoreConfig {

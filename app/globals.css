@@ -33,6 +33,25 @@ body {
   font-family: var(--font-body);
 }
 
+/* Subtle hero product bob — home/hero.tsx. */
+@keyframes hero-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-16px);
+  }
+}
+.hero-float {
+  animation: hero-float 6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-float {
+    animation: none;
+  }
+}
+
 /*
  * Minimal rich-text styling for Shopify-authored HTML (product descriptions,
  * /pages/*). Kept template-owned and tiny instead of adding a typography

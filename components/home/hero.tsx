@@ -1,29 +1,42 @@
 import Image from "next/image";
+import Link from "next/link";
+import { IconArrow } from "@/components/icons";
 import { ButtonLink } from "@/components/ui/button";
+import { Price } from "@/components/ui/price";
+import { StarRating } from "@/components/ui/star-rating";
 import { resolveStoreConfig } from "@/lib/config";
+import { getProductRating } from "@/lib/reviews";
+import type { ProductCard as ProductCardType } from "@/lib/shopify/types";
 
-/** Figma's decorative 4-point star (nodes 22:358/22:359), template-owned. */
-function DecorStar({ className = "" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 104 104" fill="currentColor" aria-hidden="true" className={className}>
-      <path d="M52 0c2.7 27.6 24.4 49.3 52 52-27.6 2.7-49.3 24.4-52 52-2.7-27.6-24.4-49.3-52-52C27.6 49.3 49.3 27.6 52 0Z" />
-    </svg>
-  );
+interface HeroProps {
+  /** Live Shopify product to feature — page.tsx resolves config.hero.productHandle or falls back to a best seller. */
+  heroProduct?: ProductCardType | null;
 }
 
+type HeroVisual = { kind: "image"; src: string } | { kind: "product"; product: ProductCardType };
+
 /**
- * Figma home hero (rect 22:352): secondary surface, heading + copy + CTA +
- * stats left, store-owned photo right. Without a configured image the hero
- * renders as a full-width text block on the same surface.
+ * Figma home hero (rect 22:352): heading + copy + price + CTA + stats left,
+ * visual right. The visual is either a store-owned `hero.image` asset, or —
+ * the default for stores that haven't uploaded one — a live Shopify product
+ * photo, so the homepage never ships an empty/placeholder hero.
  */
-export function Hero() {
+export function Hero({ heroProduct = null }: HeroProps) {
   const { hero } = resolveStoreConfig();
+
+  const visual: HeroVisual | null = hero.image
+    ? { kind: "image", src: hero.image }
+    : heroProduct
+      ? { kind: "product", product: heroProduct }
+      : null;
+
+  const rating = visual?.kind === "product" ? getProductRating(visual.product.handle) : null;
 
   return (
     <section className="overflow-hidden bg-secondary">
       <div
         className={`mx-auto grid max-w-310 gap-8 px-4 pt-10 lg:items-center lg:gap-4 lg:pt-0 ${
-          hero.image ? "lg:grid-cols-[minmax(0,577px)_minmax(0,1fr)]" : ""
+          visual ? "lg:grid-cols-[minmax(0,577px)_minmax(0,1fr)]" : ""
         }`}
       >
         <div className="flex flex-col items-start gap-5 lg:gap-8 lg:py-26">
@@ -33,9 +46,29 @@ export function Hero() {
           {hero.subtext ? (
             <p className="text-sm leading-5 text-muted lg:text-base lg:leading-[22px]">{hero.subtext}</p>
           ) : null}
-          <ButtonLink href="/products" className="w-full sm:w-auto lg:min-w-52">
-            Shop Now
-          </ButtonLink>
+          {visual?.kind === "product" ? (
+            <div className="flex items-center gap-3">
+              <Price
+                price={visual.product.priceRange.minVariantPrice}
+                compareAt={visual.product.compareAtPriceRange?.maxVariantPrice}
+              />
+              {rating ? <StarRating rating={rating.rating} showLabel={false} size={16} /> : null}
+            </div>
+          ) : null}
+          <div className="flex w-full items-center gap-3 sm:w-auto">
+            <ButtonLink href="/products" className="flex-1 sm:flex-initial lg:min-w-52">
+              Shop Now
+            </ButtonLink>
+            {visual?.kind === "product" ? (
+              <Link
+                href={`/products/${visual.product.handle}`}
+                aria-label={`View ${visual.product.title}`}
+                className="flex size-14 shrink-0 items-center justify-center rounded-full border border-border bg-background text-foreground transition-colors hover:bg-secondary lg:size-15"
+              >
+                <IconArrow width={20} height={20} />
+              </Link>
+            ) : null}
+          </div>
           {hero.stats.length > 0 ? (
             <dl className="flex flex-wrap items-center justify-center gap-y-3 sm:justify-start">
               {hero.stats.map((stat, index) => (
@@ -52,18 +85,32 @@ export function Hero() {
             </dl>
           ) : null}
         </div>
-        {hero.image ? (
-          <div className="relative -mx-4 min-h-[290px] sm:min-h-[360px] lg:mx-0 lg:min-h-[663px] lg:self-stretch">
-            <Image
-              src={hero.image}
-              alt=""
-              fill
-              priority
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              className="object-cover object-top"
-            />
-            <DecorStar className="absolute right-6 top-8 w-14 lg:right-9 lg:top-16 lg:w-26" />
-            <DecorStar className="absolute left-4 top-1/2 w-10 -translate-y-1/2 lg:left-2 lg:w-14" />
+
+        {visual ? (
+          <div className="relative -mx-4 flex min-h-[320px] items-center justify-center sm:min-h-[400px] lg:mx-0 lg:min-h-[663px] lg:self-stretch">
+            {visual.kind === "image" ? (
+              <Image
+                src={visual.src}
+                alt=""
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover object-top"
+              />
+            ) : (
+              <div className="hero-float relative aspect-square w-[80%] max-w-[440px] sm:w-[70%] lg:w-full lg:max-w-[560px]">
+                {visual.product.featuredImage ? (
+                  <Image
+                    src={visual.product.featuredImage.url}
+                    alt={visual.product.featuredImage.altText ?? visual.product.title}
+                    fill
+                    priority
+                    sizes="(max-width: 1024px) 80vw, 45vw"
+                    className="object-contain drop-shadow-2xl"
+                  />
+                ) : null}
+              </div>
+            )}
           </div>
         ) : null}
       </div>

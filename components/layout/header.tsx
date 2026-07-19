@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { CartTrigger } from "@/components/cart/cart-trigger";
-import { IconAccount, IconCart } from "@/components/icons";
+import { IconCart } from "@/components/icons";
 import { MobileMenu } from "@/components/layout/mobile-menu";
 import type { NavLink } from "@/components/layout/nav-links";
 import { resolveStoreConfig } from "@/lib/config";
@@ -17,9 +17,8 @@ export function Header({ links = [], withCart = true }: HeaderProps) {
   const store = resolveStoreConfig();
 
   return (
-    <header className="border-b border-border">
-      <div className="mx-auto flex h-[72px] max-w-310 items-center gap-6 px-4 lg:h-[110px] lg:gap-10">
-        <MobileMenu links={links} />
+    <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+      <div className="mx-auto flex h-16 max-w-310 items-center gap-6 px-4 lg:h-20 lg:gap-10">
         <Link href="/" className="flex min-w-0 shrink-0 items-center">
           <Image
             src={store.logo.src}
@@ -27,7 +26,7 @@ export function Header({ links = [], withCart = true }: HeaderProps) {
             width={160}
             height={44}
             priority
-            className="h-8 w-auto object-contain lg:h-11"
+            className="h-7 w-auto object-contain lg:h-9"
           />
         </Link>
         <nav aria-label="Main" className="hidden items-center gap-6 lg:flex">
@@ -41,7 +40,7 @@ export function Header({ links = [], withCart = true }: HeaderProps) {
             </Link>
           ))}
         </nav>
-        <div className="ml-auto flex shrink-0 items-center gap-3.5 lg:ml-0">
+        <div className="ml-auto flex shrink-0 items-center gap-3.5">
           {withCart ? (
             <CartTrigger />
           ) : (
@@ -49,9 +48,7 @@ export function Header({ links = [], withCart = true }: HeaderProps) {
               <IconCart width={24} height={24} />
             </Link>
           )}
-          <span aria-hidden="true" className="cursor-default opacity-100">
-            <IconAccount width={24} height={24} />
-          </span>
+          <MobileMenu links={links} />
         </div>
       </div>
     </header>

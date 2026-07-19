@@ -39,7 +39,7 @@ export interface ResolvedStoreConfig {
   currency: string;
   announcement: { enabled: boolean; text: string; href: string };
   socials: { instagram: string; tiktok: string; x: string; facebook: string };
-  hero: { image: string; headline: string; subtext: string; stats: HeroStat[] };
+  hero: { image: string; headline: string; subtext: string; stats: HeroStat[]; productHandle: string };
 }
 
 export function resolveStoreConfig(config: StoreConfig = storeConfig): ResolvedStoreConfig {
@@ -76,7 +76,8 @@ export function resolveStoreConfig(config: StoreConfig = storeConfig): ResolvedS
       image: config.hero?.image ?? "",
       headline: config.hero?.headline ?? config.tagline ?? config.name ?? "Store",
       subtext: config.hero?.subtext ?? "",
-      stats: config.hero?.stats ?? []
+      stats: config.hero?.stats ?? [],
+      productHandle: config.hero?.productHandle ?? ""
     }
   };
 }
