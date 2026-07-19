@@ -139,6 +139,8 @@ export interface ResolvedContentConfig {
   brands: NonNullable<ContentConfig["brands"]>;
   productReviews: NonNullable<ContentConfig["productReviews"]>;
   productFaqs: NonNullable<ContentConfig["productFaqs"]>;
+  faqs: NonNullable<ContentConfig["faqs"]>;
+  gallery: NonNullable<ContentConfig["gallery"]>;
 }
 
 export function resolveContentConfig(config: ContentConfig = contentConfig): ResolvedContentConfig {
@@ -146,6 +148,8 @@ export function resolveContentConfig(config: ContentConfig = contentConfig): Res
     testimonials: config.testimonials ?? [],
     brands: config.brands ?? [],
     productReviews: config.productReviews ?? {},
-    productFaqs: config.productFaqs ?? {}
+    productFaqs: config.productFaqs ?? {},
+    faqs: config.faqs ?? [],
+    gallery: config.gallery ?? []
   };
 }

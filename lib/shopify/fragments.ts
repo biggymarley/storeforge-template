@@ -32,6 +32,14 @@ export const PRODUCT_CARD_FRAGMENT = /* GraphQL */ `
         currencyCode
       }
     }
+    quickAddVariants: variants(first: 2) {
+      edges {
+        node {
+          id
+          availableForSale
+        }
+      }
+    }
   }
   ${IMAGE_FRAGMENT}
 `;

@@ -5,12 +5,13 @@ import { ButtonLink } from "@/components/ui/button";
 import { Price } from "@/components/ui/price";
 import { StarRating } from "@/components/ui/star-rating";
 import { resolveStoreConfig } from "@/lib/config";
-import { getProductRating } from "@/lib/reviews";
 import type { ProductCard as ProductCardType } from "@/lib/shopify/types";
 
 interface HeroProps {
   /** Live Shopify product to feature — page.tsx resolves config.hero.productHandle or falls back to a best seller. */
   heroProduct?: ProductCardType | null;
+  /** Weighted rating across the products shown on the homepage (lib/reviews.ts). Null hides the line. */
+  aggregateRating?: { rating: number; count: number } | null;
 }
 
 type HeroVisual = { kind: "image"; src: string } | { kind: "product"; product: ProductCardType };
@@ -21,7 +22,7 @@ type HeroVisual = { kind: "image"; src: string } | { kind: "product"; product: P
  * the default for stores that haven't uploaded one — a live Shopify product
  * photo, so the homepage never ships an empty/placeholder hero.
  */
-export function Hero({ heroProduct = null }: HeroProps) {
+export function Hero({ heroProduct = null, aggregateRating = null }: HeroProps) {
   const { hero } = resolveStoreConfig();
 
   const visual: HeroVisual | null = hero.image
@@ -29,8 +30,6 @@ export function Hero({ heroProduct = null }: HeroProps) {
     : heroProduct
       ? { kind: "product", product: heroProduct }
       : null;
-
-  const rating = visual?.kind === "product" ? getProductRating(visual.product.handle) : null;
 
   return (
     <section className="overflow-hidden bg-secondary">
@@ -46,14 +45,19 @@ export function Hero({ heroProduct = null }: HeroProps) {
           {hero.subtext ? (
             <p className="text-sm leading-5 text-muted lg:text-base lg:leading-[22px]">{hero.subtext}</p>
           ) : null}
-          {visual?.kind === "product" ? (
-            <div className="flex items-center gap-3">
-              <Price
-                price={visual.product.priceRange.minVariantPrice}
-                compareAt={visual.product.compareAtPriceRange?.maxVariantPrice}
-              />
-              {rating ? <StarRating rating={rating.rating} showLabel={false} size={16} /> : null}
+          {aggregateRating ? (
+            <div className="flex items-center gap-2">
+              <StarRating rating={aggregateRating.rating} showLabel={false} size={18} />
+              <span className="text-sm text-muted">
+                {aggregateRating.rating} from {aggregateRating.count}+ happy customers
+              </span>
             </div>
+          ) : null}
+          {visual?.kind === "product" ? (
+            <Price
+              price={visual.product.priceRange.minVariantPrice}
+              compareAt={visual.product.compareAtPriceRange?.maxVariantPrice}
+            />
           ) : null}
           <div className="flex w-full items-center gap-3 sm:w-auto">
             <ButtonLink href="/products" className="flex-1 sm:flex-initial lg:min-w-52">

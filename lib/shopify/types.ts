@@ -51,6 +51,8 @@ export interface ProductCard {
   featuredImage: ShopifyImage | null;
   priceRange: { minVariantPrice: Money; maxVariantPrice: Money };
   compareAtPriceRange: { maxVariantPrice: Money };
+  /** First 2 variants, just to detect "exactly one variant" — powers grid quick-add (no option picker needed). */
+  quickAddVariants: Connection<{ id: string; availableForSale: boolean }>;
 }
 
 export interface Product extends ProductCard {
@@ -207,4 +209,14 @@ export interface CartLinesRemoveResult {
 
 export interface CartDiscountCodesUpdateResult {
   cartDiscountCodesUpdate: { cart: Cart | null; userErrors: UserError[] } | null;
+}
+
+export interface CustomerUserError {
+  field: string[] | null;
+  message: string;
+  code: string | null;
+}
+
+export interface CustomerCreateResult {
+  customerCreate: { customer: { id: string } | null; customerUserErrors: CustomerUserError[] } | null;
 }

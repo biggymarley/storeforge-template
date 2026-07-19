@@ -26,5 +26,25 @@ export const contentConfig: ContentConfig = {
   ],
   brands: [],
   productReviews: {},
-  productFaqs: {}
+  productFaqs: {},
+  faqs: [
+    {
+      question: "How long does shipping take?",
+      answer: "Most orders ship within a few business days and arrive within a week, depending on your location."
+    },
+    {
+      question: "What's your return policy?",
+      answer: "We offer free returns within our standard return window — see our Refund Policy page for details."
+    },
+    {
+      question: "What payment methods do you accept?",
+      answer: "We accept all major credit cards, PayPal, Apple Pay, and Google Pay at checkout."
+    },
+    {
+      question: "How can I track my order?",
+      answer: "You'll receive a shipping confirmation email with tracking information as soon as your order ships."
+    }
+  ],
+  // Store adds their own customer/lifestyle photos here (public/branding/gallery/*).
+  gallery: []
 };

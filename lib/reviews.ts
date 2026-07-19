@@ -42,3 +42,16 @@ export function getProductRating(handle: string): { rating: number; count: numbe
   const sum = reviews.reduce((total, review) => total + review.rating, 0);
   return { rating: Math.round((sum / reviews.length) * 2) / 2, count: reviews.length };
 }
+
+/**
+ * Store-wide social-proof number for the homepage: ratings across the given
+ * handles (e.g. everything currently shown on the homepage), weighted by
+ * each product's review count. No new config — derived from getProductRating.
+ */
+export function getAggregateRating(handles: string[]): { rating: number; count: number } | null {
+  const ratings = handles.map((handle) => getProductRating(handle)).filter((r) => r !== null);
+  if (ratings.length === 0) return null;
+  const count = ratings.reduce((total, r) => total + r.count, 0);
+  const weightedSum = ratings.reduce((total, r) => total + r.rating * r.count, 0);
+  return { rating: Math.round((weightedSum / count) * 2) / 2, count };
+}

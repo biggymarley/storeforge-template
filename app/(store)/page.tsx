@@ -1,9 +1,14 @@
 import { CollectionTiles } from "@/components/home/collection-tiles";
+import { FaqSection } from "@/components/home/faq-section";
 import { Hero } from "@/components/home/hero";
 import { ProductSection } from "@/components/home/product-section";
+import { StickyShopCta } from "@/components/home/sticky-shop-cta";
 import { TestimonialCarousel } from "@/components/home/testimonial-carousel";
+import { TrustBar } from "@/components/home/trust-bar";
+import { UgcGallery } from "@/components/home/ugc-gallery";
 import { BrandStrip } from "@/components/layout/brand-strip";
-import { resolveContentConfig, resolveStoreConfig } from "@/lib/config";
+import { resolveContentConfig, resolveLegalConfig, resolveStoreConfig } from "@/lib/config";
+import { getAggregateRating } from "@/lib/reviews";
 import { getCollections, getHomeSectionProducts, getProduct } from "@/lib/shopify/api";
 import { ShopifyError } from "@/lib/shopify/client";
 import type { Collection, ProductCard } from "@/lib/shopify/types";
@@ -13,6 +18,7 @@ const HOME_SECTION_HANDLES = ["new-arrivals", "top-selling"];
 export default async function HomePage() {
   const store = resolveStoreConfig();
   const content = resolveContentConfig();
+  const legal = resolveLegalConfig();
 
   let newArrivals: ProductCard[] = [];
   let topSelling: ProductCard[] = [];
@@ -48,11 +54,21 @@ export default async function HomePage() {
     heroProduct ??= topSelling[0] ?? newArrivals[0] ?? null;
   }
 
+  // Weighted rating across everything shown on the homepage today — no new
+  // config, just the existing per-product review data (lib/reviews.ts).
+  const homepageHandles = [
+    ...(heroProduct ? [heroProduct.handle] : []),
+    ...newArrivals.map((p) => p.handle),
+    ...topSelling.map((p) => p.handle)
+  ];
+  const aggregateRating = getAggregateRating(homepageHandles);
+
   return (
     <div className="flex flex-col gap-10 pb-2 lg:gap-16">
       <div>
-        <Hero heroProduct={heroProduct} />
+        <Hero heroProduct={heroProduct} aggregateRating={aggregateRating} />
         <BrandStrip />
+        <TrustBar policies={legal.policies} />
       </div>
       {dataError ? (
         <section className="mx-auto w-full max-w-310 px-4">
@@ -75,7 +91,10 @@ export default async function HomePage() {
           />
         </>
       )}
+      <UgcGallery images={content.gallery} />
       <TestimonialCarousel testimonials={content.testimonials} />
+      <FaqSection faqs={content.faqs} />
+      <StickyShopCta />
     </div>
   );
 }

@@ -123,6 +123,14 @@ export interface ProductFaq {
   answer: string;
 }
 
+export interface GalleryImage {
+  /** Store-owned asset, e.g. "/branding/gallery/customer-1.jpg". */
+  image: string;
+  alt?: string;
+  /** Optional destination — a product page, a collection, or the original Instagram/TikTok post. */
+  href?: string;
+}
+
 export interface ContentConfig {
   /** Homepage "Our Happy Customers" carousel. Empty → section hidden. */
   testimonials?: Testimonial[];
@@ -132,4 +140,8 @@ export interface ContentConfig {
   productReviews?: Record<string, ProductReview[]>;
   /** PDP FAQs keyed by Shopify product handle. Missing → FAQ tab shows an empty state. */
   productFaqs?: Record<string, ProductFaq[]>;
+  /** Homepage general FAQ section (shipping/returns/etc, not product-specific). Empty → section hidden. */
+  faqs?: ProductFaq[];
+  /** Homepage UGC/"shop the look" photo grid. Fewer than 4 → section hidden. */
+  gallery?: GalleryImage[];
 }

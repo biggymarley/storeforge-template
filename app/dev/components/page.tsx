@@ -43,7 +43,8 @@ const mockProduct: ProductCardType = {
     minVariantPrice: { amount: "145.0", currencyCode: "USD" },
     maxVariantPrice: { amount: "145.0", currencyCode: "USD" }
   },
-  compareAtPriceRange: { maxVariantPrice: { amount: "180.0", currencyCode: "USD" } }
+  compareAtPriceRange: { maxVariantPrice: { amount: "180.0", currencyCode: "USD" } },
+  quickAddVariants: { edges: [{ node: { id: "gid://shopify/ProductVariant/1", availableForSale: true } }] }
 };
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
