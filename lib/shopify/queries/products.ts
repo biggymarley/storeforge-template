@@ -45,6 +45,24 @@ export const PRODUCT_BY_HANDLE_QUERY = /* GraphQL */ `
   ${PRODUCT_FRAGMENT}
 `;
 
+// Separate from PRODUCT_BY_HANDLE_QUERY on purpose: quantityAvailable requires the
+// unauthenticated_read_product_inventory Storefront API scope, which not every store's
+// token has. Isolating it means a missing scope only drops the stock badge, not the whole PDP.
+export const PRODUCT_INVENTORY_QUERY = /* GraphQL */ `
+  query ProductInventory($handle: String!) {
+    product(handle: $handle) {
+      variants(first: 100) {
+        edges {
+          node {
+            id
+            quantityAvailable
+          }
+        }
+      }
+    }
+  }
+`;
+
 export const RECOMMENDATIONS_QUERY = /* GraphQL */ `
   query ProductRecommendations($productId: ID!) {
     productRecommendations(productId: $productId) {

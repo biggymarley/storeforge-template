@@ -1,21 +1,28 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { IconArrow } from "@/components/icons";
+import { TrustStrip } from "@/components/product/trust-strip";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
-import { ColorSwatch } from "@/components/ui/color-swatch";
 import { Price } from "@/components/ui/price";
 import { QuantityStepper } from "@/components/ui/quantity-stepper";
 import { StarRating } from "@/components/ui/star-rating";
 import { useToast } from "@/components/ui/toast";
+import type { ResolvedLegalConfig } from "@/lib/config";
 import { addToCart } from "@/lib/shopify/cart-actions";
 import { flattenConnection, type Product, type ProductVariant, type ShopifyImage } from "@/lib/shopify/types";
 
 interface ProductViewProps {
   product: Product;
   rating: { rating: number; count: number } | null;
+  policies: ResolvedLegalConfig["policies"];
+  /** Variant id -> stock count. Missing/null entries render as available — no data, no badge. */
+  inventory: Record<string, number | null>;
 }
+
+const LOW_STOCK_THRESHOLD = 10;
 
 /** Shopify's placeholder option on variant-less products. */
 function isDefaultOnlyOption(option: Product["options"][number]): boolean {
@@ -27,9 +34,15 @@ function isDefaultOnlyOption(option: Product["options"][number]): boolean {
  * title/rating/price/options/qty/add-to-cart right. Selected options resolve
  * to a variant; price, compare-at and image follow it (PAGE-BLUEPRINTS §PDP).
  */
-export function ProductView({ product, rating }: ProductViewProps) {
+export function ProductView({ product, rating, policies, inventory }: ProductViewProps) {
   const { toast } = useToast();
   const [pending, startTransition] = useTransition();
+  const ctaRef = useRef<HTMLDivElement>(null);
+  const [ctaVisible, setCtaVisible] = useState(true);
+  const thumbRailRef = useRef<HTMLDivElement>(null);
+  const scrollThumbs = (direction: -1 | 1) => {
+    thumbRailRef.current?.scrollBy({ left: direction * 100, behavior: "smooth" });
+  };
 
   const variants = useMemo(() => flattenConnection(product.variants), [product.variants]);
   const images = useMemo<ShopifyImage[]>(() => {
@@ -77,37 +90,32 @@ export function ProductView({ product, rating }: ProductViewProps) {
     });
   };
 
+  // Mobile sticky CTA appears once the primary Add to Cart row scrolls out of view.
+  useEffect(() => {
+    const node = ctaRef.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(([entry]) => setCtaVisible(entry.isIntersecting), { threshold: 0 });
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
   const main = images[activeImage] ?? images[0];
+  const ctaLabel =
+    currentVariant && !currentVariant.availableForSale ? "Out of Stock" : pending ? "Adding…" : "Add to Cart";
+
+  // undefined (no map entry) and null (untracked variant) both mean "no data" — treated as available.
+  const quantityAvailable = currentVariant ? inventory[currentVariant.id] : undefined;
+  const showLowStock =
+    currentVariant?.availableForSale &&
+    typeof quantityAvailable === "number" &&
+    quantityAvailable > 0 &&
+    quantityAvailable <= LOW_STOCK_THRESHOLD;
 
   return (
     <div className="mt-5 grid gap-6 lg:mt-9 lg:grid-cols-2 lg:items-start lg:gap-10">
-      {/* Gallery — min-w-0 so many thumbs can't widen the grid track */}
-      <div className="min-w-0 flex-col flex gap-3.5 lg:flex-row">
-        {images.length > 1 ? (
-          <div className="order-2 flex gap-3.5 overflow-x-auto lg:order-1 lg:max-h-[530px] lg:flex-col lg:overflow-y-auto">
-            {images.map((image, index) => (
-              <button
-                key={image.url}
-                type="button"
-                aria-label={`View image ${index + 1}`}
-                aria-pressed={index === activeImage}
-                onClick={() => setActiveImage(index)}
-                className={`relative aspect-[152/167] w-24 shrink-0 overflow-hidden rounded-card bg-secondary lg:w-[152px] ${
-                  index === activeImage ? "border border-primary" : ""
-                }`}
-              >
-                <Image
-                  src={image.url}
-                  alt={image.altText ?? product.title}
-                  fill
-                  sizes="152px"
-                  className="object-cover"
-                />
-              </button>
-            ))}
-          </div>
-        ) : null}
-        <div className="relative order-1 aspect-[444/530] w-full overflow-hidden rounded-card bg-secondary lg:order-2 lg:w-auto lg:min-w-0 lg:flex-1">
+      {/* Gallery — main image on top, thumbnail rail below (min-w-0 so it can't widen the grid track) */}
+      <div className="min-w-0 flex flex-col gap-3.5">
+        <div className="relative aspect-[444/530] w-full overflow-hidden">
           {main ? (
             <Image
               src={main.url}
@@ -115,30 +123,84 @@ export function ProductView({ product, rating }: ProductViewProps) {
               fill
               priority
               sizes="(max-width: 1024px) 100vw, 40vw"
-              className="object-cover"
+              className="object-contain"
             />
           ) : (
             <div className="flex size-full items-center justify-center text-sm text-muted">No image</div>
           )}
         </div>
+        {images.length > 1 ? (
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              aria-label="Previous image"
+              onClick={() => scrollThumbs(-1)}
+              className="hidden shrink-0 transition-opacity hover:opacity-60 lg:block"
+            >
+              <IconArrow width={20} height={20} className="rotate-180" />
+            </button>
+            <div
+              ref={thumbRailRef}
+              className="flex flex-1 gap-3 overflow-x-auto scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            >
+              {images.map((image, index) => (
+                <button
+                  key={image.url}
+                  type="button"
+                  aria-label={`View image ${index + 1}`}
+                  aria-pressed={index === activeImage}
+                  onClick={() => setActiveImage(index)}
+                  className={`relative aspect-square w-16 shrink-0 overflow-hidden rounded-card bg-secondary lg:w-20 ${
+                    index === activeImage ? "border border-primary" : ""
+                  }`}
+                >
+                  <Image
+                    src={image.url}
+                    alt={image.altText ?? product.title}
+                    fill
+                    sizes="80px"
+                    className="object-cover"
+                  />
+                </button>
+              ))}
+            </div>
+            <button
+              type="button"
+              aria-label="Next image"
+              onClick={() => scrollThumbs(1)}
+              className="hidden shrink-0 transition-opacity hover:opacity-60 lg:block"
+            >
+              <IconArrow width={20} height={20} />
+            </button>
+          </div>
+        ) : null}
       </div>
 
       {/* Details */}
       <div className="min-w-0 flex flex-col">
-        <h1 className="font-heading text-2xl uppercase leading-tight lg:text-[2.5rem] lg:leading-none">
+        <h1 className="font-heading text-xl uppercase leading-tight lg:text-[2rem] lg:leading-none">
           {product.title}
         </h1>
-        {rating ? <StarRating rating={rating.rating} className="mt-3" /> : null}
+        {rating ? (
+          <div className="mt-3 flex items-center gap-2">
+            <StarRating rating={rating.rating} showLabel={false} />
+            <span className="text-sm text-muted">({rating.count})</span>
+          </div>
+        ) : null}
         {currentVariant ? (
           <Price
             price={currentVariant.price}
             compareAt={currentVariant.compareAtPrice}
             size="lg"
+            variant="save"
             className="mt-3"
           />
         ) : (
-          <Price price={product.priceRange.minVariantPrice} size="lg" className="mt-3" />
+          <Price price={product.priceRange.minVariantPrice} size="lg" variant="save" className="mt-3" />
         )}
+        {showLowStock ? (
+          <p className="mt-2 text-sm font-medium text-accent">Only {quantityAvailable} left in stock</p>
+        ) : null}
         {product.description ? (
           // Long Shopify descriptions get clamped here — the full rich text
           // lives in the Product Details tab below.
@@ -147,46 +209,27 @@ export function ProductView({ product, rating }: ProductViewProps) {
           </p>
         ) : null}
 
-        {options.map((option) => {
-          const isColor = option.optionValues.some((value) => value.swatch?.color);
-          return (
-            <div key={option.name} className="mt-6 border-t border-border pt-6">
-              <h2 className="text-sm text-muted">
-                {isColor ? `Select ${option.name}` : `Choose ${option.name}`}
-              </h2>
-              {isColor ? (
-                <div className="mt-4 flex flex-wrap gap-4">
-                  {option.optionValues.map((value) => (
-                    <ColorSwatch
-                      key={value.name}
-                      color={value.swatch?.color ?? "#ccc"}
-                      colorName={value.name}
-                      selected={selected[option.name] === value.name}
-                      onClick={() => setSelected((prev) => ({ ...prev, [option.name]: value.name }))}
-                      className={isValueAvailable(option.name, value.name) ? "" : "opacity-30"}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {option.optionValues.map((value) => (
-                    <Chip
-                      key={value.name}
-                      size="lg"
-                      selected={selected[option.name] === value.name}
-                      onClick={() => setSelected((prev) => ({ ...prev, [option.name]: value.name }))}
-                      className={isValueAvailable(option.name, value.name) ? "" : "line-through opacity-40"}
-                    >
-                      {value.name}
-                    </Chip>
-                  ))}
-                </div>
-              )}
+        {options.map((option) => (
+          <div key={option.name} className="mt-6 border-t border-border pt-6">
+            <h2 className="text-sm uppercase tracking-wide text-muted">{option.name}</h2>
+            <div className="mt-4 flex flex-wrap gap-3">
+              {option.optionValues.map((value) => (
+                <Chip
+                  key={value.name}
+                  size="lg"
+                  variant="outline"
+                  selected={selected[option.name] === value.name}
+                  onClick={() => setSelected((prev) => ({ ...prev, [option.name]: value.name }))}
+                  className={isValueAvailable(option.name, value.name) ? "" : "text-muted line-through opacity-40"}
+                >
+                  {value.name}
+                </Chip>
+              ))}
             </div>
-          );
-        })}
+          </div>
+        ))}
 
-        <div className="mt-6 flex gap-4 border-t border-border pt-6 lg:gap-5">
+        <div ref={ctaRef} className="mt-6 flex gap-4 border-t border-border pt-6 lg:gap-5">
           <QuantityStepper
             quantity={quantity}
             onDecrement={() => setQuantity((q) => Math.max(1, q - 1))}
@@ -200,10 +243,30 @@ export function ProductView({ product, rating }: ProductViewProps) {
             onClick={add}
             disabled={pending || !currentVariant || !currentVariant.availableForSale}
           >
-            {currentVariant && !currentVariant.availableForSale ? "Out of Stock" : pending ? "Adding…" : "Add to Cart"}
+            {ctaLabel}
           </Button>
         </div>
+
+        <TrustStrip policies={policies} className="mt-4" />
       </div>
+
+      {/* Mobile-only: keeps Add to Cart reachable once the row above scrolls out of view. */}
+      {!ctaVisible ? (
+        <div className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-3 border-t border-border bg-background p-4 lg:hidden">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-medium">{product.title}</p>
+            {currentVariant ? <Price price={currentVariant.price} /> : null}
+          </div>
+          <Button
+            size="md"
+            className="h-12 min-w-36"
+            onClick={add}
+            disabled={pending || !currentVariant || !currentVariant.availableForSale}
+          >
+            {ctaLabel}
+          </Button>
+        </div>
+      ) : null}
     </div>
   );
 }

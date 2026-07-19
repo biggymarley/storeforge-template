@@ -118,6 +118,11 @@ export interface BrandLogo {
   logoSrc: string;
 }
 
+export interface ProductFaq {
+  question: string;
+  answer: string;
+}
+
 export interface ContentConfig {
   /** Homepage "Our Happy Customers" carousel. Empty → section hidden. */
   testimonials?: Testimonial[];
@@ -125,4 +130,6 @@ export interface ContentConfig {
   brands?: BrandLogo[];
   /** PDP reviews keyed by Shopify product handle. Missing → reviews UI hidden. */
   productReviews?: Record<string, ProductReview[]>;
+  /** PDP FAQs keyed by Shopify product handle. Missing → FAQ tab shows an empty state. */
+  productFaqs?: Record<string, ProductFaq[]>;
 }

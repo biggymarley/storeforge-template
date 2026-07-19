@@ -170,6 +170,10 @@ export interface RecommendationsQueryResult {
   productRecommendations: ProductCard[] | null;
 }
 
+export interface ProductInventoryQueryResult {
+  product: { variants: Connection<{ id: string; quantityAvailable: number | null }> } | null;
+}
+
 export interface CartQueryResult {
   cart: Cart | null;
 }

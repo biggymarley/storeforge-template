@@ -7,7 +7,9 @@ import { ProductTabs } from "@/components/product/product-tabs";
 import { ProductView } from "@/components/product/product-view";
 import { ErrorState } from "@/components/ui/error-state";
 import { ProductCardSkeleton } from "@/components/ui/skeleton";
-import { getProduct, getProductRecommendations } from "@/lib/shopify/api";
+import { resolveLegalConfig } from "@/lib/config";
+import { getProductFaqs } from "@/lib/faqs";
+import { getProduct, getProductInventory, getProductRecommendations, getProducts } from "@/lib/shopify/api";
 import { ShopifyError } from "@/lib/shopify/client";
 import { getProductRating, getProductReviews } from "@/lib/reviews";
 import { productJsonLd } from "@/lib/json-ld";
@@ -31,13 +33,26 @@ export async function generateMetadata({ params }: ProductPageProps): Promise<Me
   }
 }
 
-/** Streams below the fold (Figma "You might also like"). */
+/**
+ * Streams below the fold — Shopify's product recommendations, in place of a
+ * testimonials section. Falls back to a general product listing (excluding
+ * the current product) when Shopify has no recommendations for it, so the
+ * section never disappears — it's still labeled "Related Products" either way.
+ */
 async function Recommendations({ productId }: { productId: string }) {
-  const products = await getProductRecommendations(productId).catch(() => []);
+  let products = await getProductRecommendations(productId).catch(() => []);
+  if (products.length === 0) {
+    try {
+      const { products: fallbackProducts } = await getProducts({ first: 8, sortKey: "BEST_SELLING" });
+      products = fallbackProducts.filter((product) => product.id !== productId);
+    } catch {
+      products = [];
+    }
+  }
   if (products.length === 0) return null;
   return (
     <div className="mt-14 lg:mt-20">
-      <ProductSection title="You might also like" products={products} />
+      <ProductSection title="Related Products" products={products} />
     </div>
   );
 }
@@ -50,6 +65,11 @@ export default async function ProductPage({ params }: ProductPageProps) {
     if (!product) notFound();
 
     const reviews = getProductReviews(handle);
+    const faqs = getProductFaqs(handle);
+    const { policies } = resolveLegalConfig();
+    // Isolated from getProduct above: a missing Storefront inventory scope only
+    // drops the stock badge, never the page (see PRODUCT_INVENTORY_QUERY comment).
+    const inventory = await getProductInventory(handle).catch(() => ({}));
 
     return (
       <div className="mx-auto max-w-310 px-4 pb-2 pt-5 lg:pt-6">
@@ -61,8 +81,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
           items={[{ label: "All Products", href: "/products" }, { label: product.title }]}
           className="text-sm lg:text-base"
         />
-        <ProductView product={product} rating={getProductRating(handle)} />
-        <ProductTabs descriptionHtml={product.descriptionHtml} reviews={reviews} />
+        <ProductView
+          product={product}
+          rating={getProductRating(handle)}
+          policies={policies}
+          inventory={inventory}
+        />
+        <ProductTabs descriptionHtml={product.descriptionHtml} reviews={reviews} faqs={faqs} />
         <Suspense
           fallback={
             <div className="mt-14 grid grid-cols-2 gap-x-3.5 gap-y-6 lg:mt-20 lg:grid-cols-4 lg:gap-5">

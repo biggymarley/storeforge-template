@@ -12,6 +12,7 @@ import { PAGE_BY_HANDLE_QUERY } from "@/lib/shopify/queries/pages";
 import {
   PRODUCTS_QUERY,
   PRODUCT_BY_HANDLE_QUERY,
+  PRODUCT_INVENTORY_QUERY,
   RECOMMENDATIONS_QUERY
 } from "@/lib/shopify/queries/products";
 import { SITEMAP_QUERY } from "@/lib/shopify/queries/sitemap";
@@ -25,6 +26,7 @@ import {
   type Product,
   type ProductByHandleQueryResult,
   type ProductCard,
+  type ProductInventoryQueryResult,
   type ProductsQueryResult,
   type RecommendationsQueryResult,
   type ShopifyPage,
@@ -119,6 +121,20 @@ export async function getProduct(handle: string): Promise<Product | null> {
     variables: { handle }
   });
   return data.product;
+}
+
+/**
+ * Per-variant stock counts, keyed by variant id. Callers should `.catch(() => ({}))` —
+ * an empty map means "no data" (untracked inventory or missing Storefront scope), which
+ * the UI treats the same as available: no low-stock badge shown, nothing blocked.
+ */
+export async function getProductInventory(handle: string): Promise<Record<string, number | null>> {
+  const data = await shopifyFetch<ProductInventoryQueryResult>({
+    query: PRODUCT_INVENTORY_QUERY,
+    variables: { handle }
+  });
+  if (!data.product) return {};
+  return Object.fromEntries(flattenConnection(data.product.variants).map((v) => [v.id, v.quantityAvailable]));
 }
 
 export async function getProductRecommendations(productId: string): Promise<ProductCard[]> {
