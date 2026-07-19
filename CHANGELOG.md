@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.2.1] — 2026-07-19
+
+- Fix hydration mismatch on every page: `app/layout.tsx`'s `<head>` rendered `customFontFaceCss && <style .../>` — when no store-owned custom font is uploaded, `customFontFaceCss` is `""`, and `"" && X` evaluates to `""`, which React renders as a stray whitespace text node (unlike `null`/`false`, which it skips). An empty text node is not a valid child of `<head>`, so React discarded the server-rendered tree and re-hydrated client-side on every load. Switched to a ternary so the falsy case renders `null` instead.
+
 ## [1.2.0] — 2026-07-18
 
 - New optional `storeConfig.fonts.customHeading` / `customBody` fields (store-owned font files, e.g. `/branding/fonts/heading.woff2`) take priority over the curated allowlist when set. Loaded via a plain `@font-face` rule injected in root layout (not `next/font/local`, since the file may not exist at build time for stores that don't use it) — falls back to the existing allowlist-based fonts when unset.
