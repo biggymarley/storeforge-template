@@ -100,6 +100,9 @@ export function ProductView({ product, rating, policies, inventory }: ProductVie
   }, []);
 
   const main = images[activeImage] ?? images[0];
+  // Match the box to the actual photo's aspect ratio so object-contain never letterboxes
+  // (which would push the visible image down, out of alignment with the title).
+  const mainAspectRatio = main?.width && main?.height ? `${main.width} / ${main.height}` : "444 / 530";
   const ctaLabel =
     currentVariant && !currentVariant.availableForSale ? "Out of Stock" : pending ? "Adding…" : "Add to Cart";
 
@@ -115,7 +118,7 @@ export function ProductView({ product, rating, policies, inventory }: ProductVie
     <div className="mt-5 grid gap-6 lg:mt-9 lg:grid-cols-2 lg:items-start lg:gap-10">
       {/* Gallery — main image on top, thumbnail rail below (min-w-0 so it can't widen the grid track) */}
       <div className="min-w-0 flex flex-col gap-3.5">
-        <div className="relative aspect-[444/530] w-full overflow-hidden">
+        <div className="relative w-full overflow-hidden" style={{ aspectRatio: mainAspectRatio }}>
           {main ? (
             <Image
               src={main.url}
@@ -204,7 +207,7 @@ export function ProductView({ product, rating, policies, inventory }: ProductVie
         {product.description ? (
           // Long Shopify descriptions get clamped here — the full rich text
           // lives in the Product Details tab below.
-          <p className="mt-4 line-clamp-5 text-sm leading-5 text-muted lg:text-base lg:leading-[22px]">
+          <p className="mt-4 line-clamp-12 text-sm leading-5 text-muted lg:text-base lg:leading-[22px]">
             {product.description}
           </p>
         ) : null}
