@@ -33,7 +33,7 @@ export function UgcGallery({ images }: UgcGalleryProps) {
   const tiles = images.slice(0, TILE_COUNT);
 
   return (
-    <section className="mx-auto w-full max-w-310 px-4">
+    <section className="mx-auto w-full max-w-page px-4">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <h2 className="font-heading text-[2rem] uppercase leading-9 lg:text-5xl lg:leading-none">Shop The Look</h2>
         {socials.instagram ? (

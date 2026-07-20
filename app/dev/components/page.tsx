@@ -72,7 +72,7 @@ export default function ComponentsGallery() {
         ]}
         withCart={false}
       />
-      <main className="mx-auto flex max-w-310 flex-col gap-10 px-4 py-10">
+      <main className="mx-auto flex max-w-page flex-col gap-10 px-4 py-10">
         <h1 className="font-heading text-3xl uppercase">Component gallery</h1>
 
         <Section title="Buttons">

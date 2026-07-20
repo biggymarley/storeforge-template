@@ -8,7 +8,7 @@ export function BrandStrip() {
 
   return (
     <section aria-label="Featured brands" className="bg-primary">
-      <div className="mx-auto flex max-w-310 flex-wrap items-center justify-center gap-x-8 gap-y-5 px-4 py-10 lg:justify-between lg:py-11">
+      <div className="mx-auto flex max-w-page flex-wrap items-center justify-center gap-x-8 gap-y-5 px-4 py-10 lg:justify-between lg:py-11">
         {brands.map((brand) => (
           <Image
             key={brand.name}

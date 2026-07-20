@@ -26,7 +26,7 @@ export function NewsletterBand() {
   };
 
   return (
-    <section aria-label="Newsletter" className="mx-auto w-full max-w-310 px-4">
+    <section aria-label="Newsletter" className="mx-auto w-full max-w-page px-4">
       <div className="flex flex-col gap-8 rounded-card bg-primary px-6 py-8 text-background lg:flex-row lg:items-center lg:justify-between lg:px-16 lg:py-9">
         <h2 className="max-w-xl font-heading text-[2rem] uppercase leading-tight lg:text-[2.5rem] lg:leading-[45px]">
           Stay upto date about our latest offers

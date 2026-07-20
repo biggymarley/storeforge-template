@@ -29,7 +29,7 @@ export function TestimonialCarousel({ testimonials }: TestimonialCarouselProps) 
 
   return (
     <section>
-      <h2 className="mx-auto max-w-310 px-4 text-center font-heading text-[2rem] uppercase leading-9 lg:text-5xl lg:leading-none">
+      <h2 className="mx-auto max-w-page px-4 text-center font-heading text-[2rem] uppercase leading-9 lg:text-5xl lg:leading-none">
         Our Happy Customers
       </h2>
       <div className="group relative mt-6 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)] lg:mt-10">

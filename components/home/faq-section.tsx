@@ -14,7 +14,7 @@ export function FaqSection({ faqs }: FaqSectionProps) {
   if (faqs.length === 0) return null;
 
   return (
-    <section className="mx-auto w-full max-w-310 px-4">
+    <section className="mx-auto w-full max-w-page px-4">
       <h2 className="text-center font-heading text-[2rem] uppercase leading-9 lg:text-5xl lg:leading-none">
         Frequently Asked Questions
       </h2>

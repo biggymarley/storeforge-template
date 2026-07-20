@@ -71,7 +71,7 @@ export default async function HomePage() {
         <TrustBar policies={legal.policies} />
       </div>
       {dataError ? (
-        <section className="mx-auto w-full max-w-310 px-4">
+        <section className="mx-auto w-full max-w-page px-4">
           <div className="rounded-card border border-border p-8 text-center">
             <h2 className="font-heading text-2xl uppercase">Products are unavailable right now</h2>
             <p className="mt-2 text-sm text-muted">{dataError}</p>

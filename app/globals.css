@@ -14,6 +14,7 @@
   --color-background: var(--site-background, #ffffff);
   --color-foreground: var(--site-foreground, #000000);
   --color-muted: var(--site-muted, #666666);
+  --color-hero-background: var(--site-hero-background, #f0f0f0);
   --color-border: color-mix(in srgb, var(--site-foreground, #000000) 10%, transparent);
 
   /* Template-owned functional colors — not brand-configurable. */
@@ -25,6 +26,9 @@
 
   /* Design radii from Figma: pill controls + 12px surfaces. */
   --radius-card: 12px;
+
+  /* Site-wide content max-width (`max-w-page`, used by every section/header/footer container). One place to change it. */
+  --container-page: 80.5rem;
 }
 
 body {

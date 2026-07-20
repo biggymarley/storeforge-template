@@ -18,7 +18,7 @@ export function Header({ links = [], withCart = true }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
-      <div className="mx-auto flex h-16 max-w-310 items-center gap-6 px-4 lg:h-20 lg:gap-10">
+      <div className="mx-auto flex h-16 max-w-page items-center gap-6 px-4 lg:h-20 lg:gap-10">
         <Link href="/" className="flex min-w-0 shrink-0 items-center">
           <Image
             src={store.logo.src}

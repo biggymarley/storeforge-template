@@ -25,7 +25,7 @@ export function TrustBar({ policies }: TrustBarProps) {
   ];
 
   return (
-    <section aria-label="Why shop with us" className="mx-auto w-full max-w-310 px-4">
+    <section aria-label="Why shop with us" className="mx-auto w-full max-w-page px-4">
       <ul className="flex flex-col items-center gap-6 border-y border-border py-6 sm:flex-row sm:flex-wrap sm:justify-between sm:gap-x-10 sm:gap-y-4 lg:py-8">
         {items.map((item) => (
           <li key={item.label} className="flex items-center justify-center gap-3 text-center">

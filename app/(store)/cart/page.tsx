@@ -8,7 +8,7 @@ export default function CartPage() {
   const legal = resolveLegalConfig();
 
   return (
-    <div className="mx-auto max-w-310 px-4 pb-2 pt-5 lg:pt-6">
+    <div className="mx-auto max-w-page px-4 pb-2 pt-5 lg:pt-6">
       <CartPageContent policies={legal.policies} />
     </div>
   );

@@ -62,7 +62,7 @@ export function Footer({ shopLinks = [] }: FooterProps) {
         <NewsletterBand />
       </div>
       <div className="bg-secondary pb-8 pt-10 lg:pt-14">
-        <div className="mx-auto flex max-w-310 flex-col gap-10 px-4 lg:flex-row lg:justify-between">
+        <div className="mx-auto flex max-w-page flex-col gap-10 px-4 lg:flex-row lg:justify-between">
           <div className="flex max-w-62 flex-col gap-6 lg:gap-9">
             <div className="flex flex-col gap-6">
               <Link href="/" className="font-heading text-[1.75rem] uppercase leading-none lg:text-[2.1rem]">
@@ -104,7 +104,7 @@ export function Footer({ shopLinks = [] }: FooterProps) {
             ))}
           </div>
         </div>
-        <div className="mx-auto mt-10 flex max-w-310 flex-col items-center gap-4 border-t border-border px-4 pt-6 sm:flex-row sm:justify-between">
+        <div className="mx-auto mt-10 flex max-w-page flex-col items-center gap-4 border-t border-border px-4 pt-6 sm:flex-row sm:justify-between">
           <p className="text-sm text-muted">
             {legal.companyName} © {new Date().getFullYear()}, All Rights Reserved
           </p>

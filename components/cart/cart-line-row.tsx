@@ -47,7 +47,7 @@ export function CartLineRow({ line, compact = false, onNavigate }: CartLineRowPr
             <Link
               href={`/products/${merchandise.product.handle}`}
               onClick={onNavigate}
-              className="block truncate text-sm font-bold hover:underline"
+              className="block truncate text-sm font-medium text-foreground/80 hover:underline"
             >
               {merchandise.product.title}
             </Link>
@@ -58,7 +58,7 @@ export function CartLineRow({ line, compact = false, onNavigate }: CartLineRowPr
             ))}
           </div>
           <div className="flex flex-wrap items-end justify-between gap-2">
-            <span className="text-base font-bold">{price}</span>
+            <span className="text-lg font-bold">{price}</span>
             <QuantityStepper
               size="sm"
               quantity={line.quantity}
@@ -102,7 +102,7 @@ export function CartLineRow({ line, compact = false, onNavigate }: CartLineRowPr
             <Link
               href={`/products/${merchandise.product.handle}`}
               onClick={onNavigate}
-              className="block font-bold hover:underline text-base sm:text-xl"
+              className="block text-base font-medium leading-snug text-foreground/80 hover:underline sm:text-lg"
             >
               {merchandise.product.title}
             </Link>
@@ -113,7 +113,7 @@ export function CartLineRow({ line, compact = false, onNavigate }: CartLineRowPr
               </p>
             ))}
           </div>
-          <span className="shrink-0 text-base font-bold sm:text-xl">{price}</span>
+          <span className="shrink-0 text-lg font-bold sm:text-2xl">{price}</span>
         </div>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <QuantityStepper

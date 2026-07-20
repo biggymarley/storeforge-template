@@ -32,9 +32,9 @@ export function Hero({ heroProduct = null, aggregateRating = null }: HeroProps) 
       : null;
 
   return (
-    <section className="overflow-hidden bg-secondary">
+    <section className="overflow-hidden bg-hero-background">
       <div
-        className={`mx-auto grid max-w-310 gap-8 px-4 pt-10 lg:items-center lg:gap-4 lg:pt-0 ${
+        className={`mx-auto grid max-w-page gap-8 px-4 pt-10 lg:items-center lg:gap-4 lg:pt-0 ${
           visual ? "lg:grid-cols-[minmax(0,577px)_minmax(0,1fr)]" : ""
         }`}
       >

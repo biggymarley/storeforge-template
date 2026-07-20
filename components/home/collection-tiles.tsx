@@ -19,7 +19,7 @@ export function CollectionTiles({ collections }: CollectionTilesProps) {
   if (tiles.length < 2) return null;
 
   return (
-    <section className="mx-auto max-w-310 px-4">
+    <section className="mx-auto max-w-page px-4">
       <div className="rounded-[40px] bg-secondary px-6 pb-6 pt-10 lg:px-16 lg:pb-19 lg:pt-17">
         <h2 className="text-center font-heading text-[2rem] uppercase leading-9 lg:text-5xl lg:leading-none">
           Browse by Category

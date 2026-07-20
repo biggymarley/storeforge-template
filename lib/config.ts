@@ -25,7 +25,8 @@ const DEFAULT_COLORS: StoreColors = {
   accent: "#ff3333",
   background: "#ffffff",
   foreground: "#000000",
-  muted: "#666666"
+  muted: "#666666",
+  heroBackground: "#f0f0f0"
 };
 
 export interface ResolvedStoreConfig {
@@ -51,7 +52,12 @@ export function resolveStoreConfig(config: StoreConfig = storeConfig): ResolvedS
       alt: config.logo?.alt ?? config.name ?? "Store"
     },
     favicon: config.favicon ?? "/favicon.ico",
-    colors: { ...DEFAULT_COLORS, ...config.colors },
+    colors: {
+      ...DEFAULT_COLORS,
+      ...config.colors,
+      // Unset in old configs → keep the pre-existing look (hero shared the `secondary` surface).
+      heroBackground: config.colors?.heroBackground ?? config.colors?.secondary ?? DEFAULT_COLORS.secondary
+    },
     fonts: {
       heading: config.fonts?.heading ?? "Archivo Black",
       body: config.fonts?.body ?? "Inter"

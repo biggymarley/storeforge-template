@@ -72,7 +72,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     const inventory = await getProductInventory(handle).catch(() => ({}));
 
     return (
-      <div className="mx-auto max-w-310 px-4 pb-2 pt-5 lg:pt-6">
+      <div className="mx-auto max-w-page px-4 pb-2 pt-5 lg:pt-6">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd(product)) }}

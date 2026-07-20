@@ -68,7 +68,7 @@ export function PlpPage({
       : `Showing ${products.length} Products`;
 
   return (
-    <div className="mx-auto max-w-310 px-4 pt-5 lg:pt-6">
+    <div className="mx-auto max-w-page px-4 pt-5 lg:pt-6">
       <Breadcrumbs items={breadcrumb} className="text-sm lg:text-base" />
       <div className="mt-4 flex items-start gap-5 lg:mt-6">
         <aside className="hidden w-[295px] shrink-0 rounded-card border border-border px-6 py-5 lg:block">

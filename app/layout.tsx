@@ -44,6 +44,7 @@ const themeVariables = {
   "--site-background": store.colors.background,
   "--site-foreground": store.colors.foreground,
   "--site-muted": store.colors.muted,
+  "--site-hero-background": store.colors.heroBackground,
   "--site-font-heading": headingFamily,
   "--site-font-body": bodyFamily
 } as CSSProperties;
