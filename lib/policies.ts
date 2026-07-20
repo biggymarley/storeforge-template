@@ -56,38 +56,30 @@ function privacyPolicy(legal: ResolvedLegalConfig): Policy {
     description: `How ${legal.companyName} collects, uses, and protects your personal information.`,
     sections: [
       {
+        heading: "1. Information We Collect",
         paragraphs: [
-          `This Privacy Policy describes how ${legal.legalName} ("${legal.companyName}", "we", "us") collects, uses, and shares your personal information when you visit or make a purchase from our store.`
+          `When you visit ${legal.companyName}, we collect certain information about your device, your interaction with the Site, and information necessary to process your purchases. This includes your name, billing address, shipping address, payment information, email address, and phone number.`
         ]
       },
       {
-        heading: "Information we collect",
+        heading: "2. How We Use Your Information",
         paragraphs: [
-          "When you visit the store, we collect certain information about your device, your interaction with the store, and the information necessary to process your purchases. We may also collect additional information if you contact us for customer support.",
-          "Order information includes your name, billing address, shipping address, payment confirmation, email address, and phone number. This information is collected and processed by our e-commerce platform and payment providers in order to fulfil your order."
+          "We use your personal information to provide our services to you, which includes: offering products for sale, processing payments, shipping and fulfillment of your order, and keeping you up to date on new products, services, and offers."
         ]
       },
       {
-        heading: "How we use your information",
+        heading: "3. Sharing Your Personal Information",
         paragraphs: [
-          "We use your information to provide our services — processing orders, arranging shipping, and sending order notifications — and to communicate with you, screen for potential fraud, and, in line with the preferences you share with us, provide you with information about our products.",
-          "We do not sell your personal information. We share it only with the service providers required to operate the store (payment processing, order fulfilment, shipping), and where required by law."
+          "We share your Personal Information with service providers to help us provide our services and fulfill our contracts with you. For example, we use third-party payment processors and shipping partners to handle transactions and deliver your orders safely."
         ]
       },
       {
-        heading: "Cookies",
+        heading: "4. Your Rights",
         paragraphs: [
-          "The store uses cookies that are strictly necessary for it to function — keeping your cart between visits and remembering your preferences. These cookies do not track you across other websites."
+          "If you are a resident of certain territories, you have the right to access the Personal Information we hold about you, to port it to a new service, and to ask that your Personal Information be corrected, updated, or erased. Contact us below to exercise these rights."
         ]
       },
-      {
-        heading: "Your rights",
-        paragraphs: [
-          "Depending on where you live, you may have the right to access, correct, or delete the personal information we hold about you, and to object to or restrict its processing. To exercise any of these rights, contact us using the details below and we will respond as required by applicable law.",
-          "We retain order information for our records unless and until you ask us to delete it, subject to legal retention requirements."
-        ]
-      },
-      contactSection(legal, legal.emails.legal)
+      { ...contactSection(legal, legal.emails.legal), heading: "5. Contact Information" }
     ]
   };
 }
