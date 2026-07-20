@@ -34,7 +34,12 @@ export default async function StoreLayout({ children }: Readonly<{ children: Rea
     label: collection.title,
     href: `/collections/${collection.handle}`
   }));
-  const navLinks: NavLink[] = [{ label: "Shop", href: "/products" }, ...collectionLinks.slice(0, 3)];
+  const navLinks: NavLink[] = [
+    { label: "Home", href: "/" },
+    { label: "Shop", href: "/products" },
+    { label: "About", href: "/about" },
+    { label: "Contact", href: "/contact" }
+  ];
 
   return (
     <ToastProvider>
