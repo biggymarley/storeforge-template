@@ -182,31 +182,35 @@ function shippingPolicy(legal: ResolvedLegalConfig): Policy {
 }
 
 function refundPolicy(legal: ResolvedLegalConfig): Policy {
-  const { returnWindowDays } = legal.policies;
+  const { returnWindowDays, refundProcessingEstimate } = legal.policies;
   return {
     handle: "refund",
-    title: "Refund Policy",
+    title: "Return & Refund Policy",
     description: `${legal.companyName}'s return window, conditions, and refund process.`,
     sections: [
       {
-        heading: "Returns",
+        heading: `${returnWindowDays}-Day Return Window`,
         paragraphs: [
-          `We accept returns within ${returnWindowDays} days of delivery. To be eligible, items must be unused, in their original condition, and in their original packaging. Proof of purchase (your order number or confirmation email) is required.`,
-          `To start a return, contact us${legal.emails.support ? ` at ${legal.emails.support}` : ""} with your order number. We will confirm the return address and any next steps. Items sent back without first requesting a return may not be accepted.`
+          `We have a ${returnWindowDays}-day return policy. This means you have ${returnWindowDays} days after receiving your item to request a return.`
+        ]
+      },
+      {
+        heading: "Eligibility for Returns",
+        paragraphs: [
+          "To be eligible for a return, your item must be in the same condition that you received it: unworn or unused, with tags, and in its original packaging. You will also need the receipt or proof of purchase."
+        ]
+      },
+      {
+        heading: "How to Initiate a Return",
+        paragraphs: [
+          `To start a return, please contact us${legal.emails.support ? ` at ${legal.emails.support}` : ""}. If your return is accepted, we will send you instructions on how and where to send your package. Items sent back to us without first requesting a return will not be accepted.`
         ]
       },
       {
         heading: "Refunds",
         paragraphs: [
-          "Once we receive and inspect your return, we will notify you of the outcome. Approved refunds are issued to your original payment method; depending on your bank or card issuer, it can take several business days for the refund to appear.",
-          "Original shipping costs are non-refundable unless the return is due to our error (a wrong or defective item)."
-        ]
-      },
-      {
-        heading: "Exchanges and damaged items",
-        paragraphs: [
-          "The fastest way to get a different item is to return the one you have and place a new order once the return is accepted.",
-          "If you receive a defective, damaged, or wrong item, contact us straight away — we will make it right with a replacement or a full refund, including shipping."
+          `We will notify you once we have received and inspected your return. If approved, you will be automatically refunded on your original payment method within ${refundProcessingEstimate || "several business days"}.`,
+          "Please remember it can take some time for your bank or credit card company to process and post the refund."
         ]
       },
       contactSection(legal, legal.emails.support)

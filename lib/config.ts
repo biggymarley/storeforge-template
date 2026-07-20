@@ -96,6 +96,7 @@ export interface ResolvedLegalConfig {
     deliveryEstimate: string;
     orderCutoffTime: string;
     damageReportHours: number;
+    refundProcessingEstimate: string;
   };
 }
 
@@ -123,7 +124,8 @@ export function resolveLegalConfig(config: LegalConfig = legalConfig): ResolvedL
       freeShipping: config.policies?.freeShipping ?? false,
       deliveryEstimate: config.policies?.deliveryEstimate ?? "",
       orderCutoffTime: config.policies?.orderCutoffTime ?? "",
-      damageReportHours: config.policies?.damageReportHours ?? 48
+      damageReportHours: config.policies?.damageReportHours ?? 48,
+      refundProcessingEstimate: config.policies?.refundProcessingEstimate ?? ""
     }
   };
 }

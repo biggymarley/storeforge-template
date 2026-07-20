@@ -19,6 +19,7 @@ export const legalConfig: LegalConfig = {
     freeShipping: true,
     deliveryEstimate: "4-7 business days",
     orderCutoffTime: "5:00 PM (EST)",
-    damageReportHours: 48
+    damageReportHours: 48,
+    refundProcessingEstimate: "5-10 business days"
   }
 };

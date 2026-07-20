@@ -91,6 +91,8 @@ export interface LegalConfig {
     orderCutoffTime?: string;
     /** Window to report shipping damage, in hours. */
     damageReportHours?: number;
+    /** Free-text refund processing estimate once approved, e.g. "5-10 business days". Unset → generic wording. */
+    refundProcessingEstimate?: string;
   };
 }
 
