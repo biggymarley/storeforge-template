@@ -1,6 +1,6 @@
 {
   "name": "storeforge-template",
-  "version": "1.5.20",
+  "version": "2.0.0",
   "protectedPaths": [
     "config/",
     "public/branding/",
