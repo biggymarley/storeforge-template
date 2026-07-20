@@ -6,7 +6,7 @@
  */
 import { resolveLegalConfig, type ResolvedLegalConfig } from "@/lib/config";
 
-export type PolicyHandle = "privacy" | "terms" | "shipping" | "refund";
+export type PolicyHandle = "privacy" | "terms" | "shipping" | "refund" | "payment";
 
 export interface PolicySection {
   heading?: string;
@@ -203,11 +203,41 @@ function refundPolicy(legal: ResolvedLegalConfig): Policy {
   };
 }
 
+function paymentPolicy(legal: ResolvedLegalConfig): Policy {
+  const gateway = legal.paymentProcessor || "our secure payment gateway";
+  return {
+    handle: "payment",
+    title: "Secure Payment",
+    description: `How ${legal.companyName} keeps your payment information secure.`,
+    sections: [
+      {
+        heading: "1. 100% Secure Checkout",
+        paragraphs: [
+          `At ${legal.companyName}, your security is our top priority. All transactions are processed securely through ${gateway}, one of the most trusted and encrypted payment gateways in the world.`
+        ]
+      },
+      {
+        heading: "2. Accepted Payment Methods",
+        paragraphs: [`We accept all major credit and debit cards securely processed via ${gateway}, including:`],
+        list: ["Visa", "MasterCard", "American Express", "Discover"]
+      },
+      {
+        heading: "3. SSL Encryption",
+        paragraphs: [
+          "Our website is secured with industry-standard 256-bit SSL (Secure Sockets Layer) encryption to protect your personal and payment details. Your credit card information is encrypted during transmission and is never stored on our servers."
+        ]
+      },
+      { ...contactSection(legal, legal.emails.support), heading: "4. Contact Us" }
+    ]
+  };
+}
+
 const POLICY_BUILDERS: Record<PolicyHandle, (legal: ResolvedLegalConfig) => Policy> = {
   privacy: privacyPolicy,
   terms: termsPolicy,
   shipping: shippingPolicy,
-  refund: refundPolicy
+  refund: refundPolicy,
+  payment: paymentPolicy
 };
 
 export const POLICY_HANDLES = Object.keys(POLICY_BUILDERS) as PolicyHandle[];

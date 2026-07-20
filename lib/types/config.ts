@@ -80,6 +80,8 @@ export interface LegalConfig {
   phone?: string;
   /** Jurisdiction whose laws govern the Terms of Service. Unset → falls back to address.country. */
   governingLaw?: string;
+  /** Named on /policies/payment, e.g. "Stripe". Unset → generic "our secure payment gateway" wording. */
+  paymentProcessor?: string;
   /** Parameters interpolated into the generated /policies/* template text. */
   policies?: {
     returnWindowDays?: number;

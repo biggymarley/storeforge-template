@@ -89,6 +89,7 @@ export interface ResolvedLegalConfig {
   emails: { support: string; legal: string };
   phone: string;
   governingLaw: string;
+  paymentProcessor: string;
   policies: {
     returnWindowDays: number;
     processingTimeDays: number;
@@ -119,6 +120,7 @@ export function resolveLegalConfig(config: LegalConfig = legalConfig): ResolvedL
     },
     phone: config.phone ?? "",
     governingLaw: config.governingLaw ?? config.address?.country ?? "",
+    paymentProcessor: config.paymentProcessor ?? "",
     policies: {
       returnWindowDays: config.policies?.returnWindowDays ?? 30,
       processingTimeDays: config.policies?.processingTimeDays ?? 2,

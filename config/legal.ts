@@ -12,6 +12,7 @@ export const legalConfig: LegalConfig = {
   },
   emails: { support: "support@storesmith.shop" },
   phone: "+1 (316) 773-9982",
+  paymentProcessor: "Stripe",
   policies: {
     returnWindowDays: 30,
     processingTimeDays: 3,

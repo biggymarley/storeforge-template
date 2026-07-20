@@ -49,6 +49,7 @@ export function Footer({ shopLinks = [] }: FooterProps) {
       links: [
         { label: "Refund Policy", href: "/policies/refund" },
         { label: "Shipping Policy", href: "/policies/shipping" },
+        { label: "Secure Payment", href: "/policies/payment" },
         { label: "Terms of Service", href: "/policies/terms" },
         { label: "Privacy", href: "/policies/privacy" }
       ]
