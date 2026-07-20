@@ -46,5 +46,11 @@ export const contentConfig: ContentConfig = {
     }
   ],
   // Store adds their own customer/lifestyle photos here (public/branding/gallery/*).
-  gallery: []
+  gallery: [
+    { image: "/branding/gallery/gallery-1.png", alt: "Customer riding a scooter in front of a hand-woven rug" },
+    { image: "/branding/gallery/gallery-2.jpg", alt: "Rooftop lounge seating overlooking the coast" },
+    { image: "/branding/gallery/gallery-3.jpg", alt: "String-lit rooftop dinner table set at dusk" },
+    { image: "/branding/gallery/gallery-4.jpg", alt: "Group of customers at an outdoor yoga session" },
+    { image: "/branding/gallery/gallery-5.webp", alt: "Cozy bedroom styled with woven textiles" }
+  ]
 };

@@ -142,6 +142,6 @@ export interface ContentConfig {
   productFaqs?: Record<string, ProductFaq[]>;
   /** Homepage general FAQ section (shipping/returns/etc, not product-specific). Empty → section hidden. */
   faqs?: ProductFaq[];
-  /** Homepage UGC/"shop the look" photo grid. Fewer than 4 → section hidden. */
+  /** Homepage UGC/"shop the look" photo grid (bento: hero + 4). Fewer than 5 → section hidden. */
   gallery?: GalleryImage[];
 }

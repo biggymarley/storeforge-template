@@ -80,18 +80,13 @@ export default async function HomePage() {
       ) : (
         <>
           <ProductSection title="New Arrivals" products={newArrivals} viewAllHref="/products?sort=newest" priority />
-          {topSelling.length > 0 ? (
-            <div className="mx-auto w-full max-w-310 px-4">
-              <hr className="border-border" />
-            </div>
-          ) : null}
+          <UgcGallery images={content.gallery} />
           <ProductSection title="Top Selling" products={topSelling} viewAllHref="/products?sort=best-selling" />
           <CollectionTiles
             collections={tileCollections.filter((collection) => !HOME_SECTION_HANDLES.includes(collection.handle))}
           />
         </>
       )}
-      <UgcGallery images={content.gallery} />
       <TestimonialCarousel testimonials={content.testimonials} />
       <FaqSection faqs={content.faqs} />
       <StickyShopCta />
