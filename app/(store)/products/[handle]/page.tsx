@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { BrandStrip } from "@/components/layout/brand-strip";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { ProductSection } from "@/components/home/product-section";
 import { ProductTabs } from "@/components/product/product-tabs";
@@ -72,34 +73,37 @@ export default async function ProductPage({ params }: ProductPageProps) {
     const inventory = await getProductInventory(handle).catch(() => ({}));
 
     return (
-      <div className="mx-auto max-w-page px-4 pb-2 pt-5 lg:pt-6">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd(product)) }}
-        />
-        <Breadcrumbs
-          items={[{ label: "All Products", href: "/products" }, { label: product.title }]}
-          className="text-sm lg:text-base"
-        />
-        <ProductView
-          product={product}
-          rating={getProductRating(handle)}
-          policies={policies}
-          inventory={inventory}
-        />
-        <ProductTabs descriptionHtml={product.descriptionHtml} reviews={reviews} faqs={faqs} />
-        <Suspense
-          fallback={
-            <div className="mt-14 grid grid-cols-2 gap-x-3.5 gap-y-6 lg:mt-20 lg:grid-cols-4 lg:gap-5">
-              {Array.from({ length: 4 }, (_, i) => (
-                <ProductCardSkeleton key={i} />
-              ))}
-            </div>
-          }
-        >
-          <Recommendations productId={product.id} />
-        </Suspense>
-      </div>
+      <>
+        <div className="mx-auto max-w-page px-4 pb-2 pt-5 lg:pt-6">
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd(product)) }}
+          />
+          <Breadcrumbs
+            items={[{ label: "All Products", href: "/products" }, { label: product.title }]}
+            className="text-sm lg:text-base"
+          />
+          <ProductView
+            product={product}
+            rating={getProductRating(handle)}
+            policies={policies}
+            inventory={inventory}
+          />
+          <ProductTabs descriptionHtml={product.descriptionHtml} reviews={reviews} faqs={faqs} />
+          <Suspense
+            fallback={
+              <div className="mt-14 grid grid-cols-2 gap-x-3.5 gap-y-6 lg:mt-20 lg:grid-cols-4 lg:gap-5">
+                {Array.from({ length: 4 }, (_, i) => (
+                  <ProductCardSkeleton key={i} />
+                ))}
+              </div>
+            }
+          >
+            <Recommendations productId={product.id} />
+          </Suspense>
+        </div>
+        <BrandStrip />
+      </>
     );
   } catch (error) {
     if (!(error instanceof ShopifyError)) throw error;

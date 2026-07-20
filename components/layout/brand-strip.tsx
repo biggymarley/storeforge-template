@@ -13,6 +13,9 @@ const MIN_LOGOS_PER_HALF = 16;
  * TestimonialCarousel — content duplicated into two identical halves and a
  * `translateX(-50%)` loop (globals.css .marquee); pauses on hover/focus and
  * honors prefers-reduced-motion. Hidden when config has no brands.
+ *
+ * Placement: last element of the home and product pages, so it sits directly
+ * above the footer's newsletter band.
  */
 export function BrandStrip() {
   const { brands } = resolveContentConfig();
@@ -33,9 +36,9 @@ export function BrandStrip() {
               key={`${brand.name}-${index}`}
               src={brand.logoSrc}
               alt={brand.name}
-              width={60}
-              height={60}
-              className="size-15 shrink-0 object-contain"
+              width={48}
+              height={48}
+              className="size-12 shrink-0 object-contain"
             />
           ))}
         </div>

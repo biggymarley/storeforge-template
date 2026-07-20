@@ -67,7 +67,6 @@ export default async function HomePage() {
     <div className="flex flex-col gap-10 pb-2 lg:gap-16">
       <div>
         <Hero heroProduct={heroProduct} aggregateRating={aggregateRating} />
-        <BrandStrip />
         <TrustBar policies={legal.policies} />
       </div>
       {dataError ? (
@@ -89,6 +88,7 @@ export default async function HomePage() {
       )}
       <TestimonialCarousel testimonials={content.testimonials} />
       <FaqSection faqs={content.faqs} />
+      <BrandStrip />
       <StickyShopCta />
     </div>
   );
