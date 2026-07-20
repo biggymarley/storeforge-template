@@ -1,21 +1,20 @@
 import type { LegalConfig } from "@/lib/types/config";
 
 export const legalConfig: LegalConfig = {
-  companyName: "Placeholder Store",
-  legalName: "Placeholder Store LLC",
+  companyName: "My Store 3",
   address: {
-    line1: "123 Placeholder Ave",
-    line2: "",
-    city: "Springfield",
-    region: "ST",
-    postalCode: "00000",
-    country: "United States"
+    line1: "15962 Abbey Road",
+    line2: "Torbay Road, Abbey Sands",
+    city: "Torquay",
+    region: "",
+    postalCode: "TQ2 5HB",
+    country: "United Kingdom"
   },
-  emails: { support: "support@example.com", legal: "legal@example.com" },
+  emails: { support: "nilsvogtmiko@gmail.com" },
   phone: "",
   policies: {
     returnWindowDays: 30,
     processingTimeDays: 2,
-    shipFromCountry: "United States"
+    shipFromCountry: "United Kingdom"
   }
 };

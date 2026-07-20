@@ -60,3 +60,14 @@ export const IconShield = makeIcon(
   '<g stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></g>',
   24
 );
+// Hand-authored (no Figma export) — /contact info cards.
+export const IconPin = makeIcon(
+  "0 0 24 24",
+  '<g stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10.5c0 6-8 12-8 12s-8-6-8-12a8 8 0 1 1 16 0z"/><circle cx="12" cy="10.5" r="2.75"/></g>',
+  24
+);
+export const IconPhone = makeIcon(
+  "0 0 24 24",
+  '<g stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15.46v3a2 2 0 0 1-2.18 2 19.35 19.35 0 0 1-8.44-3 19.1 19.1 0 0 1-5.87-5.87 19.35 19.35 0 0 1-3-8.47A2 2 0 0 1 3.5 1h3a2 2 0 0 1 2 1.72c.13.95.36 1.88.69 2.77a2 2 0 0 1-.45 2.11L7.41 8.94a16 16 0 0 0 5.87 5.87l1.34-1.34a2 2 0 0 1 2.11-.45c.89.33 1.82.56 2.77.69A2 2 0 0 1 21 15.46z"/></g>',
+  24
+);

@@ -37,7 +37,7 @@ export function Footer({ shopLinks = [] }: FooterProps) {
     {
       title: "Help",
       links: [
-        ...(legal.emails.support ? [{ label: "Customer Support", href: `mailto:${legal.emails.support}` }] : []),
+        { label: "Contact Us", href: "/contact" },
         { label: "Delivery Details", href: "/policies/shipping" },
         { label: "Terms & Conditions", href: "/policies/terms" },
         { label: "Privacy Policy", href: "/policies/privacy" }
