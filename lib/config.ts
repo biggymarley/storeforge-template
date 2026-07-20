@@ -88,7 +88,15 @@ export interface ResolvedLegalConfig {
   address: { line1: string; line2: string; city: string; region: string; postalCode: string; country: string };
   emails: { support: string; legal: string };
   phone: string;
-  policies: { returnWindowDays: number; processingTimeDays: number; shipFromCountry: string };
+  policies: {
+    returnWindowDays: number;
+    processingTimeDays: number;
+    shipFromCountry: string;
+    freeShipping: boolean;
+    deliveryEstimate: string;
+    orderCutoffTime: string;
+    damageReportHours: number;
+  };
 }
 
 export function resolveLegalConfig(config: LegalConfig = legalConfig): ResolvedLegalConfig {
@@ -111,7 +119,11 @@ export function resolveLegalConfig(config: LegalConfig = legalConfig): ResolvedL
     policies: {
       returnWindowDays: config.policies?.returnWindowDays ?? 30,
       processingTimeDays: config.policies?.processingTimeDays ?? 2,
-      shipFromCountry: config.policies?.shipFromCountry ?? ""
+      shipFromCountry: config.policies?.shipFromCountry ?? "",
+      freeShipping: config.policies?.freeShipping ?? false,
+      deliveryEstimate: config.policies?.deliveryEstimate ?? "",
+      orderCutoffTime: config.policies?.orderCutoffTime ?? "",
+      damageReportHours: config.policies?.damageReportHours ?? 48
     }
   };
 }

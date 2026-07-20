@@ -83,6 +83,14 @@ export interface LegalConfig {
     returnWindowDays?: number;
     processingTimeDays?: number;
     shipFromCountry?: string;
+    /** True → shipping policy claims free shipping on all orders. */
+    freeShipping?: boolean;
+    /** Free-text transit estimate after handling, e.g. "4-7 business days". Unset → omitted. */
+    deliveryEstimate?: string;
+    /** Free-text order cutoff, e.g. "5:00 PM (EST)". Unset → omitted. */
+    orderCutoffTime?: string;
+    /** Window to report shipping damage, in hours. */
+    damageReportHours?: number;
   };
 }
 

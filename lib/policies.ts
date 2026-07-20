@@ -11,6 +11,8 @@ export type PolicyHandle = "privacy" | "terms" | "shipping" | "refund";
 export interface PolicySection {
   heading?: string;
   paragraphs: string[];
+  /** Rendered as a bullet list after the paragraphs. */
+  list?: string[];
 }
 
 export interface Policy {
@@ -133,42 +135,46 @@ function termsPolicy(legal: ResolvedLegalConfig): Policy {
 }
 
 function shippingPolicy(legal: ResolvedLegalConfig): Policy {
-  const { processingTimeDays, shipFromCountry } = legal.policies;
+  const { processingTimeDays, shipFromCountry, freeShipping, deliveryEstimate, orderCutoffTime, damageReportHours } =
+    legal.policies;
+
   return {
     handle: "shipping",
     title: "Shipping Policy",
     description: `How ${legal.companyName} processes and ships your order.`,
     sections: [
       {
-        heading: "Processing time",
+        heading: "Shipping destination & cost",
         paragraphs: [
-          `Orders are processed within ${processingTimeDays} business ${processingTimeDays === 1 ? "day" : "days"} of being placed. Orders placed on weekends or public holidays are processed the next business day. You will receive a confirmation email with tracking information once your order has been dispatched.`
+          shipFromCountry
+            ? `We currently ship orders only within ${shipFromCountry}. We do not ship to international destinations at this time.`
+            : "Shipping destinations are shown at checkout.",
+          freeShipping
+            ? "Shipping fee: we offer 100% free shipping on all orders. No minimum purchase required."
+            : "Shipping costs are calculated at checkout based on your delivery address and the shipping method you select."
         ]
       },
       {
-        heading: "Shipping rates and delivery",
-        paragraphs: [
-          joinNonEmpty(
-            [
-              shipFromCountry ? `All orders are shipped from ${shipFromCountry}.` : "",
-              "Shipping costs and estimated delivery times are calculated at checkout based on your delivery address and the shipping method you select."
-            ],
-            " "
-          ),
-          "Delivery estimates are provided by our shipping carriers and are not guaranteed. Once an order has been handed to the carrier, delays caused by the carrier or by customs are outside our control, but we will always help you track a delayed parcel."
+        heading: "Delivery timeframes",
+        paragraphs: [],
+        list: [
+          `Handling time: ${processingTimeDays} business ${processingTimeDays === 1 ? "day" : "days"} (Mon–Fri)`,
+          ...(deliveryEstimate ? [`Transit/delivery time: ${deliveryEstimate} (Mon–Fri)`] : []),
+          `Shipping cost: ${freeShipping ? "Free" : "Calculated at checkout"}`,
+          ...(orderCutoffTime ? [`Order cutoff time: ${orderCutoffTime}`] : [])
         ]
       },
       {
-        heading: "Customs and import duties",
-        paragraphs: [
-          "International orders may be subject to import duties and taxes levied by the destination country. These charges are the responsibility of the recipient and are not included in our prices or shipping fees."
+        heading: "Damaged & lost orders",
+        paragraphs: ["Your satisfaction is our priority. If your order arrives damaged, please follow these steps:"],
+        list: [
+          "Inspect immediately — check your package as soon as it arrives.",
+          "Document the damage — take clear photos of the damaged item and the external packaging.",
+          `Contact us — email our support team${legal.emails.support ? ` at ${legal.emails.support}` : ""} within ${damageReportHours} hours of delivery. Include your order number, a description of the damage, and the photos.`
         ]
       },
       {
-        heading: "Lost or damaged parcels",
-        paragraphs: [
-          `If your order arrives damaged, or tracking shows it as lost, contact us${legal.emails.support ? ` at ${legal.emails.support}` : ""} as soon as possible and we will arrange a replacement or refund.`
-        ]
+        paragraphs: ["Once verified, we will arrange a free replacement or a full refund immediately."]
       },
       contactSection(legal, legal.emails.support)
     ]

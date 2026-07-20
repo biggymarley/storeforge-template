@@ -33,6 +33,13 @@ export default async function PolicyPage({ params }: PolicyPageProps) {
             {section.paragraphs.map((paragraph, pIndex) => (
               <p key={pIndex}>{paragraph}</p>
             ))}
+            {section.list ? (
+              <ul>
+                {section.list.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            ) : null}
           </section>
         ))}
       </div>
