@@ -37,6 +37,7 @@ export function Footer({ shopLinks = [] }: FooterProps) {
     {
       title: "Help",
       links: [
+        { label: "About Us", href: "/about" },
         { label: "Contact Us", href: "/contact" },
         { label: "Delivery Details", href: "/policies/shipping" },
         { label: "Terms & Conditions", href: "/policies/terms" },

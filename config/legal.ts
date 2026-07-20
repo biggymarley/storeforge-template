@@ -1,20 +1,20 @@
 import type { LegalConfig } from "@/lib/types/config";
 
 export const legalConfig: LegalConfig = {
-  companyName: "My Store 3",
+  companyName: "storesmith.shop",
   address: {
-    line1: "15962 Abbey Road",
-    line2: "Torbay Road, Abbey Sands",
-    city: "Torquay",
-    region: "",
-    postalCode: "TQ2 5HB",
-    country: "United Kingdom"
+    line1: "",
+    line2: "",
+    city: "Wichita",
+    region: "Kansas",
+    postalCode: "",
+    country: "United States"
   },
-  emails: { support: "nilsvogtmiko@gmail.com" },
+  emails: { support: "support@storesmith.shop" },
   phone: "",
   policies: {
     returnWindowDays: 30,
     processingTimeDays: 2,
-    shipFromCountry: "United Kingdom"
+    shipFromCountry: "United States"
   }
 };

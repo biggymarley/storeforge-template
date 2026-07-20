@@ -1,9 +1,9 @@
 import type { StoreConfig } from "@/lib/types/config";
 
 export const storeConfig: StoreConfig = {
-  name: "Placeholder Store",
+  name: "storesmith.shop",
   tagline: "Quality goods, delivered.",
-  logo: { src: "/branding/logo.svg", alt: "Placeholder Store" },
+  logo: { src: "/branding/logo.svg", alt: "storesmith.shop" },
   colors: {
     primary: "#000000",
     secondary: "#f0f0f0",
