@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { HeroCarousel, type HeroSlide } from "@/components/home/hero-carousel";
 import { IconArrow } from "@/components/icons";
 import { ButtonLink } from "@/components/ui/button";
 import { Price } from "@/components/ui/price";
@@ -17,8 +18,6 @@ interface HeroProps {
 }
 
 type HeroVisual = { kind: "image"; src: string } | { kind: "product"; product: ProductCardType };
-
-type HeroSlide = { src: string; alt: string; href: string };
 
 /**
  * Figma home hero (rect 22:352): heading + copy + price + CTA + stats left,
@@ -141,61 +140,6 @@ export function Hero({ heroProduct = null, aggregateRating = null, carouselProdu
             )}
           </div>
         ) : null}
-      </div>
-    </section>
-  );
-}
-
-/**
- * Full-bleed hero carousel — same pure-CSS `.marquee` mechanism as
- * testimonial-carousel.tsx (content duplicated into two halves, seamless
- * `translateX(-50%)` loop, pauses on hover/focus, honors
- * prefers-reduced-motion; no client JS, no arrows). Each slide spans the full
- * viewport width at the standard hero heights. A single slide renders static —
- * one image looping past itself just looks broken.
- */
-function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
-  const animate = slides.length > 1;
-  const loop = animate ? [...slides, ...slides] : slides;
-  // Full-viewport slides move a lot more pixels than testimonial cards, so a
-  // longer per-slide duration keeps the crawl similarly calm.
-  const durationSeconds = Math.max(slides.length * 10, 20);
-
-  return (
-    <section className="overflow-hidden bg-hero-background">
-      <div className="group relative">
-        <div
-          className={`flex w-max ${animate ? "marquee" : ""}`}
-          style={animate ? { animationDuration: `${durationSeconds}s` } : undefined}
-        >
-          {loop.map((slide, index) => {
-            const sizing = "relative h-[320px] w-screen shrink-0 sm:h-[400px] lg:h-[663px]";
-            const image = (
-              <Image
-                src={slide.src}
-                alt={slide.alt}
-                fill
-                priority={index === 0}
-                sizes="100vw"
-                className="object-cover"
-              />
-            );
-            return slide.href ? (
-              <Link
-                key={`${slide.src}-${index}`}
-                href={slide.href}
-                aria-label={slide.alt || "View slide"}
-                className={`block ${sizing}`}
-              >
-                {image}
-              </Link>
-            ) : (
-              <div key={`${slide.src}-${index}`} className={sizing}>
-                {image}
-              </div>
-            );
-          })}
-        </div>
       </div>
     </section>
   );
