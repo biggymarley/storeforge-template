@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { CSSProperties, ReactNode } from "react";
+import { readableTextColor } from "@/lib/colors";
 import { resolveSeoConfig, resolveStoreConfig } from "@/lib/config";
 import { getFonts, customFontFace } from "@/lib/fonts";
 import { getSiteUrl } from "@/lib/env";
@@ -47,6 +48,7 @@ const themeVariables = {
   "--site-muted": store.colors.muted,
   "--site-hero-background": store.colors.heroBackground,
   "--site-announcement-background": store.colors.announcementBackground,
+  "--site-announcement-foreground": readableTextColor(store.colors.announcementBackground),
   "--site-font-heading": headingFamily,
   "--site-font-body": bodyFamily
 } as CSSProperties;

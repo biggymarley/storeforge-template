@@ -15,7 +15,7 @@ export function AnnouncementBar({ text, href }: AnnouncementBarProps) {
   if (dismissed) return null;
 
   return (
-    <div className="relative bg-announcement-background px-10 py-2.5 text-center text-sm text-background">
+    <div className="relative bg-announcement-background px-10 py-2.5 text-center text-sm text-announcement-foreground">
       {href ? (
         <Link href={href} className="underline underline-offset-2 hover:opacity-80">
           {text}
@@ -27,7 +27,7 @@ export function AnnouncementBar({ text, href }: AnnouncementBarProps) {
         type="button"
         aria-label="Dismiss announcement"
         onClick={() => setDismissed(true)}
-        className="absolute right-4 top-1/2 hidden -translate-y-1/2 text-background transition-opacity hover:opacity-70 lg:block"
+        className="absolute right-4 top-1/2 hidden -translate-y-1/2 text-announcement-foreground transition-opacity hover:opacity-70 lg:block"
       >
         <IconClose width={20} height={20} />
       </button>
