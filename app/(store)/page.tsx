@@ -12,7 +12,7 @@ import { resolveContentConfig, resolveLegalConfig, resolveStoreConfig } from "@/
 import { getAggregateRating } from "@/lib/reviews";
 import { getCollections, getHomeSectionProducts, getProduct } from "@/lib/shopify/api";
 import { ShopifyError } from "@/lib/shopify/client";
-import type { Collection, ProductCard } from "@/lib/shopify/types";
+import type { Collection, Product, ProductCard } from "@/lib/shopify/types";
 
 const HOME_SECTION_HANDLES = ["new-arrivals", "top-selling"];
 
@@ -39,12 +39,25 @@ export default async function HomePage() {
     dataError = error.message;
   }
 
+  // Full-bleed carousel ("products" mode): resolve each configured handle,
+  // skipping any that fails (deleted/unpublished) or lacks a photo — one bad
+  // handle never breaks the carousel. If nothing resolves, the standard hero
+  // below takes over.
+  let carouselProducts: ProductCard[] = [];
+  if (store.hero.carousel?.type === "products") {
+    const resolved = await Promise.all(
+      store.hero.carousel.productHandles.map((handle) => getProduct(handle).catch(() => null))
+    );
+    carouselProducts = resolved.filter((product): product is Product => Boolean(product?.featuredImage));
+  }
+  const heroCarouselActive = store.hero.carousel?.type === "images" || carouselProducts.length > 0;
+
   // Hero visual: a store-owned image always wins. Otherwise feature a live
   // product — the pinned config.hero.productHandle if set, else the best
   // seller/newest arrival already fetched above. A bad/missing handle never
   // breaks the page — it just falls through to the automatic pick.
   let heroProduct: ProductCard | null = null;
-  if (!store.hero.image) {
+  if (!heroCarouselActive && !store.hero.image) {
     if (store.hero.productHandle) {
       try {
         heroProduct = await getProduct(store.hero.productHandle);
@@ -59,6 +72,7 @@ export default async function HomePage() {
   // config, just the existing per-product review data (lib/reviews.ts).
   const homepageHandles = [
     ...(heroProduct ? [heroProduct.handle] : []),
+    ...carouselProducts.map((p) => p.handle),
     ...newArrivals.map((p) => p.handle),
     ...topSelling.map((p) => p.handle)
   ];
@@ -67,7 +81,7 @@ export default async function HomePage() {
   return (
     <div className="flex flex-col gap-10 pb-2 lg:gap-16">
       <div>
-        <Hero heroProduct={heroProduct} aggregateRating={aggregateRating} />
+        <Hero heroProduct={heroProduct} aggregateRating={aggregateRating} carouselProducts={carouselProducts} />
         <TrustBar policies={legal.policies} trustBar={content.trustBar} />
       </div>
       {dataError ? (

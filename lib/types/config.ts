@@ -49,6 +49,14 @@ export interface HeroConfig {
    * `image` is set. Unset → template auto-picks a best-selling/new product.
    */
   productHandle?: string;
+  /** Full-bleed carousel mode — no text overlay. Unset/empty → the standard text+visual hero (headline/subtext/etc from this same config). */
+  carousel?: {
+    type: "products" | "images";
+    /** Shopify product handles, up to 6, shown as a sliding carousel of product photos. */
+    productHandles?: string[];
+    /** Store-owned asset paths, up to 6, e.g. "/branding/hero/173..." — shown as a sliding image carousel. */
+    images?: Array<{ image: string; alt?: string; href?: string }>;
+  };
 }
 
 export interface StoreConfig {

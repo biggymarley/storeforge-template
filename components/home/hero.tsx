@@ -12,9 +12,13 @@ interface HeroProps {
   heroProduct?: ProductCardType | null;
   /** Weighted rating across the products shown on the homepage (lib/reviews.ts). Null hides the line. */
   aggregateRating?: { rating: number; count: number } | null;
+  /** Resolved products for hero.carousel type "products" — page.tsx fetches each configured handle, skipping failures. */
+  carouselProducts?: ProductCardType[];
 }
 
 type HeroVisual = { kind: "image"; src: string } | { kind: "product"; product: ProductCardType };
+
+type HeroSlide = { src: string; alt: string; href: string };
 
 /**
  * Figma home hero (rect 22:352): heading + copy + price + CTA + stats left,
@@ -22,8 +26,28 @@ type HeroVisual = { kind: "image"; src: string } | { kind: "product"; product: P
  * the default for stores that haven't uploaded one — a live Shopify product
  * photo, so the homepage never ships an empty/placeholder hero.
  */
-export function Hero({ heroProduct = null, aggregateRating = null }: HeroProps) {
+export function Hero({ heroProduct = null, aggregateRating = null, carouselProducts = [] }: HeroProps) {
   const { hero } = resolveStoreConfig();
+
+  // Full-bleed carousel mode: no text overlay at all. Empty slides (e.g. every
+  // configured product handle failed to resolve) falls through to the standard hero.
+  const slides: HeroSlide[] =
+    hero.carousel?.type === "products"
+      ? carouselProducts.flatMap((product) =>
+          product.featuredImage
+            ? [
+                {
+                  src: product.featuredImage.url,
+                  alt: product.featuredImage.altText ?? product.title,
+                  href: `/products/${product.handle}`
+                }
+              ]
+            : []
+        )
+      : hero.carousel?.type === "images"
+        ? hero.carousel.images.map((item) => ({ src: item.image, alt: item.alt, href: item.href }))
+        : [];
+  if (slides.length > 0) return <HeroCarousel slides={slides} />;
 
   const visual: HeroVisual | null = hero.image
     ? { kind: "image", src: hero.image }
@@ -117,6 +141,61 @@ export function Hero({ heroProduct = null, aggregateRating = null }: HeroProps) 
             )}
           </div>
         ) : null}
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Full-bleed hero carousel — same pure-CSS `.marquee` mechanism as
+ * testimonial-carousel.tsx (content duplicated into two halves, seamless
+ * `translateX(-50%)` loop, pauses on hover/focus, honors
+ * prefers-reduced-motion; no client JS, no arrows). Each slide spans the full
+ * viewport width at the standard hero heights. A single slide renders static —
+ * one image looping past itself just looks broken.
+ */
+function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
+  const animate = slides.length > 1;
+  const loop = animate ? [...slides, ...slides] : slides;
+  // Full-viewport slides move a lot more pixels than testimonial cards, so a
+  // longer per-slide duration keeps the crawl similarly calm.
+  const durationSeconds = Math.max(slides.length * 10, 20);
+
+  return (
+    <section className="overflow-hidden bg-hero-background">
+      <div className="group relative">
+        <div
+          className={`flex w-max ${animate ? "marquee" : ""}`}
+          style={animate ? { animationDuration: `${durationSeconds}s` } : undefined}
+        >
+          {loop.map((slide, index) => {
+            const sizing = "relative h-[320px] w-screen shrink-0 sm:h-[400px] lg:h-[663px]";
+            const image = (
+              <Image
+                src={slide.src}
+                alt={slide.alt}
+                fill
+                priority={index === 0}
+                sizes="100vw"
+                className="object-cover"
+              />
+            );
+            return slide.href ? (
+              <Link
+                key={`${slide.src}-${index}`}
+                href={slide.href}
+                aria-label={slide.alt || "View slide"}
+                className={`block ${sizing}`}
+              >
+                {image}
+              </Link>
+            ) : (
+              <div key={`${slide.src}-${index}`} className={sizing}>
+                {image}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

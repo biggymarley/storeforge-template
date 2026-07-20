@@ -13,6 +13,7 @@ import { contentConfig } from "@/config/content";
 import type {
   AnnouncementItem,
   ContentConfig,
+  HeroConfig,
   HeroStat,
   LegalConfig,
   SeoConfig,
@@ -31,6 +32,28 @@ const DEFAULT_COLORS: StoreColors = {
   announcementBackground: "#000000"
 };
 
+/** Normalized hero carousel — null means "no carousel configured / nothing usable in it", i.e. render the standard hero. */
+export type ResolvedHeroCarousel =
+  | { type: "products"; productHandles: string[] }
+  | { type: "images"; images: Array<{ image: string; alt: string; href: string }> };
+
+const HERO_CAROUSEL_MAX_ITEMS = 6;
+
+function resolveHeroCarousel(carousel: HeroConfig["carousel"]): ResolvedHeroCarousel | null {
+  if (carousel?.type === "products") {
+    const productHandles = (carousel.productHandles ?? []).filter(Boolean).slice(0, HERO_CAROUSEL_MAX_ITEMS);
+    return productHandles.length > 0 ? { type: "products", productHandles } : null;
+  }
+  if (carousel?.type === "images") {
+    const images = (carousel.images ?? [])
+      .filter((item) => item.image)
+      .slice(0, HERO_CAROUSEL_MAX_ITEMS)
+      .map((item) => ({ image: item.image, alt: item.alt ?? "", href: item.href ?? "" }));
+    return images.length > 0 ? { type: "images", images } : null;
+  }
+  return null;
+}
+
 export interface ResolvedStoreConfig {
   name: string;
   tagline: string;
@@ -42,7 +65,14 @@ export interface ResolvedStoreConfig {
   currency: string;
   announcement: { enabled: boolean; items: AnnouncementItem[] };
   socials: { instagram: string; tiktok: string; x: string; facebook: string };
-  hero: { image: string; headline: string; subtext: string; stats: HeroStat[]; productHandle: string };
+  hero: {
+    image: string;
+    headline: string;
+    subtext: string;
+    stats: HeroStat[];
+    productHandle: string;
+    carousel: ResolvedHeroCarousel | null;
+  };
 }
 
 export function resolveStoreConfig(config: StoreConfig = storeConfig): ResolvedStoreConfig {
@@ -86,7 +116,8 @@ export function resolveStoreConfig(config: StoreConfig = storeConfig): ResolvedS
       headline: config.hero?.headline ?? config.tagline ?? config.name ?? "Store",
       subtext: config.hero?.subtext ?? "",
       stats: config.hero?.stats ?? [],
-      productHandle: config.hero?.productHandle ?? ""
+      productHandle: config.hero?.productHandle ?? "",
+      carousel: resolveHeroCarousel(config.hero?.carousel)
     }
   };
 }
