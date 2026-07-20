@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { IconArrow } from "@/components/icons";
 import { TrustStrip } from "@/components/product/trust-strip";
@@ -36,7 +37,9 @@ function isDefaultOnlyOption(option: Product["options"][number]): boolean {
  */
 export function ProductView({ product, rating, policies, inventory }: ProductViewProps) {
   const { toast } = useToast();
+  const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const [activeAction, setActiveAction] = useState<"cart" | "buy" | null>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
   const [ctaVisible, setCtaVisible] = useState(true);
   const thumbRailRef = useRef<HTMLDivElement>(null);
@@ -83,9 +86,21 @@ export function ProductView({ product, rating, policies, inventory }: ProductVie
 
   const add = () => {
     if (!currentVariant) return;
+    setActiveAction("cart");
     startTransition(async () => {
       const result = await addToCart(currentVariant.id, quantity);
       if (result.ok) toast("Added to cart");
+      else toast(result.error ?? "Could not add to cart.", "error");
+    });
+  };
+
+  // Adds the line then jumps straight to the /cart page — skips the mini-cart drawer.
+  const buyNow = () => {
+    if (!currentVariant) return;
+    setActiveAction("buy");
+    startTransition(async () => {
+      const result = await addToCart(currentVariant.id, quantity);
+      if (result.ok) router.push("/cart");
       else toast(result.error ?? "Could not add to cart.", "error");
     });
   };
@@ -103,8 +118,9 @@ export function ProductView({ product, rating, policies, inventory }: ProductVie
   // Match the box to the actual photo's aspect ratio so object-contain never letterboxes
   // (which would push the visible image down, out of alignment with the title).
   const mainAspectRatio = main?.width && main?.height ? `${main.width} / ${main.height}` : "444 / 530";
-  const ctaLabel =
-    currentVariant && !currentVariant.availableForSale ? "Out of Stock" : pending ? "Adding…" : "Add to Cart";
+  const outOfStock = currentVariant && !currentVariant.availableForSale;
+  const cartLabel = outOfStock ? "Out of Stock" : pending && activeAction === "cart" ? "Adding…" : "Add to Cart";
+  const buyNowLabel = outOfStock ? "Out of Stock" : pending && activeAction === "buy" ? "Adding…" : "Buy Now";
 
   // undefined (no map entry) and null (untracked variant) both mean "no data" — treated as available.
   const quantityAvailable = currentVariant ? inventory[currentVariant.id] : undefined;
@@ -232,28 +248,40 @@ export function ProductView({ product, rating, policies, inventory }: ProductVie
           </div>
         ))}
 
-        <div ref={ctaRef} className="mt-6 flex gap-4 border-t border-border pt-6 lg:gap-5">
-          <QuantityStepper
-            quantity={quantity}
-            onDecrement={() => setQuantity((q) => Math.max(1, q - 1))}
-            onIncrement={() => setQuantity((q) => q + 1)}
-            disabled={pending}
-            className="w-[130px] shrink-0 lg:w-[170px]"
-          />
+        <div ref={ctaRef} className="mt-6 flex flex-col gap-3 border-t border-border pt-6">
+          <div className="flex gap-4 lg:gap-5">
+            <QuantityStepper
+              quantity={quantity}
+              onDecrement={() => setQuantity((q) => Math.max(1, q - 1))}
+              onIncrement={() => setQuantity((q) => q + 1)}
+              disabled={pending}
+              className="w-[130px] shrink-0 lg:w-[170px]"
+            />
+            <Button
+              size="md"
+              variant="primary"
+              className="h-[52px] min-w-0 flex-1"
+              onClick={buyNow}
+              disabled={pending || !currentVariant || !currentVariant.availableForSale}
+            >
+              {buyNowLabel}
+            </Button>
+          </div>
           <Button
             size="md"
-            className="h-[52px] min-w-0 flex-1"
+            variant="secondary"
+            className="h-[52px] w-full"
             onClick={add}
             disabled={pending || !currentVariant || !currentVariant.availableForSale}
           >
-            {ctaLabel}
+            {cartLabel}
           </Button>
         </div>
 
         <TrustStrip policies={policies} className="mt-4" />
       </div>
 
-      {/* Mobile-only: keeps Add to Cart reachable once the row above scrolls out of view. */}
+      {/* Mobile-only: keeps a purchase path reachable once the row above scrolls out of view. */}
       {!ctaVisible ? (
         <div className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-3 border-t border-border bg-background p-4 lg:hidden">
           <div className="min-w-0 flex-1">
@@ -262,11 +290,12 @@ export function ProductView({ product, rating, policies, inventory }: ProductVie
           </div>
           <Button
             size="md"
+            variant="primary"
             className="h-12 min-w-36"
-            onClick={add}
+            onClick={buyNow}
             disabled={pending || !currentVariant || !currentVariant.availableForSale}
           >
-            {ctaLabel}
+            {buyNowLabel}
           </Button>
         </div>
       ) : null}

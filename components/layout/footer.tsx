@@ -1,17 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
 import { IconFacebook, IconInstagram, IconTiktok, IconX } from "@/components/icons";
 import type { NavLink } from "@/components/layout/nav-links";
 import { NewsletterBand } from "@/components/layout/newsletter-band";
+import { PaymentBadges } from "@/components/ui/payment-badges";
 import { resolveLegalConfig, resolveStoreConfig } from "@/lib/config";
-
-const PAYMENT_BADGES = [
-  { src: "/payments/visa.svg", alt: "Visa" },
-  { src: "/payments/mastercard.svg", alt: "Mastercard" },
-  { src: "/payments/paypal.svg", alt: "PayPal" },
-  { src: "/payments/applepay.svg", alt: "Apple Pay" },
-  { src: "/payments/gpay.svg", alt: "Google Pay" }
-] as const;
 
 interface FooterProps {
   /** Collections column from the API; pages pass it in. */
@@ -58,11 +50,18 @@ export function Footer({ shopLinks = [] }: FooterProps) {
 
   return (
     <footer className="mt-16 lg:mt-20">
-      {/* Newsletter band overlaps the gray footer area, as in Figma */}
-      <div className="translate-y-1/2">
+      {/*
+        Newsletter band straddles the white/gray boundary (Figma). A background
+        split at the exact midpoint of this wrapper keeps the card's own
+        vertical center pinned to the seam no matter how many lines its
+        heading wraps to — a fixed translate + guessed padding-top on the
+        panel below broke on mobile once the 3-line heading made the card
+        taller than the guess accounted for.
+      */}
+      <div className="bg-[linear-gradient(to_bottom,var(--color-background)_50%,var(--color-secondary)_50%)]">
         <NewsletterBand />
       </div>
-      <div className="bg-secondary pb-8 pt-40 lg:pt-35">
+      <div className="bg-secondary pb-8 pt-10 lg:pt-14">
         <div className="mx-auto flex max-w-310 flex-col gap-10 px-4 lg:flex-row lg:justify-between">
           <div className="flex max-w-62 flex-col gap-6 lg:gap-9">
             <div className="flex flex-col gap-6">
@@ -109,11 +108,7 @@ export function Footer({ shopLinks = [] }: FooterProps) {
           <p className="text-sm text-muted">
             {legal.companyName} © {new Date().getFullYear()}, All Rights Reserved
           </p>
-          <div className="flex items-center gap-3">
-            {PAYMENT_BADGES.map((badge) => (
-              <Image key={badge.alt} src={badge.src} alt={badge.alt} width={47} height={30} />
-            ))}
-          </div>
+          <PaymentBadges badgeWidth={47} badgeHeight={30} />
         </div>
       </div>
     </footer>
