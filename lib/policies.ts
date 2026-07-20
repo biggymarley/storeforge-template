@@ -99,37 +99,30 @@ function termsPolicy(legal: ResolvedLegalConfig): Policy {
     description: `The terms that govern your use of the ${legal.companyName} store.`,
     sections: [
       {
+        heading: "1. Overview",
         paragraphs: [
-          `These Terms of Service govern your use of this store, operated by ${legal.legalName} ("${legal.companyName}", "we", "us"), and any purchase you make through it. By visiting the store or purchasing something from us, you agree to these terms.`
+          `This website is operated by ${legal.companyName}. Throughout the site, the terms "we", "us" and "our" refer to ${legal.companyName}. By visiting our site and/or purchasing something from us, you engage in our "Service" and agree to be bound by the following terms and conditions.`
         ]
       },
       {
-        heading: "Store terms",
+        heading: "2. General Conditions",
         paragraphs: [
-          "By agreeing to these terms, you confirm that you are at least the age of majority in your place of residence, and that you will not use our products or this store for any illegal or unauthorized purpose.",
-          "We reserve the right to refuse service to anyone for any reason at any time, and to limit the quantities of any products that we offer. All descriptions of products and pricing are subject to change without notice."
+          "We reserve the right to refuse service to anyone for any reason at any time. You understand that your content (not including credit card information), may be transferred unencrypted and involve transmissions over various networks."
         ]
       },
       {
-        heading: "Accuracy of information",
+        heading: "3. Modifications to the Service and Prices",
         paragraphs: [
-          "We work to keep product information, pricing, and availability accurate, but occasional errors may occur. We reserve the right to correct any errors and to cancel orders affected by them; if your order is cancelled after payment, you will receive a full refund.",
-          "Prices are shown at checkout in the store's currency. Applicable taxes and shipping costs are presented before you complete your purchase."
+          "Prices for our products are subject to change without notice. We reserve the right at any time to modify or discontinue the Service (or any part or content thereof) without notice at any time."
         ]
       },
       {
-        heading: "Orders and payment",
+        heading: "4. Governing Law",
         paragraphs: [
-          "When you place an order you will receive an order confirmation by email. This confirms we have received your order; a contract of sale is formed when the order is dispatched. Payment is processed securely by our payment providers — we never store your full card details."
+          `These Terms of Service and any separate agreements whereby we provide you Services shall be governed by and construed in accordance with the laws of ${legal.governingLaw || "the jurisdiction in which we operate"}.`
         ]
       },
-      {
-        heading: "Limitation of liability",
-        paragraphs: [
-          `To the fullest extent permitted by law, ${legal.companyName} is not liable for any indirect, incidental, or consequential damages arising from your use of the store or products purchased through it. Nothing in these terms excludes liability that cannot be excluded under applicable law, including your statutory consumer rights.`
-        ]
-      },
-      contactSection(legal, legal.emails.legal)
+      { ...contactSection(legal, legal.emails.legal), heading: "5. Contact Information" }
     ]
   };
 }

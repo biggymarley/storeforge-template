@@ -78,6 +78,8 @@ export interface LegalConfig {
   address?: LegalAddress;
   emails?: { support?: string; legal?: string };
   phone?: string;
+  /** Jurisdiction whose laws govern the Terms of Service. Unset → falls back to address.country. */
+  governingLaw?: string;
   /** Parameters interpolated into the generated /policies/* template text. */
   policies?: {
     returnWindowDays?: number;
