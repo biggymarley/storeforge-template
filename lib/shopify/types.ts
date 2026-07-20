@@ -180,6 +180,27 @@ export interface CartQueryResult {
   cart: Cart | null;
 }
 
+export interface MerchantFeedVariant {
+  id: string;
+  title: string;
+  availableForSale: boolean;
+  price: Money;
+  image: ShopifyImage | null;
+}
+
+export interface MerchantFeedProduct {
+  id: string;
+  handle: string;
+  title: string;
+  description: string;
+  featuredImage: ShopifyImage | null;
+  variants: Connection<MerchantFeedVariant>;
+}
+
+export interface MerchantFeedQueryResult {
+  products: Connection<MerchantFeedProduct>;
+}
+
 export interface SitemapEntry {
   handle: string;
   updatedAt: string;

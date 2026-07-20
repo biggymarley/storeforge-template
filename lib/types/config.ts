@@ -109,6 +109,8 @@ export interface SeoConfig {
   description?: string;
   ogImage?: string;
   twitterHandle?: string;
+  /** Content of the google-site-verification meta tag (Search Console / Merchant Center). Unset → tag omitted. */
+  googleSiteVerification?: string;
 }
 
 export interface Testimonial {

@@ -146,6 +146,7 @@ export interface ResolvedSeoConfig {
   description: string;
   ogImage: string;
   twitterHandle: string;
+  googleSiteVerification: string;
 }
 
 export function resolveSeoConfig(config: SeoConfig = seoConfig): ResolvedSeoConfig {
@@ -154,7 +155,8 @@ export function resolveSeoConfig(config: SeoConfig = seoConfig): ResolvedSeoConf
     titleTemplate: config.titleTemplate ?? `%s | ${config.defaultTitle || "Store"}`,
     description: config.description ?? "",
     ogImage: config.ogImage ?? "/branding/og-image.png",
-    twitterHandle: config.twitterHandle ?? ""
+    twitterHandle: config.twitterHandle ?? "",
+    googleSiteVerification: config.googleSiteVerification ?? ""
   };
 }
 

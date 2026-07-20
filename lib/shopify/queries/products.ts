@@ -1,4 +1,4 @@
-import { PRODUCT_CARD_FRAGMENT, PRODUCT_FRAGMENT } from "@/lib/shopify/fragments";
+import { IMAGE_FRAGMENT, PRODUCT_CARD_FRAGMENT, PRODUCT_FRAGMENT } from "@/lib/shopify/fragments";
 
 export const PRODUCTS_QUERY = /* GraphQL */ `
   query Products(
@@ -61,6 +61,43 @@ export const PRODUCT_INVENTORY_QUERY = /* GraphQL */ `
       }
     }
   }
+`;
+
+// Lean per-variant catalog read for /feed/google-merchant.xml — Merchant Center
+// wants one entry per purchasable SKU, which PRODUCT_CARD_FRAGMENT doesn't carry.
+export const MERCHANT_FEED_QUERY = /* GraphQL */ `
+  query MerchantFeedProducts($first: Int!) {
+    products(first: $first) {
+      edges {
+        node {
+          id
+          handle
+          title
+          description
+          featuredImage {
+            ...ImageFields
+          }
+          variants(first: 100) {
+            edges {
+              node {
+                id
+                title
+                availableForSale
+                price {
+                  amount
+                  currencyCode
+                }
+                image {
+                  ...ImageFields
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  ${IMAGE_FRAGMENT}
 `;
 
 export const RECOMMENDATIONS_QUERY = /* GraphQL */ `

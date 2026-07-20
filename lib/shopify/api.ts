@@ -10,6 +10,7 @@ import {
 } from "@/lib/shopify/queries/collections";
 import { PAGE_BY_HANDLE_QUERY } from "@/lib/shopify/queries/pages";
 import {
+  MERCHANT_FEED_QUERY,
   PRODUCTS_QUERY,
   PRODUCT_BY_HANDLE_QUERY,
   PRODUCT_INVENTORY_QUERY,
@@ -21,6 +22,8 @@ import {
   type Collection,
   type CollectionByHandleQueryResult,
   type CollectionsQueryResult,
+  type MerchantFeedProduct,
+  type MerchantFeedQueryResult,
   type PageByHandleQueryResult,
   type PageInfo,
   type Product,
@@ -176,6 +179,20 @@ export async function getHomeSectionProducts(
   if (fromCollection.length > 0) return fromCollection;
   const { products } = await getProducts({ first: count, ...fallbackSort });
   return products;
+}
+
+/**
+ * Per-variant catalog data for /feed/google-merchant.xml — never used to render
+ * a page. Merchant Center re-fetches on its own (daily) schedule, so an hour of
+ * staleness is fine.
+ */
+export async function getMerchantFeedProducts(): Promise<MerchantFeedProduct[]> {
+  const data = await shopifyFetch<MerchantFeedQueryResult>({
+    query: MERCHANT_FEED_QUERY,
+    variables: { first: 250 },
+    revalidate: 3600
+  });
+  return flattenConnection(data.products);
 }
 
 /** Handles-only data for sitemap.ts — never used to render a page. */

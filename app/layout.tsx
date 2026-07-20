@@ -33,7 +33,8 @@ export const metadata: Metadata = {
   },
   twitter: seo.twitterHandle
     ? { card: "summary_large_image", site: seo.twitterHandle }
-    : { card: "summary_large_image" }
+    : { card: "summary_large_image" },
+  verification: seo.googleSiteVerification ? { google: seo.googleSiteVerification } : undefined
 };
 
 /** storeConfig.colors + fonts → CSS variables consumed by @theme in globals.css. */
