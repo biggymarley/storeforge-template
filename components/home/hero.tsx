@@ -1,12 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
-import { HeroCarousel, type HeroSlide } from "@/components/home/hero-carousel";
+import { HeroCarousel, type HeroCarouselItem } from "@/components/home/hero-carousel";
 import { IconArrow } from "@/components/icons";
 import { ButtonLink } from "@/components/ui/button";
 import { Price } from "@/components/ui/price";
 import { StarRating } from "@/components/ui/star-rating";
 import { resolveStoreConfig } from "@/lib/config";
-import type { ProductCard as ProductCardType } from "@/lib/shopify/types";
+import { getProductRating } from "@/lib/reviews";
+import { flattenConnection, type ProductCard as ProductCardType } from "@/lib/shopify/types";
 
 interface HeroProps {
   /** Live Shopify product to feature — page.tsx resolves config.hero.productHandle or falls back to a best seller. */
@@ -28,25 +29,29 @@ type HeroVisual = { kind: "image"; src: string } | { kind: "product"; product: P
 export function Hero({ heroProduct = null, aggregateRating = null, carouselProducts = [] }: HeroProps) {
   const { hero } = resolveStoreConfig();
 
-  // Full-bleed carousel mode: no text overlay at all. Empty slides (e.g. every
-  // configured product handle failed to resolve) falls through to the standard hero.
-  const slides: HeroSlide[] =
+  // Full-bleed carousel mode. Product slides carry rating + the single-variant
+  // quick-add id (same rule as product-card.tsx) so the slider can render a
+  // real buy CTA. Empty items (e.g. every configured product handle failed to
+  // resolve) falls through to the standard hero.
+  const carouselItems: HeroCarouselItem[] =
     hero.carousel?.type === "products"
-      ? carouselProducts.flatMap((product) =>
-          product.featuredImage
-            ? [
-                {
-                  src: product.featuredImage.url,
-                  alt: product.featuredImage.altText ?? product.title,
-                  href: `/products/${product.handle}`
-                }
-              ]
-            : []
-        )
+      ? carouselProducts.flatMap((product): HeroCarouselItem[] => {
+          if (!product.featuredImage) return [];
+          const variants = flattenConnection(product.quickAddVariants);
+          const quickAddVariant = variants.length === 1 && variants[0].availableForSale ? variants[0] : null;
+          return [
+            {
+              kind: "product",
+              product,
+              rating: getProductRating(product.handle),
+              quickAddVariantId: quickAddVariant?.id ?? null
+            }
+          ];
+        })
       : hero.carousel?.type === "images"
-        ? hero.carousel.images.map((item) => ({ src: item.image, alt: item.alt, href: item.href }))
+        ? hero.carousel.images.map((item) => ({ kind: "image", src: item.image, alt: item.alt, href: item.href }))
         : [];
-  if (slides.length > 0) return <HeroCarousel slides={slides} />;
+  if (carouselItems.length > 0) return <HeroCarousel items={carouselItems} />;
 
   const visual: HeroVisual | null = hero.image
     ? { kind: "image", src: hero.image }

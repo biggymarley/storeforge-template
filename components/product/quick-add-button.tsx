@@ -9,14 +9,29 @@ interface QuickAddButtonProps {
   variantId: string;
   productTitle: string;
   className?: string;
+  /** Button text — "Quick Add" on grid cards, e.g. "Add to Cart" on the hero carousel. */
+  label?: string;
+  /** "sm" is the original grid-card pill; "lg" matches ButtonLink-scale CTAs. */
+  size?: "sm" | "lg";
 }
 
+const sizes = {
+  sm: "px-4 py-2.5 text-xs",
+  lg: "px-8 py-3.5 text-sm"
+};
+
 /**
- * One-click add for grid cards with exactly one variant (product-card.tsx
- * only renders this when quickAddVariants has a single available entry —
- * anything with real option choices still routes to the PDP).
+ * One-click add for products with exactly one variant (callers only render
+ * this when quickAddVariants has a single available entry — anything with
+ * real option choices still routes to the PDP).
  */
-export function QuickAddButton({ variantId, productTitle, className = "" }: QuickAddButtonProps) {
+export function QuickAddButton({
+  variantId,
+  productTitle,
+  className = "",
+  label = "Quick Add",
+  size = "sm"
+}: QuickAddButtonProps) {
   const { toast } = useToast();
   const [pending, startTransition] = useTransition();
 
@@ -36,10 +51,10 @@ export function QuickAddButton({ variantId, productTitle, className = "" }: Quic
       onClick={handleClick}
       disabled={pending}
       aria-label={`Add ${productTitle} to cart`}
-      className={`flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2.5 text-xs font-medium text-background transition-opacity hover:opacity-85 disabled:opacity-60 ${className}`}
+      className={`flex items-center justify-center gap-2 rounded-full bg-primary font-medium text-background transition-opacity hover:opacity-85 disabled:opacity-60 ${sizes[size]} ${className}`}
     >
       <IconCart width={16} height={16} />
-      {pending ? "Adding…" : "Quick Add"}
+      {pending ? "Adding…" : label}
     </button>
   );
 }

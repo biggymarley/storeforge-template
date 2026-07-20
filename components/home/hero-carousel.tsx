@@ -4,16 +4,30 @@ import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { IconArrow } from "@/components/icons";
+import { QuickAddButton } from "@/components/product/quick-add-button";
+import { ButtonLink } from "@/components/ui/button";
+import { Price } from "@/components/ui/price";
+import { StarRating } from "@/components/ui/star-rating";
+import type { ProductCard as ProductCardType } from "@/lib/shopify/types";
 
-export interface HeroSlide {
-  src: string;
-  alt: string;
-  /** Empty → slide is not clickable. */
-  href: string;
-}
+export type HeroCarouselItem =
+  | {
+      kind: "image";
+      src: string;
+      alt: string;
+      /** Empty → slide is not clickable. */
+      href: string;
+    }
+  | {
+      kind: "product";
+      product: ProductCardType;
+      rating: { rating: number; count: number } | null;
+      /** Single sellable variant id (product-card.tsx quick-add rule) — null routes the CTA to the PDP instead. */
+      quickAddVariantId: string | null;
+    };
 
 interface HeroCarouselProps {
-  slides: HeroSlide[];
+  items: HeroCarouselItem[];
 }
 
 /** How long each slide stays still before auto-advancing. */
@@ -23,30 +37,33 @@ const SLIDE_MS = 550;
 const SLIDE_EASING = "cubic-bezier(0.33, 1, 0.68, 1)";
 /** Minimum horizontal drag to count as a swipe instead of a tap/click. */
 const SWIPE_THRESHOLD_PX = 60;
-/** Any drag past this suppresses the slide's link click on release. */
-const DRAG_CLICK_SUPPRESS_PX = 10;
+/** Drag past this becomes a real drag: pointer capture starts and the release click is suppressed. */
+const DRAG_START_PX = 10;
 
-const SLIDE_SIZING = "relative h-[320px] w-full shrink-0 sm:h-[400px] lg:h-[663px]";
 const ARROW_BUTTON =
   "absolute top-1/2 z-10 flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/80 text-foreground shadow-sm backdrop-blur transition-colors hover:bg-background lg:size-12";
 
 /**
- * Full-bleed hero slider — no text overlay, only navigation chrome. Stepped
- * autoplay (hold, fast slide, hold), seamless infinite loop via clones of the
- * first/last slide at either end of the track, prev/next arrows, dots, and
- * pointer swipe. Autoplay pauses on hover/focus/drag and is disabled entirely
- * under prefers-reduced-motion (arrows/dots/swipe still work).
+ * Full-bleed hero slider. Stepped autoplay (hold, fast slide, hold), seamless
+ * infinite loop via clones of the first/last slide at either end of the track,
+ * prev/next arrows, dots, and pointer swipe. Autoplay pauses on
+ * hover/focus/drag and is disabled entirely under prefers-reduced-motion
+ * (arrows/dots/swipe still work).
+ *
+ * Two slide kinds: "image" renders the store's banner at its natural aspect
+ * ratio (never cropped); "product" is a designed slide — title, rating, price,
+ * add-to-cart/buy CTA — at the standard hero heights.
  */
-export function HeroCarousel({ slides }: HeroCarouselProps) {
-  const count = slides.length;
-  // Track = [last clone, ...slides, first clone]; `position` indexes into it,
+export function HeroCarousel({ items }: HeroCarouselProps) {
+  const count = items.length;
+  // Track = [last clone, ...items, first clone]; `position` indexes into it,
   // so the real slide i lives at position i + 1.
   const [position, setPosition] = useState(1);
   const [animate, setAnimate] = useState(true);
   const [paused, setPaused] = useState(false);
   const [reducedMotion, setReducedMotion] = useState(false);
   const [dragPx, setDragPx] = useState(0);
-  const dragRef = useRef<{ startX: number; moved: boolean } | null>(null);
+  const dragRef = useRef<{ startX: number; pointerId: number; moved: boolean } | null>(null);
   const dragPxRef = useRef(0);
   // pointerup (and endDrag) fires before the browser's click — this carries
   // "that was a swipe, not a tap" across to onClickCapture.
@@ -107,16 +124,21 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
 
   const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     if (event.pointerType === "mouse" && event.button !== 0) return;
-    dragRef.current = { startX: event.clientX, moved: false };
+    dragRef.current = { startX: event.clientX, pointerId: event.pointerId, moved: false };
     dragPxRef.current = 0;
-    event.currentTarget.setPointerCapture(event.pointerId);
   };
 
   const onPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
     const drag = dragRef.current;
     if (!drag) return;
     const dx = event.clientX - drag.startX;
-    if (Math.abs(dx) > DRAG_CLICK_SUPPRESS_PX) drag.moved = true;
+    if (!drag.moved) {
+      if (Math.abs(dx) <= DRAG_START_PX) return;
+      drag.moved = true;
+      // Capture only once it's a real drag — capturing on pointerdown would
+      // retarget the release click away from slide links and buy buttons.
+      event.currentTarget.setPointerCapture(drag.pointerId);
+    }
     dragPxRef.current = dx;
     setAnimate(false);
     setDragPx(dx);
@@ -146,17 +168,14 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
   if (count === 0) return null;
 
   if (count === 1) {
-    const slide = slides[0];
     return (
       <section className="overflow-hidden bg-hero-background">
-        <div className={SLIDE_SIZING}>
-          <SlideImage slide={slide} priority />
-        </div>
+        <Slide item={items[0]} priority />
       </section>
     );
   }
 
-  const loop = [slides[count - 1], ...slides, slides[0]];
+  const loop = [items[count - 1], ...items, items[0]];
 
   return (
     <section
@@ -182,13 +201,15 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
           onPointerCancel={endDrag}
           onClickCapture={onClickCapture}
         >
-          {loop.map((slide, index) => (
+          {loop.map((item, index) => (
             <div
-              key={`${slide.src}-${index}`}
-              className={SLIDE_SIZING}
-              aria-hidden={index !== position}
+              key={`${item.kind}-${index}`}
+              className="w-full shrink-0"
+              // React 19 boolean inert: inactive slides (and the clones) are
+              // unfocusable and hidden from assistive tech.
+              inert={index !== position}
             >
-              <SlideImage slide={slide} priority={index === 1} inert={index !== position} />
+              <Slide item={item} priority={index === 1} />
             </div>
           ))}
         </div>
@@ -211,9 +232,9 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
         </button>
 
         <div className="absolute inset-x-0 bottom-4 z-10 flex justify-center gap-2 lg:bottom-6">
-          {slides.map((slide, index) => (
+          {items.map((item, index) => (
             <button
-              key={`${slide.src}-dot-${index}`}
+              key={`dot-${index}`}
               type="button"
               aria-label={`Go to slide ${index + 1}`}
               aria-current={index === realIndex}
@@ -232,28 +253,118 @@ export function HeroCarousel({ slides }: HeroCarouselProps) {
   );
 }
 
-function SlideImage({ slide, priority = false, inert = false }: { slide: HeroSlide; priority?: boolean; inert?: boolean }) {
+function Slide({ item, priority = false }: { item: HeroCarouselItem; priority?: boolean }) {
+  if (item.kind === "image") return <ImageSlide item={item} priority={priority} />;
+  return <ProductSlide item={item} priority={priority} />;
+}
+
+/**
+ * Banner slide at the image's natural aspect ratio — never cropped. The
+ * width/height props are only a pre-load aspect hint (typical wide banner);
+ * `h-auto w-full` hands sizing to the image's real intrinsic ratio once loaded.
+ */
+function ImageSlide({
+  item,
+  priority
+}: {
+  item: Extract<HeroCarouselItem, { kind: "image" }>;
+  priority: boolean;
+}) {
   const image = (
     <Image
-      src={slide.src}
-      alt={slide.alt}
-      fill
+      src={item.src}
+      alt={item.alt}
+      width={2000}
+      height={650}
       priority={priority}
       sizes="100vw"
-      className="object-cover"
+      className="h-auto w-full"
       draggable={false}
     />
   );
-  if (!slide.href) return image;
+  if (!item.href) return image;
   return (
-    <Link
-      href={slide.href}
-      aria-label={slide.alt || "View slide"}
-      tabIndex={inert ? -1 : undefined}
-      className="absolute inset-0"
-      draggable={false}
-    >
+    <Link href={item.href} aria-label={item.alt || "View slide"} className="block" draggable={false}>
       {image}
     </Link>
+  );
+}
+
+/**
+ * Designed product slide — same visual language as the standard hero (heading
+ * left, floating product photo right, stacked on mobile) plus a buy CTA:
+ * one-click add-to-cart for single-variant products, otherwise a Buy Now link
+ * to the PDP. Extra horizontal/bottom padding keeps content clear of the
+ * arrows and dots.
+ */
+function ProductSlide({
+  item,
+  priority
+}: {
+  item: Extract<HeroCarouselItem, { kind: "product" }>;
+  priority: boolean;
+}) {
+  const { product, rating, quickAddVariantId } = item;
+  const pdpHref = `/products/${product.handle}`;
+
+  return (
+    <div className="flex min-h-[440px] w-full items-center sm:min-h-[500px] lg:min-h-[663px]">
+      <div className="mx-auto grid w-full max-w-page items-center gap-6 px-12 pb-16 pt-8 lg:grid-cols-[minmax(0,577px)_minmax(0,1fr)] lg:gap-4 lg:px-4 lg:py-16">
+        <div className="order-2 flex flex-col items-center gap-4 text-center lg:order-1 lg:items-start lg:gap-6 lg:text-left">
+          <h2 className="font-heading text-3xl uppercase leading-[0.95] lg:text-5xl">{product.title}</h2>
+          {rating ? (
+            <div className="flex items-center gap-2">
+              <StarRating rating={rating.rating} showLabel={false} size={18} />
+              <span className="text-sm text-muted">
+                {rating.rating}/5 · {rating.count} reviews
+              </span>
+            </div>
+          ) : null}
+          <Price
+            price={product.priceRange.minVariantPrice}
+            compareAt={product.compareAtPriceRange?.maxVariantPrice}
+            size="lg"
+          />
+          <div className="flex w-full items-center justify-center gap-3 sm:w-auto lg:justify-start">
+            {quickAddVariantId ? (
+              <QuickAddButton
+                variantId={quickAddVariantId}
+                productTitle={product.title}
+                label="Add to Cart"
+                size="lg"
+                className="flex-1 sm:flex-initial lg:min-w-52"
+              />
+            ) : (
+              <ButtonLink href={pdpHref} className="flex-1 sm:flex-initial lg:min-w-52">
+                {product.availableForSale ? "Buy Now" : "View Product"}
+              </ButtonLink>
+            )}
+            <Link
+              href={pdpHref}
+              aria-label={`View ${product.title}`}
+              className="flex size-12 shrink-0 items-center justify-center rounded-full border border-border bg-background text-foreground transition-colors hover:bg-secondary lg:size-15"
+            >
+              <IconArrow width={20} height={20} />
+            </Link>
+          </div>
+        </div>
+
+        <div className="order-1 flex justify-center lg:order-2 lg:self-stretch lg:items-center">
+          {product.featuredImage ? (
+            <div className="hero-float relative aspect-square w-[65%] max-w-[280px] sm:max-w-[340px] lg:w-full lg:max-w-[520px]">
+              <Image
+                src={product.featuredImage.url}
+                alt={product.featuredImage.altText ?? product.title}
+                fill
+                priority={priority}
+                sizes="(max-width: 1024px) 65vw, 45vw"
+                className="object-contain drop-shadow-2xl"
+                draggable={false}
+              />
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </div>
   );
 }
