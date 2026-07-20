@@ -50,8 +50,8 @@ export default async function StoreLayout({ children }: Readonly<{ children: Rea
         >
           Skip to content
         </a>
-        {store.announcement.enabled && store.announcement.text ? (
-          <AnnouncementBar text={store.announcement.text} href={store.announcement.href || undefined} />
+        {store.announcement.enabled && store.announcement.items.length > 0 ? (
+          <AnnouncementBar items={store.announcement.items} />
         ) : null}
         <Header links={navLinks} />
         <main id="main-content">{children}</main>

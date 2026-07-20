@@ -11,6 +11,7 @@ import { legalConfig } from "@/config/legal";
 import { seoConfig } from "@/config/seo";
 import { contentConfig } from "@/config/content";
 import type {
+  AnnouncementItem,
   ContentConfig,
   HeroStat,
   LegalConfig,
@@ -39,7 +40,7 @@ export interface ResolvedStoreConfig {
   fonts: { heading: string; body: string };
   customFonts: { heading?: { src: string; format?: string }; body?: { src: string; format?: string } };
   currency: string;
-  announcement: { enabled: boolean; text: string; href: string };
+  announcement: { enabled: boolean; items: AnnouncementItem[] };
   socials: { instagram: string; tiktok: string; x: string; facebook: string };
   hero: { image: string; headline: string; subtext: string; stats: HeroStat[]; productHandle: string };
 }
@@ -72,8 +73,7 @@ export function resolveStoreConfig(config: StoreConfig = storeConfig): ResolvedS
     currency: config.currency ?? "USD",
     announcement: {
       enabled: config.announcement?.enabled ?? false,
-      text: config.announcement?.text ?? "",
-      href: config.announcement?.href ?? ""
+      items: config.announcement?.items ?? []
     },
     socials: {
       instagram: config.socials?.instagram ?? "",
@@ -170,6 +170,7 @@ export interface ResolvedContentConfig {
   productFaqs: NonNullable<ContentConfig["productFaqs"]>;
   faqs: NonNullable<ContentConfig["faqs"]>;
   gallery: NonNullable<ContentConfig["gallery"]>;
+  trustBar: NonNullable<ContentConfig["trustBar"]>;
 }
 
 export function resolveContentConfig(config: ContentConfig = contentConfig): ResolvedContentConfig {
@@ -179,6 +180,7 @@ export function resolveContentConfig(config: ContentConfig = contentConfig): Res
     productReviews: config.productReviews ?? {},
     productFaqs: config.productFaqs ?? {},
     faqs: config.faqs ?? [],
-    gallery: config.gallery ?? []
+    gallery: config.gallery ?? [],
+    trustBar: config.trustBar ?? []
   };
 }

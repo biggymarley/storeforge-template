@@ -28,6 +28,14 @@ export interface HeroStat {
   label: string;
 }
 
+/** One announcement-bar slot (max 3 shown). Icon optional — some items are plain text. */
+export interface AnnouncementItem {
+  /** Same 9-icon set as the trust bar (components/icons.tsx). */
+  icon?: TrustBarIcon;
+  text: string;
+  href?: string;
+}
+
 export interface HeroConfig {
   /** Store-owned asset, e.g. "/branding/hero.jpg". Empty → plain surface hero. */
   image?: string;
@@ -60,7 +68,7 @@ export interface StoreConfig {
   };
   /** ISO 4217 code — display fallback only; Shopify's returned currencyCode wins. */
   currency?: string;
-  announcement?: { enabled?: boolean; text?: string; href?: string };
+  announcement?: { enabled?: boolean; items?: AnnouncementItem[] };
   socials?: { instagram?: string; tiktok?: string; x?: string; facebook?: string };
   /** Homepage hero content (all optional — sane template defaults apply). */
   hero?: HeroConfig;
@@ -143,6 +151,9 @@ export interface ProductFaq {
   answer: string;
 }
 
+/** Icon keys for the homepage trust bar — each maps to an Icon* export in components/icons.tsx. */
+export type TrustBarIcon = "truck" | "return" | "shield" | "verified" | "star" | "tag" | "mail" | "phone" | "pin";
+
 export interface GalleryImage {
   /** Store-owned asset, e.g. "/branding/gallery/customer-1.jpg". */
   image: string;
@@ -164,4 +175,6 @@ export interface ContentConfig {
   faqs?: ProductFaq[];
   /** Homepage UGC/"shop the look" photo grid (bento: hero + 4). Fewer than 5 → section hidden. */
   gallery?: GalleryImage[];
+  /** Homepage icon+text trust badges (shipping/returns/secure checkout, etc). Max 3. Empty/unset → falls back to the policy-derived defaults trust-bar.tsx already computes. */
+  trustBar?: Array<{ icon: TrustBarIcon; text: string }>;
 }

@@ -16,8 +16,7 @@ export const storeConfig: StoreConfig = {
   currency: "USD",
   announcement: {
     enabled: true,
-    text: "Sign up and get 20% off to your first order.",
-    href: ""
+    items: [{ text: "Sign up and get 20% off to your first order." }]
   },
   socials: { instagram: "", tiktok: "", x: "", facebook: "" },
   hero: {

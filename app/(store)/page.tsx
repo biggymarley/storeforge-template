@@ -67,7 +67,7 @@ export default async function HomePage() {
     <div className="flex flex-col gap-10 pb-2 lg:gap-16">
       <div>
         <Hero heroProduct={heroProduct} aggregateRating={aggregateRating} />
-        <TrustBar policies={legal.policies} />
+        <TrustBar policies={legal.policies} trustBar={content.trustBar} />
       </div>
       {dataError ? (
         <section className="mx-auto w-full max-w-page px-4">

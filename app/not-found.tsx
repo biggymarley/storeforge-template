@@ -32,8 +32,8 @@ export default async function RootNotFound() {
       >
         Skip to content
       </a>
-      {store.announcement.enabled && store.announcement.text ? (
-        <AnnouncementBar text={store.announcement.text} href={store.announcement.href || undefined} />
+      {store.announcement.enabled && store.announcement.items.length > 0 ? (
+        <AnnouncementBar items={store.announcement.items} />
       ) : null}
       <Header links={[{ label: "Shop", href: "/products" }, ...collectionLinks.slice(0, 3)]} withCart={false} />
       <main id="main-content">

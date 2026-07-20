@@ -1,28 +1,35 @@
 import { IconReturn, IconShield, IconTruck } from "@/components/icons";
-import type { ResolvedLegalConfig } from "@/lib/config";
+import type { ResolvedContentConfig, ResolvedLegalConfig } from "@/lib/config";
+import { TRUST_BAR_ICONS } from "@/lib/trust-bar-icons";
 
 interface TrustBarProps {
   policies: ResolvedLegalConfig["policies"];
+  /** Merchant override from content.trustBar. Empty → policy-derived defaults below. */
+  trustBar?: ResolvedContentConfig["trustBar"];
 }
 
 /**
- * Homepage conversion strip: same shipping/returns facts as the PDP's
+ * Homepage conversion strip. With content.trustBar set, renders those custom
+ * badges (max 3); otherwise the same shipping/returns facts as the PDP's
  * TrustStrip (components/product/trust-strip.tsx), laid out horizontally,
- * plus a static secure-checkout item. No new config — reads legal.policies.
+ * plus a static secure-checkout item, from legal.policies.
  */
-export function TrustBar({ policies }: TrustBarProps) {
+export function TrustBar({ policies, trustBar = [] }: TrustBarProps) {
   const { processingTimeDays, returnWindowDays, shipFromCountry } = policies;
 
-  const items = [
-    {
-      icon: IconTruck,
-      label: `Ships in ${processingTimeDays} business day${processingTimeDays === 1 ? "" : "s"}${
-        shipFromCountry ? ` from ${shipFromCountry}` : ""
-      }`
-    },
-    { icon: IconReturn, label: `Free returns within ${returnWindowDays} days` },
-    { icon: IconShield, label: "Secure checkout, every order" }
-  ];
+  const items =
+    trustBar.length > 0
+      ? trustBar.slice(0, 3).map((badge) => ({ icon: TRUST_BAR_ICONS[badge.icon] ?? IconShield, label: badge.text }))
+      : [
+          {
+            icon: IconTruck,
+            label: `Ships in ${processingTimeDays} business day${processingTimeDays === 1 ? "" : "s"}${
+              shipFromCountry ? ` from ${shipFromCountry}` : ""
+            }`
+          },
+          { icon: IconReturn, label: `Free returns within ${returnWindowDays} days` },
+          { icon: IconShield, label: "Secure checkout, every order" }
+        ];
 
   return (
     <section aria-label="Why shop with us" className="mx-auto w-full max-w-page px-4">

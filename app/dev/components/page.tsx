@@ -62,7 +62,13 @@ export default function ComponentsGallery() {
 
   return (
     <div>
-      <AnnouncementBar text={store.announcement.text || "Announcement bar text"} />
+      <AnnouncementBar
+        items={
+          store.announcement.items.length > 0
+            ? store.announcement.items
+            : [{ text: "Announcement bar text" }, { icon: "truck", text: "Free shipping", href: "/products" }]
+        }
+      />
       <Header
         links={[
           { label: "Shop", href: "/products" },
