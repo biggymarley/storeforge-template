@@ -1,6 +1,6 @@
 # PROGRESS.md — Handoff state for storeforge-template
 
-> Last updated 2026-07-17 (session 4 — Phase E COMPLETE, v1.0.0). **Full handoff set** — read in this order:
+> Last updated 2026-07-20 (session 5 — landing-page + legal-content pass, v1.5.10). **Full handoff set** — read in this order:
 > 1. This file (state + what remains)
 > 2. `docs/handoff/PAGE-BLUEPRINTS.md` — measured Figma specs (node IDs) — reference for any future visual work
 > 3. `docs/handoff/ARCHITECTURE-DECISIONS.md` — why the foundation is built this way (updated with cart architecture as built)
@@ -16,8 +16,9 @@
 | **C — Design system** | ✅ Done (`/dev/components` gallery) |
 | **D — Pages** | ✅ Done — global layout · cart plumbing/actions · home · `/products` · `/collections/[handle]` (filters/sort/cursor pagination) · PDP (variants + add-to-cart) · mini-cart (optimistic) · `/cart` (promo codes) · toasts · loading skeletons · `/search` (+predictive dropdown) · `/pages/[handle]` · `/policies/*` · custom 404/error pages |
 | **E — Hardening** | ✅ **DONE** (session 4): sitemap/robots, JSON-LD, `/dev/*` production-gated, a11y pass (skip link, focus rings, Escape-key parity), Lighthouse ≥90 documented, README + CHANGELOG updated, `.env.example` fixed and committed, palette-flip smoke test, brand-leak grep clean |
+| **F — Post-launch iteration** (v1.1.0→v1.5.10, no longer spec-phase work) | ✅ In progress, see session 5 below — homepage conversion sections + real legal/content pages, all owner-directed, committed and pushed each time (rule changed — see "Owner working style" update) |
 
-**Phase C + D were committed and pushed by the owner between sessions 3 and 4** (`git log` on `main`: `858ec0c template`). Phase E (this session) is the remaining diff — **ask before committing**, per the owner's standing rule.
+**Phase C + D were committed and pushed by the owner between sessions 3 and 4** (`git log` on `main`: `858ec0c template`). Between session 4 and session 5 the owner shipped **v1.1.0 through v1.5.1** independently (redesigned PDP, added FAQs config field + stock badge, nav/hero redesign) — see `git log`/`CHANGELOG.md` for that gap, not covered by these handoff docs in detail.
 
 ## Figma source
 
@@ -31,6 +32,39 @@
 - **Products exist now** (~14 e-bikes/accessories with variants, compare-at prices, many images) and are published to the Headless channel. Add-to-cart → checkout URL verified working end-to-end.
 - **Collections still missing** (only auto "frontpage"). This currently hides: header nav collection links, footer Shop column, home "Browse by Category" tiles, PLP category lists, and collection-page facet filters (Color/Size come from `collection.products.filters` — **untested against real data until collections exist**). Owner must create 2–3 collections (with images for the home tiles), publish each to Headless; optional `new-arrivals`/`top-selling` handles drive the home sections.
 - Store currency is **GIP (Gibraltar Pound)** — flagged to owner (Shopify Settings → General) in case it's unintentional. Checkout URLs resolve to `kijdh1-w0.myshopify.com` (Shopify alias of the dev store; harmless).
+- **Session 5 note**: `.env.local`'s `SHOPIFY_STORE_DOMAIN` is now set directly to `kijdh1-w0.myshopify.com` (the alias noted above), not `uwstkm-c0.myshopify.com` — unclear if this changed intentionally between sessions 4 and 5; flagging for whoever picks this up next rather than assuming either is wrong. This store's own CMS "contact-us" page (fetched once this session, see below) has unrelated placeholder content ("My Store 3", a Torquay/UK address) — **do not use it as a data source**, it's dev-store noise, not the real store identity (see session 5 "Contact Us mistake" below).
+
+## What was built in session 5 (2026-07-19–20 — homepage conversion sections + real legal/content pages, v1.5.1 → v1.5.10)
+
+**Homepage additions** (`app/(store)/page.tsx` and new `components/home/*`):
+- `trust-bar.tsx` — shipping/returns/secure-checkout row, reuses `legal.policies` (same data as the PDP's existing `trust-strip.tsx`), no new config.
+- Aggregate rating line in the hero (`lib/reviews.ts` → `getAggregateRating()`, weighted across whatever products are on the homepage that day) — no new config, derived from existing per-product review data.
+- `quick-add-button.tsx` — one-click add to cart on product-grid cards with exactly one variant (no size/color to pick); required extending `PRODUCT_CARD_FRAGMENT`/`ProductCard` type with a small `quickAddVariants(first: 2)` field so grids can detect "simple product" without a second fetch.
+- Functional newsletter signup (`lib/shopify/customer-actions.ts`, `subscribeToNewsletter()`) — calls Shopify's `customerCreate` directly (random throwaway password + `acceptsMarketing: true`), no third-party ESP, no new secret. Already-registered emails are treated as success, not an error.
+- `faq-section.tsx` — general homepage FAQ, new optional `content.faqs` field.
+- `sticky-shop-cta.tsx` — mobile-only "Shop Now" bar once the user scrolls past the hero, dismissible.
+- `testimonial-carousel.tsx` — rewritten from a manual scroll-snap rail (client component, prev/next arrows) to an **infinite CSS marquee** (pure server component now — no JS needed): list duplicated into two identical halves sized to comfortably outrun any viewport (`MIN_CARDS_PER_HALF = 8`, computed via repeat count), `translateX(-50%)` loop, pause on hover/focus, `prefers-reduced-motion` respected (new `.marquee` keyframes in `app/globals.css`). **Bug fixed mid-session**: an earlier version only duplicated the list once with no minimum-width guarantee, so on small testimonial counts (3, in this store) the loop ran out of rendered content before resetting — visible empty gap scrolling through mid-screen. Fixed by computing enough repeats per half.
+- `ugc-gallery.tsx` — "Shop The Look" UGC/lifestyle photo grid, new optional `content.gallery` field (`{ image, alt?, href? }[]`, min 5 required to render). **Redesigned once already this session**: v1 was 6 uniform `rounded-card` (12px) squares — owner wanted a "perfect ui/ux gallery" look and less radius, so v2 is a bento grid (hero tile 2×2 + 4 supporting tiles, `lg:h-[440px]` fixed-height grid so the row-span-2 hero lines up exactly with the small tiles, `rounded-lg` (8px)), plus moved from the bottom of the page (near testimonials) to between New Arrivals and Top Selling per owner request. Real test photos are in `public/branding/gallery/gallery-{1..5}.png|jpg|webp` (renamed from the original messy uploaded filenames — one had a literal space, which would've broken as a URL path) and wired into `config/content.ts`.
+
+**New pages**, both static/config-driven, no live Shopify fetching (see mistake below):
+- `/contact` (`app/(store)/contact/page.tsx`) — address/email/phone info cards + social links, entirely from `resolveLegalConfig()`/`resolveStoreConfig()`. Added `IconPin`/`IconPhone` (hand-authored, matching the existing `IconTruck`/`IconReturn`/`IconShield` stroke style).
+- `/about` (`app/(store)/about/page.tsx`) — "Our Story"/"Our Mission" copy given by the owner, generalized so `${store.name}` and `${legal.address.city/region}` are interpolated instead of hardcoded, same pattern as `lib/policies.ts`.
+- Both linked from the footer's Help column.
+
+**Contact Us mistake, corrected** (important for future sessions): I initially populated `config/legal.ts` by fetching the connected Shopify store's own `contact-us` CMS page content ("My Store 3", Torquay UK) and treating it as ground truth. The owner corrected this hard: **"i want u to use the site config infos instead... check the refund policy or the other pages to understand how it works"** — i.e. `lib/policies.ts`'s existing pattern (static template copy + `resolveLegalConfig()` interpolation, zero live fetching) was already correct and I should not have deviated from it for Contact Us. Reverted to config-driven values matching content the owner then supplied directly (About Us HTML naming "storesmith.shop" / Wichita, KS) — `config/store.ts` name and `config/legal.ts` company/address were updated to match. **Lesson for next session: config is the only source of truth for store facts on any page — never `getPage()`/live-fetch Shopify CMS content into config or onto a static page.**
+
+**Policy pages rewritten to match owner-supplied reference HTML** (`lib/policies.ts`), one drop per message (shipping → refund → terms → privacy → payment, a brand-new 5th policy type not in the original four):
+- Each drop's real facts became new optional `legal.policies.*` / top-level `LegalConfig` fields (all backward-compatible, sane defaults): `freeShipping`, `deliveryEstimate`, `orderCutoffTime`, `damageReportHours`, `refundProcessingEstimate`, `governingLaw` (falls back to `address.country`), `paymentProcessor` (falls back to generic "our secure payment gateway" wording).
+- Added `PolicySection.list?: string[]` (rendered as a `<ul>` in `app/(store)/policies/[policy]/page.tsx`) to support the shipping table (converted to a bullet list) and the damage-report steps.
+- New 5th policy: `/policies/payment` ("Secure Payment") — `PolicyHandle` union and `POLICY_BUILDERS` both extended; `POLICY_HANDLES`/`generateStaticParams` picked it up automatically since they derive from the map. Linked from the footer's Legal column.
+- Final `config/legal.ts` state: `companyName: "storesmith.shop"`, address `8444 W McCormick Ave, Wichita, KS 67209, United States`, phone `+1 (316) 773-9982`, `emails.support: "support@storesmith.shop"`, `paymentProcessor: "Stripe"`.
+
+**Repeatable pattern established for future HTML drops** (owner said they'll keep dropping reference HTML for remaining pages): real facts → config (existing field if one fits, else a new optional field in `lib/types/config.ts` + default in `resolve*Config()`); wording → template-owned copy interpolating those config values; never hardcode, never live-fetch from Shopify for static content.
+
+**Owner working style — rule change this session**: previously "ask before committing" (sessions 1–4). This session the owner asked me to commit+push directly, repeatedly, without pre-approval each time ("lets push", "push it", "push the chnages") — **this is now standing permission to commit and push after a change is verified**, not a one-off. Also confirmed hard: **no visual verification of any kind on my part** — no screenshots, no `curl`+grep of rendered HTML, no starting/restarting the dev server after a change "for them" (interrupted mid-command for this specifically). Just `typecheck`/`lint`/`build`, then push if asked. Saved to memory (`owner-prefers-manual-testing.md`).
+- Repo has a **pre-push hook** (not something I set up) that auto-bumps `template.json`/`package.json` patch version and creates+pushes a matching git tag on every `git push` to `main` — the "failed to push some refs" message that follows is expected/harmless (the hook already did the real push). Versions v1.5.2 → v1.5.10 were all this hook, one per session-5 commit.
+- Owner sometimes commits/pushes their own work between my turns without saying so in advance (happened again this session — the About Us + Contact fixes commit "contact about" landing as v1.5.5 was the owner, not me). Check `git log`/`git status` at the start of anything, same standing advice as prior sessions.
+- Dev server this session ran on **port 3210** (not the documented 3199 — 3199 may already be in use by the sibling `store-bulk` tool in this environment, port 3000/3001 definitely were). Worth reconciling the documented convention if it keeps mattering.
 
 ## What was built in session 4 (Phase E — hardening, v1.0.0)
 
@@ -91,6 +125,10 @@ Build-wise, v1.0.0 is feature-complete (Phases A–E all done). What's left is o
 3. **Currency**: store is set to GIP (Gibraltar Pound) — flagged twice now, still unanswered. Confirm intentional or change in Shopify Settings → General.
 4. Optional/owner call, not required for v1.0.0: darken the compare-at price opacity or the discount-badge red slightly to close the two Lighthouse contrast findings (see README's Lighthouse section) — currently exactly matches the Figma spec's 30%-opacity/red-on-red values, so this is a design trade-off, not an oversight.
 5. `/cart` on a ~390px viewport was fixed in session 2 (grid `lg:grid-cols-[1.4fr_1fr]`) but the owner's manual re-verification result was never reported back — worth a final look.
+6. **(session 5)** Currency GIP artifact still visible in a hero price render mid-session ("GIP 0") — item 3 above is still open, now confirmed still reproducing as of 2026-07-19/20, not just theoretical.
+7. **(session 5)** `public/branding/gallery/gallery-6.webp` exists but is unused — it's a screenshot of an unrelated e-bike landing page's UI (not a lifestyle photo), deliberately left out of `config/content.ts`'s `gallery` array and out of one of my commits. The owner later committed it anyway in their own "contact about" commit (harmless, just dead weight in the repo) — confirm with them whether it should be deleted or was meant for something else.
+8. **(session 5)** `store-bulk` (the sibling tool at `~/Desktop/store-bulk`) needs to learn about two new optional content fields so newly-created stores get them populated instead of defaulting to hidden: `content.faqs` (general homepage FAQ) and `content.gallery` (UGC photo grid, needs an asset-upload step like the existing brand-logo flow). Flagged to the owner via a paste-ready prompt earlier in session 5 chat history, not yet confirmed done.
+9. **(session 5)** Owner said they'll keep dropping reference HTML for more pages one at a time — the pattern is established (see session 5 summary above), just keep applying it: extract facts → config (new optional field if needed), wording → template-owned copy, no live Shopify fetching.
 
 ## Key design tokens (unchanged — full tables in DESIGN-NOTES §2)
 

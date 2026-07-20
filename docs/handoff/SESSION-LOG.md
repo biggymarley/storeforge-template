@@ -2,6 +2,22 @@
 
 Condensed history of the build sessions so the next assistant has the same context I do.
 
+## Timeline — session 5 (2026-07-19–20, homepage conversion sections + real legal/content, v1.5.1 → v1.5.10)
+
+Full detail in `PROGRESS.md` "What was built in session 5" — this is the narrative version.
+
+1. Session opened with an unrelated `/clear` and a UI/UX critique request on the homepage. Reviewed as an expert-level landing-page audit (trust signals, social proof, quick-add, newsletter, FAQ, sticky CTA, UGC gallery — most of these didn't exist yet) and built essentially all of it over the session, one item at a time, each verified with typecheck/lint/build and pushed.
+2. Owner requested a paste-ready prompt for `store-bulk` (the sibling store-generation tool) describing what new config fields it needs to learn about — this became a recurring need as new optional fields were added (`content.faqs`, `content.gallery` so far; not yet confirmed done on the store-bulk side).
+3. Iterated on the UGC gallery twice on direct visual feedback: v1 (6 uniform squares, 12px radius) → owner said "i dont like the style... radius too much... make them perfect ui/ux gallery tiles... between top selling and new arrivals" → v2 (bento grid: hero tile 2×2 + 4 small, 8px radius, repositioned).
+4. Owner reported the testimonial marquee "looks empty mid screen then fills up again" — diagnosed as insufficient duplicated content relative to viewport width (only 2× the raw testimonial list, and with only 3 testimonials that's not wide enough to fill most viewports before the loop had to reset) — fixed by computing enough repeats per half based on testimonial count.
+5. Owner asked for a Contact Us page + "match the store infos with the infos there," where "there" meant a Shopify CMS page — **I made a real mistake here**: fetched the live Shopify store's own `contact-us` page and used its content ("My Store 3", Torquay UK) as the source of truth for `config/legal.ts`, instead of treating config as authoritative. Owner corrected this explicitly and pointed me at `lib/policies.ts`'s existing pattern as the correct model. Not repeated after — every subsequent page (About Us, all 5 policies) followed the config-only pattern correctly from the start.
+6. Owner then began dropping raw reference HTML files one message at a time (About Us, Shipping, Refund, Terms, Privacy, and a brand-new Secure Payment page) with instructions to extract real facts into config and match the wording/tone to the reference — same treatment every time, established as a named repeatable pattern by message 3 or so. Each HTML drop's structure mapped cleanly onto `lib/policies.ts`'s existing `Policy`/`PolicySection` shape; added one `PolicySection.list` field (for bullet lists — tables and step lists in the reference HTML) and several new optional `legal.*`/`legal.policies.*` fields as new facts appeared (`governingLaw`, `paymentProcessor`, `freeShipping`, `deliveryEstimate`, `orderCutoffTime`, `damageReportHours`, `refundProcessingEstimate`).
+7. **Two standing-rule changes this session, both explicit and firm**:
+   - "Ask before committing" → **no longer applies**. Owner asked me to push directly, repeatedly ("lets push", "push it", "push the chnages"), with no pre-approval step. Treat this as standing permission for the rest of this account's sessions unless told otherwise.
+   - Visual verification (screenshots, `curl`+grep of rendered HTML, starting/restarting the dev server after a change) is now a **hard no**, not just "avoid repeating it." Owner interrupted a dev-server-restart mid-tool-call specifically to say so. Only typecheck/lint/build; the owner does 100% of the visual/manual QA themselves and reports bugs back (this is how the marquee and gallery-radius issues were found — they tested, then described what was wrong).
+8. Discovered (not fixed) a repo-level pre-push git hook that auto-bumps `template.json`/`package.json` patch version and pushes a matching tag on every push to `main` — wasn't something I set up, just started existing/being used partway through the version history (v1.5.2 onward this session). The "failed to push some refs" message that follows every push is expected and the hook says so in its own output.
+9. Owner interrupted "add to the progress so i clear this" at the end of the session — this entry plus the `PROGRESS.md` "session 5" section are that.
+
 ## Timeline — session 4 (2026-07-17, Phase E — hardening, v1.0.0)
 
 1. Read the full handoff set; found Phase C + D already committed and pushed to `origin/main` (`858ec0c template`) — the owner did this between sessions without my involvement.
@@ -47,16 +63,19 @@ Condensed history of the build sessions so the next assistant has the same conte
 
 - Communicates tersely, sometimes fragmented messages; wants **incremental phase-by-phase delivery with visible results** between steps.
 - Wants to perform external-dashboard actions **themselves** with clear numbered steps — do not drive their browser unless they ask.
-- Prefers to hands-on test in their own browser over watching repeated automation runs — give a short numbered checklist and let them report ("what u need i can test"). This extends to any repeated automated verification loop, not just browser automation — e.g. re-running Lighthouse to chase a flaky result ("ill test my self", session 4). Run a check once, report it, stop.
-- **Ask before git commits** — but the owner does sometimes commit+push their own work between sessions without saying so in advance (happened between sessions 3 and 4); check `git log`/`git status` at the start of a session rather than assuming everything is still uncommitted. Remote is `origin` → `github.com/biggymarley/storeforge-template`.
+- **(as of session 5) Zero visual verification on my part, full stop** — no screenshots, no `curl`+grep of rendered HTML, no starting/restarting the dev server after a change "for them." This superseded the older, softer "prefers to test rather than watch automation loops" framing below — it's not about avoiding repetition anymore, a single check is also unwanted. Owner does 100% of manual/visual QA themselves and reports bugs back in their own words (this is how the marquee-loop bug and the gallery-radius/layout feedback both surfaced). Run typecheck/lint/build, report results, stop there.
+  - Older framing, still true for what it covers (repeated automated *tool* loops, e.g. Lighthouse): "what u need i can test" (session 2), "ill test my self" (session 4) — give a short numbered checklist instead of re-running a verification tool to chase a flaky result.
+- **(as of session 5) Standing permission to commit + push directly, no pre-approval needed** — supersedes "ask before git commits" from sessions 1–4. Owner asked repeatedly this session with no ceremony ("lets push", "push it"). Still true: the owner sometimes commits/pushes their own work between turns without saying so (happened again in session 5 — check `git log`/`git status` before assuming nothing changed). Remote is `origin` → `github.com/biggymarley/storeforge-template`. A pre-push git hook auto-bumps the patch version + tags on every push — the "failed to push some refs" message after is expected, not a real failure.
+- **(session 5) Drops raw reference HTML files for real page content** (About Us, policy pages) and expects the established pattern applied without re-explaining it each time: extract real facts into `config/*.ts` (existing field if one fits, else a new optional field with a sane default), put the wording into template-owned copy that interpolates those config values, never hardcode a literal fact in a component, never live-fetch from Shopify for static page content (this was explicitly corrected once — see PROGRESS.md session 5 "Contact Us mistake" — don't repeat it).
 - Appreciates web research when platform UIs/docs may have changed ("check… do web research about these docs").
 - Timezone/context: macOS, zsh, Node 22, npm 11. Editor: opens files in IDE alongside chat.
 
 ## Open items the next session should pick up
 
-Everything build-related through v1.0.0/Phase E is done as of session 4. What's left is owner-side (see PROGRESS.md "Remaining work checklist" for the full list):
+As of session 5 (v1.5.10) — full detail in `PROGRESS.md` "Remaining work checklist":
 
-1. **Owner action pending**: create 2–3 real collections (with images), publish to Headless; optional `new-arrivals`/`top-selling` handles. Then re-verify nav, home tiles, and collection facet filters against real data — collections were still missing as of session 4.
-2. Currency: store is set to GIP — owner may want to change it in Shopify admin (flagged twice now, no answer yet).
-3. Dev-store content note: Shopify page "contact" has an empty body (renders as title-only page); "contact-us" is fine.
-4. **Not yet done this session**: tagging `v1.0.0` and pushing — Phase E's diff is built, checked, and documented, but not yet committed (ask first, per above).
+1. Currency GIP artifact confirmed still present as of session 5 (still unresolved from session 2/4 — this is now a repeat flag, not new).
+2. `store-bulk` needs to learn about `content.faqs` and `content.gallery` (new optional fields, session 5) so newly-created stores get them populated instead of hidden-by-default. A paste-ready prompt was given to the owner mid-session; not confirmed done.
+3. Owner said they'll keep dropping reference HTML for more real pages one at a time — pattern is established (see session 5 above and PROGRESS.md), just keep applying it consistently.
+4. `public/branding/gallery/gallery-6.webp` is dead weight (unrelated screenshot, not a gallery photo) — confirm with owner whether to delete it.
+5. Older, still-open items from session 4 and earlier (collections creation, `/cart` mobile re-verification) — see PROGRESS.md, unchanged since session 4, not touched this session.
