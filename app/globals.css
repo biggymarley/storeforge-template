@@ -15,6 +15,7 @@
   --color-foreground: var(--site-foreground, #000000);
   --color-muted: var(--site-muted, #666666);
   --color-hero-background: var(--site-hero-background, #f0f0f0);
+  --color-announcement-background: var(--site-announcement-background, #000000);
   --color-border: color-mix(in srgb, var(--site-foreground, #000000) 10%, transparent);
 
   /* Template-owned functional colors — not brand-configurable. */

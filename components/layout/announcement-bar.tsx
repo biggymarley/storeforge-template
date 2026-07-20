@@ -9,13 +9,13 @@ interface AnnouncementBarProps {
   href?: string;
 }
 
-/** Figma: black bar, 14px white text with underlined link, dismiss ✕. Config-gated by the caller. */
+/** Figma: colored bar (colors.announcementBackground, default primary), 14px text with underlined link, dismiss ✕. Config-gated by the caller. */
 export function AnnouncementBar({ text, href }: AnnouncementBarProps) {
   const [dismissed, setDismissed] = useState(false);
   if (dismissed) return null;
 
   return (
-    <div className="relative bg-primary px-10 py-2.5 text-center text-sm text-background">
+    <div className="relative bg-announcement-background px-10 py-2.5 text-center text-sm text-background">
       {href ? (
         <Link href={href} className="underline underline-offset-2 hover:opacity-80">
           {text}

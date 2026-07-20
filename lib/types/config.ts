@@ -17,6 +17,8 @@ export interface StoreColors {
   muted: string;
   /** Homepage hero section background. Unset → falls back to `secondary` (the pre-existing behavior). */
   heroBackground: string;
+  /** Announcement bar background. Unset → falls back to `primary` (the pre-existing hardcoded behavior). */
+  announcementBackground: string;
 }
 
 export interface HeroStat {
