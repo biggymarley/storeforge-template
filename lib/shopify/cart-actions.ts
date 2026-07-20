@@ -75,7 +75,14 @@ async function getOrCreateCartId(): Promise<string> {
 
 /** True when the mutation response indicates the cookie points at a dead cart. */
 function isDeadCart(cart: Cart | null | undefined, userErrors: UserError[] | undefined): boolean {
-  return !cart && (!userErrors || userErrors.length === 0);
+  if (!cart && (!userErrors || userErrors.length === 0)) return true;
+  // Shopify also reports unresolvable cart ids (expired, deleted, or from a
+  // different shop) as a userError instead of a bare null cart.
+  return Boolean(
+    userErrors?.some(
+      (e) => /cart/i.test(e.message) && /(does not exist|not found|no longer exists|expired)/i.test(e.message)
+    )
+  );
 }
 
 export async function addToCart(variantId: string, quantity: number): Promise<CartActionResult> {
