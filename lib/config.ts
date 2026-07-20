@@ -171,6 +171,7 @@ export interface ResolvedContentConfig {
   faqs: NonNullable<ContentConfig["faqs"]>;
   gallery: NonNullable<ContentConfig["gallery"]>;
   trustBar: NonNullable<ContentConfig["trustBar"]>;
+  featureCards: NonNullable<ContentConfig["featureCards"]>;
 }
 
 export function resolveContentConfig(config: ContentConfig = contentConfig): ResolvedContentConfig {
@@ -181,6 +182,7 @@ export function resolveContentConfig(config: ContentConfig = contentConfig): Res
     productFaqs: config.productFaqs ?? {},
     faqs: config.faqs ?? [],
     gallery: config.gallery ?? [],
-    trustBar: config.trustBar ?? []
+    trustBar: config.trustBar ?? [],
+    featureCards: config.featureCards ?? []
   };
 }

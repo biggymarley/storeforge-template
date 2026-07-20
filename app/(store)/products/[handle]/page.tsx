@@ -3,12 +3,13 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { BrandStrip } from "@/components/layout/brand-strip";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { FeatureCards } from "@/components/home/feature-cards";
 import { ProductSection } from "@/components/home/product-section";
 import { ProductTabs } from "@/components/product/product-tabs";
 import { ProductView } from "@/components/product/product-view";
 import { ErrorState } from "@/components/ui/error-state";
 import { ProductCardSkeleton } from "@/components/ui/skeleton";
-import { resolveLegalConfig } from "@/lib/config";
+import { resolveContentConfig, resolveLegalConfig } from "@/lib/config";
 import { getProductFaqs } from "@/lib/faqs";
 import { getProduct, getProductInventory, getProductRecommendations, getProducts } from "@/lib/shopify/api";
 import { ShopifyError } from "@/lib/shopify/client";
@@ -67,7 +68,8 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
     const reviews = getProductReviews(handle);
     const faqs = getProductFaqs(handle);
-    const { policies } = resolveLegalConfig();
+    const legal = resolveLegalConfig();
+    const content = resolveContentConfig();
     // Isolated from getProduct above: a missing Storefront inventory scope only
     // drops the stock badge, never the page (see PRODUCT_INVENTORY_QUERY comment).
     const inventory = await getProductInventory(handle).catch(() => ({}));
@@ -86,7 +88,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           <ProductView
             product={product}
             rating={getProductRating(handle)}
-            policies={policies}
+            policies={legal.policies}
             inventory={inventory}
           />
           <ProductTabs descriptionHtml={product.descriptionHtml} reviews={reviews} faqs={faqs} />
@@ -102,6 +104,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <Recommendations productId={product.id} />
           </Suspense>
         </div>
+        <FeatureCards legal={legal} cards={content.featureCards} className="mt-14 lg:mt-20" />
         <BrandStrip />
       </>
     );

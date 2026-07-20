@@ -154,6 +154,13 @@ export interface ProductFaq {
 /** Icon keys for the homepage trust bar — each maps to an Icon* export in components/icons.tsx. */
 export type TrustBarIcon = "truck" | "return" | "shield" | "verified" | "star" | "tag" | "mail" | "phone" | "pin";
 
+/** One card in the home/PDP feature-card band: icon + bold title + short blurb. */
+export interface FeatureCard {
+  icon: TrustBarIcon;
+  title: string;
+  text: string;
+}
+
 export interface GalleryImage {
   /** Store-owned asset, e.g. "/branding/gallery/customer-1.jpg". */
   image: string;
@@ -177,4 +184,6 @@ export interface ContentConfig {
   gallery?: GalleryImage[];
   /** Homepage icon+text trust badges (shipping/returns/secure checkout, etc). Max 3. Empty/unset → falls back to the policy-derived defaults trust-bar.tsx already computes. */
   trustBar?: Array<{ icon: TrustBarIcon; text: string }>;
+  /** Home/PDP feature-card band (icon + title + blurb). Max 6. Empty/unset → defaults derived from legal config (shipping/returns/support/secure checkout). */
+  featureCards?: FeatureCard[];
 }

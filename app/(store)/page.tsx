@@ -1,5 +1,6 @@
 import { CollectionTiles } from "@/components/home/collection-tiles";
 import { FaqSection } from "@/components/home/faq-section";
+import { FeatureCards } from "@/components/home/feature-cards";
 import { Hero } from "@/components/home/hero";
 import { ProductSection } from "@/components/home/product-section";
 import { StickyShopCta } from "@/components/home/sticky-shop-cta";
@@ -86,6 +87,7 @@ export default async function HomePage() {
           />
         </>
       )}
+      <FeatureCards legal={legal} cards={content.featureCards} />
       <TestimonialCarousel testimonials={content.testimonials} />
       <FaqSection faqs={content.faqs} />
       <BrandStrip />

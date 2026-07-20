@@ -12,8 +12,8 @@ interface AnnouncementBarProps {
 
 /**
  * Colored bar (colors.announcementBackground, default primary) with up to 3
- * icon+text items side by side, border dividers between them, dismiss ✕.
- * Config-gated by the caller.
+ * icon+text items spread across the bar's width (a single item stays
+ * centered), dismiss ✕. Config-gated by the caller.
  */
 export function AnnouncementBar({ items }: AnnouncementBarProps) {
   const [dismissed, setDismissed] = useState(false);
@@ -21,7 +21,11 @@ export function AnnouncementBar({ items }: AnnouncementBarProps) {
 
   return (
     <div className="relative bg-announcement-background px-10 py-2.5 text-center text-sm text-announcement-foreground">
-      <div className="flex flex-wrap items-center justify-center divide-x divide-announcement-foreground/30">
+      <div
+        className={`mx-auto flex max-w-page flex-wrap items-center gap-x-10 gap-y-1 ${
+          items.length > 1 ? "justify-center sm:justify-between" : "justify-center"
+        }`}
+      >
         {items.slice(0, 3).map((item) => {
           const Icon = item.icon ? TRUST_BAR_ICONS[item.icon] : null;
           const content = (
@@ -34,12 +38,12 @@ export function AnnouncementBar({ items }: AnnouncementBarProps) {
             <Link
               key={item.text}
               href={item.href}
-              className="inline-flex items-center gap-1.5 px-3 underline underline-offset-2 hover:opacity-80"
+              className="inline-flex items-center gap-1.5 underline underline-offset-2 hover:opacity-80"
             >
               {content}
             </Link>
           ) : (
-            <span key={item.text} className="inline-flex items-center gap-1.5 px-3">
+            <span key={item.text} className="inline-flex items-center gap-1.5">
               {content}
             </span>
           );
