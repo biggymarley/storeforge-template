@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import type { CSSProperties, ReactNode } from "react";
+import { PixelPageView } from "@/components/analytics/pixel-page-view";
 import { readableTextColor } from "@/lib/colors";
-import { resolveSeoConfig, resolveStoreConfig } from "@/lib/config";
+import { resolveMarketingConfig, resolveSeoConfig, resolveStoreConfig } from "@/lib/config";
 import { getFonts, customFontFace } from "@/lib/fonts";
 import { getSiteUrl } from "@/lib/env";
 import { organizationJsonLd } from "@/lib/json-ld";
@@ -9,6 +11,7 @@ import "./globals.css";
 
 const store = resolveStoreConfig();
 const seo = resolveSeoConfig();
+const marketing = resolveMarketingConfig();
 const fonts = getFonts(store.fonts);
 
 /** Custom uploaded fonts take priority over the allowlist pick for that slot. */
@@ -65,6 +68,37 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd()) }}
         />
         {children}
+        {marketing.googleAdsConversionId ? (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(marketing.googleAdsConversionId)}`}
+              strategy="afterInteractive"
+            />
+            <Script id="google-ads-tag" strategy="afterInteractive">
+              {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', ${JSON.stringify(marketing.googleAdsConversionId)});`}
+            </Script>
+          </>
+        ) : null}
+        {marketing.metaPixelId ? (
+          <>
+            <Script id="meta-pixel" strategy="afterInteractive">
+              {`!function(f,b,e,v,n,t,s)
+{if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+n.queue=[];t=b.createElement(e);t.async=!0;
+t.src=v;s=b.getElementsByTagName(e)[0];
+s.parentNode.insertBefore(t,s)}(window, document,'script',
+'https://connect.facebook.net/en_US/fbevents.js');
+fbq('init', ${JSON.stringify(marketing.metaPixelId)});
+fbq('track', 'PageView');`}
+            </Script>
+            <PixelPageView />
+          </>
+        ) : null}
       </body>
     </html>
   );

@@ -9,6 +9,10 @@ const envSchema = z.object({
     }),
   SHOPIFY_STOREFRONT_TOKEN: z.string().min(1),
   SHOPIFY_ADMIN_TOKEN: z.string().optional(),
+  /** Custom app API secret key — verifies webhook HMACs. Unset → webhook route rejects all deliveries. */
+  SHOPIFY_WEBHOOK_SECRET: z.string().optional(),
+  /** Meta Conversions API token — server-side Purchase events from the orders webhook. Unset → CAPI skipped. */
+  META_CAPI_ACCESS_TOKEN: z.string().optional(),
   NEXT_PUBLIC_SITE_URL: z.string().url().optional()
 });
 
@@ -27,6 +31,8 @@ function validate(): { env: Env | null; issues: EnvIssue[] } {
     SHOPIFY_STORE_DOMAIN: process.env.SHOPIFY_STORE_DOMAIN,
     SHOPIFY_STOREFRONT_TOKEN: process.env.SHOPIFY_STOREFRONT_TOKEN,
     SHOPIFY_ADMIN_TOKEN: process.env.SHOPIFY_ADMIN_TOKEN || undefined,
+    SHOPIFY_WEBHOOK_SECRET: process.env.SHOPIFY_WEBHOOK_SECRET || undefined,
+    META_CAPI_ACCESS_TOKEN: process.env.META_CAPI_ACCESS_TOKEN || undefined,
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || undefined
   });
   cached = parsed.success

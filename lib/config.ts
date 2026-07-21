@@ -10,12 +10,14 @@ import { storeConfig } from "@/config/store";
 import { legalConfig } from "@/config/legal";
 import { seoConfig } from "@/config/seo";
 import { contentConfig } from "@/config/content";
+import { marketingConfig } from "@/config/marketing";
 import type {
   AnnouncementItem,
   ContentConfig,
   HeroConfig,
   HeroStat,
   LegalConfig,
+  MarketingConfig,
   SeoConfig,
   StoreColors,
   StoreConfig
@@ -191,6 +193,20 @@ export function resolveSeoConfig(config: SeoConfig = seoConfig): ResolvedSeoConf
     ogImage: config.ogImage ?? "/branding/og-image.png",
     twitterHandle: config.twitterHandle ?? "",
     googleSiteVerification: config.googleSiteVerification ?? ""
+  };
+}
+
+export interface ResolvedMarketingConfig {
+  googleAdsConversionId: string;
+  googleAdsConversionLabel: string;
+  metaPixelId: string;
+}
+
+export function resolveMarketingConfig(config: MarketingConfig = marketingConfig): ResolvedMarketingConfig {
+  return {
+    googleAdsConversionId: config.googleAdsConversionId ?? "",
+    googleAdsConversionLabel: config.googleAdsConversionLabel ?? "",
+    metaPixelId: config.metaPixelId ?? ""
   };
 }
 

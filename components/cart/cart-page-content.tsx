@@ -7,16 +7,18 @@ import { useCart } from "@/components/cart/cart-provider";
 import { OrderSummary } from "@/components/cart/order-summary";
 import { IconArrow, IconCart } from "@/components/icons";
 import { ButtonLink } from "@/components/ui/button";
-import type { ResolvedLegalConfig } from "@/lib/config";
+import type { ResolvedLegalConfig, ResolvedMarketingConfig } from "@/lib/config";
+import { trackCheckoutConversion } from "@/lib/analytics";
 import { formatPrice } from "@/lib/format";
 import { flattenConnection } from "@/lib/shopify/types";
 
 interface CartPageContentProps {
   policies: ResolvedLegalConfig["policies"];
+  marketing: ResolvedMarketingConfig;
 }
 
 /** Cart page body: heading + line-item list + sticky order summary, with a mobile sticky-checkout bar once the summary scrolls out of view (mirrors the PDP's sticky-CTA pattern). */
-export function CartPageContent({ policies }: CartPageContentProps) {
+export function CartPageContent({ policies, marketing }: CartPageContentProps) {
   const { cart } = useCart();
   const lines = cart ? flattenConnection(cart.lines) : [];
   const summaryRef = useRef<HTMLDivElement>(null);
@@ -68,7 +70,7 @@ export function CartPageContent({ policies }: CartPageContentProps) {
                 </div>
               ))}
             </div>
-            <OrderSummary ref={summaryRef} policies={policies} className="lg:sticky lg:top-24" />
+            <OrderSummary ref={summaryRef} policies={policies} marketing={marketing} className="lg:sticky lg:top-24" />
           </div>
 
           {cart && !summaryVisible ? (
@@ -82,6 +84,13 @@ export function CartPageContent({ policies }: CartPageContentProps) {
               {cart.checkoutUrl ? (
                 <a
                   href={cart.checkoutUrl}
+                  onClick={() =>
+                    // Fire-and-continue — must never block the navigation to checkout.
+                    trackCheckoutConversion(marketing.googleAdsConversionId, marketing.googleAdsConversionLabel, {
+                      value: Number(cart.cost.totalAmount.amount),
+                      currency: cart.cost.totalAmount.currencyCode
+                    })
+                  }
                   className="inline-flex h-12 min-w-36 items-center justify-center gap-2 rounded-full bg-primary px-6 text-base font-medium text-background transition-opacity hover:opacity-85"
                 >
                   Checkout

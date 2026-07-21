@@ -46,7 +46,12 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
         ) : null}
         {quickAddVariant ? (
           <div className="absolute inset-x-3 bottom-3 z-10 opacity-100 transition-opacity lg:opacity-0 lg:group-hover:opacity-100">
-            <QuickAddButton variantId={quickAddVariant.id} productTitle={product.title} className="w-full" />
+            <QuickAddButton
+              variantId={quickAddVariant.id}
+              productTitle={product.title}
+              price={product.priceRange.minVariantPrice}
+              className="w-full"
+            />
           </div>
         ) : null}
       </div>

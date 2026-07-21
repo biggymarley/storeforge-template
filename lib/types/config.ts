@@ -131,6 +131,16 @@ export interface SeoConfig {
   googleSiteVerification?: string;
 }
 
+/** Ad-platform tracking ids. Unset/empty → that platform's tags are omitted entirely. */
+export interface MarketingConfig {
+  /** Google Ads tag id, e.g. "AW-123456789". Loads gtag.js and powers the checkout-click conversion. */
+  googleAdsConversionId?: string;
+  /** Conversion label for the checkout-click conversion. Unset → gtag still loads, conversion event not fired. */
+  googleAdsConversionLabel?: string;
+  /** Meta (Facebook) Pixel id. Loads the Pixel base code (PageView/ViewContent/AddToCart — no Purchase; checkout is off-site). */
+  metaPixelId?: string;
+}
+
 export interface Testimonial {
   name: string;
   quote: string;

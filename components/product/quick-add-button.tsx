@@ -3,11 +3,15 @@
 import { useTransition } from "react";
 import { IconCart } from "@/components/icons";
 import { useToast } from "@/components/ui/toast";
+import { trackAddToCart } from "@/lib/analytics";
 import { addToCart } from "@/lib/shopify/cart-actions";
+import type { Money } from "@/lib/shopify/types";
 
 interface QuickAddButtonProps {
   variantId: string;
   productTitle: string;
+  /** Variant price for the Meta Pixel AddToCart event — quick-add products have exactly one variant, so the product min price is exact. */
+  price: Money;
   className?: string;
   /** Button text — "Quick Add" on grid cards, e.g. "Add to Cart" on the hero carousel. */
   label?: string;
@@ -28,6 +32,7 @@ const sizes = {
 export function QuickAddButton({
   variantId,
   productTitle,
+  price,
   className = "",
   label = "Quick Add",
   size = "sm"
@@ -40,8 +45,12 @@ export function QuickAddButton({
     event.stopPropagation();
     startTransition(async () => {
       const result = await addToCart(variantId, 1);
-      if (result.ok) toast(`Added ${productTitle} to cart`);
-      else toast(result.error ?? "Could not add to cart.", "error");
+      if (result.ok) {
+        toast(`Added ${productTitle} to cart`);
+        trackAddToCart({ contentId: variantId, value: Number(price.amount), currency: price.currencyCode });
+      } else {
+        toast(result.error ?? "Could not add to cart.", "error");
+      }
     });
   };
 

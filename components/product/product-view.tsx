@@ -12,6 +12,7 @@ import { QuantityStepper } from "@/components/ui/quantity-stepper";
 import { StarRating } from "@/components/ui/star-rating";
 import { useToast } from "@/components/ui/toast";
 import type { ResolvedLegalConfig } from "@/lib/config";
+import { trackAddToCart, trackViewContent } from "@/lib/analytics";
 import { addToCart } from "@/lib/shopify/cart-actions";
 import { flattenConnection, type Product, type ProductVariant, type ShopifyImage } from "@/lib/shopify/types";
 
@@ -89,8 +90,16 @@ export function ProductView({ product, rating, policies, inventory }: ProductVie
     setActiveAction("cart");
     startTransition(async () => {
       const result = await addToCart(currentVariant.id, quantity);
-      if (result.ok) toast("Added to cart");
-      else toast(result.error ?? "Could not add to cart.", "error");
+      if (result.ok) {
+        toast("Added to cart");
+        trackAddToCart({
+          contentId: currentVariant.id,
+          value: Number(currentVariant.price.amount) * quantity,
+          currency: currentVariant.price.currencyCode
+        });
+      } else {
+        toast(result.error ?? "Could not add to cart.", "error");
+      }
     });
   };
 
@@ -100,10 +109,24 @@ export function ProductView({ product, rating, policies, inventory }: ProductVie
     setActiveAction("buy");
     startTransition(async () => {
       const result = await addToCart(currentVariant.id, quantity);
-      if (result.ok) router.push("/cart");
-      else toast(result.error ?? "Could not add to cart.", "error");
+      if (result.ok) {
+        trackAddToCart({
+          contentId: currentVariant.id,
+          value: Number(currentVariant.price.amount) * quantity,
+          currency: currentVariant.price.currencyCode
+        });
+        router.push("/cart");
+      } else {
+        toast(result.error ?? "Could not add to cart.", "error");
+      }
     });
   };
+
+  // Meta Pixel ViewContent — once per PDP visit.
+  const minPrice = product.priceRange.minVariantPrice;
+  useEffect(() => {
+    trackViewContent({ contentId: product.id, value: Number(minPrice.amount), currency: minPrice.currencyCode });
+  }, [product.id, minPrice.amount, minPrice.currencyCode]);
 
   // Mobile sticky CTA appears once the primary Add to Cart row scrolls out of view.
   useEffect(() => {

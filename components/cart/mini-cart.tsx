@@ -5,15 +5,21 @@ import { CartLineRow } from "@/components/cart/cart-line-row";
 import { useCart } from "@/components/cart/cart-provider";
 import { IconArrow, IconClose } from "@/components/icons";
 import { Button, ButtonLink } from "@/components/ui/button";
+import { trackCheckoutConversion } from "@/lib/analytics";
+import type { ResolvedMarketingConfig } from "@/lib/config";
 import { flattenConnection } from "@/lib/shopify/types";
 import { formatPrice } from "@/lib/format";
+
+interface MiniCartProps {
+  marketing: ResolvedMarketingConfig;
+}
 
 /**
  * Mini-cart slide-over (spec §4; improvised per DESIGN-NOTES §6 — not in the
  * Figma file): right-side panel with 20px left radii, line rows, subtotal,
  * checkout + view-cart actions.
  */
-export function MiniCart() {
+export function MiniCart({ marketing }: MiniCartProps) {
   const { cart, isOpen, closeCart } = useCart();
   const lines = cart ? flattenConnection(cart.lines) : [];
 
@@ -80,6 +86,13 @@ export function MiniCart() {
                 {cart?.checkoutUrl ? (
                   <a
                     href={cart.checkoutUrl}
+                    onClick={() =>
+                      // Fire-and-continue — must never block the navigation to checkout.
+                      trackCheckoutConversion(marketing.googleAdsConversionId, marketing.googleAdsConversionLabel, {
+                        value: Number(cart.cost.totalAmount.amount),
+                        currency: cart.cost.totalAmount.currencyCode
+                      })
+                    }
                     className="inline-flex h-[52px] items-center justify-center gap-3 rounded-full bg-primary text-base font-medium text-background transition-opacity hover:opacity-85"
                   >
                     Go to Checkout

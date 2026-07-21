@@ -7,12 +7,14 @@ import { TrustStrip } from "@/components/product/trust-strip";
 import { Button } from "@/components/ui/button";
 import { PaymentBadges } from "@/components/ui/payment-badges";
 import { useToast } from "@/components/ui/toast";
-import type { ResolvedLegalConfig } from "@/lib/config";
+import type { ResolvedLegalConfig, ResolvedMarketingConfig } from "@/lib/config";
+import { trackCheckoutConversion } from "@/lib/analytics";
 import { applyDiscountCode } from "@/lib/shopify/cart-actions";
 import { formatPrice } from "@/lib/format";
 
 interface OrderSummaryProps {
   policies: ResolvedLegalConfig["policies"];
+  marketing: ResolvedMarketingConfig;
   className?: string;
   ref?: Ref<HTMLDivElement>;
 }
@@ -24,7 +26,7 @@ interface OrderSummaryProps {
  * right next to the highest-friction step in the funnel. Accepts `ref` (React
  * 19 prop-ref) so the cart page can observe when it scrolls out of view.
  */
-export function OrderSummary({ policies, className = "", ref }: OrderSummaryProps) {
+export function OrderSummary({ policies, marketing, className = "", ref }: OrderSummaryProps) {
   const { cart } = useCart();
   const { toast } = useToast();
   const [code, setCode] = useState("");
@@ -102,6 +104,13 @@ export function OrderSummary({ policies, className = "", ref }: OrderSummaryProp
       {cart.checkoutUrl ? (
         <a
           href={cart.checkoutUrl}
+          onClick={() =>
+            // Fire-and-continue — must never block the navigation to checkout.
+            trackCheckoutConversion(marketing.googleAdsConversionId, marketing.googleAdsConversionLabel, {
+              value: Number(cart.cost.totalAmount.amount),
+              currency: cart.cost.totalAmount.currencyCode
+            })
+          }
           className="mt-6 inline-flex h-[60px] w-full items-center justify-center gap-3 rounded-full bg-primary text-base font-medium tracking-wide text-background transition-opacity hover:opacity-85"
         >
           Go to Checkout

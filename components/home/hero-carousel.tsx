@@ -330,6 +330,7 @@ function ProductSlide({
               <QuickAddButton
                 variantId={quickAddVariantId}
                 productTitle={product.title}
+                price={product.priceRange.minVariantPrice}
                 label="Add to Cart"
                 size="lg"
                 className="flex-1 sm:flex-initial lg:min-w-52"

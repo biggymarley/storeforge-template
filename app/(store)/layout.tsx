@@ -8,7 +8,7 @@ import { Header } from "@/components/layout/header";
 import type { NavLink } from "@/components/layout/nav-links";
 import { ToastProvider } from "@/components/ui/toast";
 import { isShopifyConfigured } from "@/lib/env";
-import { resolveStoreConfig } from "@/lib/config";
+import { resolveMarketingConfig, resolveStoreConfig } from "@/lib/config";
 import { getCollections } from "@/lib/shopify/api";
 import { getCart } from "@/lib/shopify/cart";
 import { ShopifyError } from "@/lib/shopify/client";
@@ -56,7 +56,7 @@ export default async function StoreLayout({ children }: Readonly<{ children: Rea
         <Header links={navLinks} />
         <main id="main-content">{children}</main>
         <Footer shopLinks={collectionLinks} />
-        <MiniCart />
+        <MiniCart marketing={resolveMarketingConfig()} />
       </CartProvider>
     </ToastProvider>
   );
