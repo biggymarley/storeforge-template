@@ -4,14 +4,13 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { IconArrow } from "@/components/icons";
-import { TrustStrip } from "@/components/product/trust-strip";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { Price } from "@/components/ui/price";
 import { QuantityStepper } from "@/components/ui/quantity-stepper";
 import { StarRating } from "@/components/ui/star-rating";
 import { useToast } from "@/components/ui/toast";
-import type { ResolvedLegalConfig } from "@/lib/config";
+import { TrustBadgesBanner } from "@/components/ui/trust-badges-banner";
 import { trackAddToCart, trackViewContent } from "@/lib/analytics";
 import { addToCart } from "@/lib/shopify/cart-actions";
 import { flattenConnection, type Product, type ProductVariant, type ShopifyImage } from "@/lib/shopify/types";
@@ -19,7 +18,6 @@ import { flattenConnection, type Product, type ProductVariant, type ShopifyImage
 interface ProductViewProps {
   product: Product;
   rating: { rating: number; count: number } | null;
-  policies: ResolvedLegalConfig["policies"];
   /** Variant id -> stock count. Missing/null entries render as available — no data, no badge. */
   inventory: Record<string, number | null>;
 }
@@ -36,7 +34,7 @@ function isDefaultOnlyOption(option: Product["options"][number]): boolean {
  * title/rating/price/options/qty/add-to-cart right. Selected options resolve
  * to a variant; price, compare-at and image follow it (PAGE-BLUEPRINTS §PDP).
  */
-export function ProductView({ product, rating, policies, inventory }: ProductViewProps) {
+export function ProductView({ product, rating, inventory }: ProductViewProps) {
   const { toast } = useToast();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -155,8 +153,9 @@ export function ProductView({ product, rating, policies, inventory }: ProductVie
 
   return (
     <div className="mt-5 grid gap-6 lg:mt-9 lg:grid-cols-2 lg:items-start lg:gap-10">
-      {/* Gallery — main image on top, thumbnail rail below (min-w-0 so it can't widen the grid track) */}
-      <div className="min-w-0 flex flex-col gap-3.5">
+      {/* Gallery — main image on top, thumbnail rail below (min-w-0 so it can't widen the grid track).
+          Sticky on desktop so it stays in view while the (usually taller) details column scrolls. */}
+      <div className="min-w-0 flex flex-col gap-3.5 lg:sticky lg:top-24 lg:self-start">
         <div className="relative w-full overflow-hidden" style={{ aspectRatio: mainAspectRatio }}>
           {main ? (
             <Image
@@ -301,7 +300,7 @@ export function ProductView({ product, rating, policies, inventory }: ProductVie
           </Button>
         </div>
 
-        <TrustStrip policies={policies} className="mt-4" />
+        <TrustBadgesBanner className="mt-4" sizes="(max-width: 1024px) 100vw, 40vw" />
       </div>
 
       {/* Mobile-only: keeps a purchase path reachable once the row above scrolls out of view. */}

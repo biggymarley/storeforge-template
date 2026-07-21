@@ -2,10 +2,11 @@ import Image from "next/image";
 
 interface TrustBadgesBannerProps {
   className?: string;
+  sizes?: string;
 }
 
 /** Static trust-badge graphic (guarantees + secure-checkout marks) — template-owned asset, not store config. */
-export function TrustBadgesBanner({ className = "" }: TrustBadgesBannerProps) {
+export function TrustBadgesBanner({ className = "", sizes = "(min-width: 1024px) 800px, 100vw" }: TrustBadgesBannerProps) {
   return (
     <Image
       src="/trust-badges.jpg"
@@ -13,7 +14,7 @@ export function TrustBadgesBanner({ className = "" }: TrustBadgesBannerProps) {
       width={1280}
       height={714}
       className={`h-auto w-full ${className}`}
-      sizes="(min-width: 1024px) 800px, 100vw"
+      sizes={sizes}
     />
   );
 }
