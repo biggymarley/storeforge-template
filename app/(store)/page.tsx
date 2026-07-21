@@ -84,9 +84,6 @@ export default async function HomePage() {
       <div>
         <Hero heroProduct={heroProduct} aggregateRating={aggregateRating} carouselProducts={carouselProducts} />
         <TrustBar policies={legal.policies} trustBar={content.trustBar} />
-        <div className="mx-auto mt-6 w-full max-w-page px-4">
-          <TrustBadgesBanner />
-        </div>
       </div>
       {dataError ? (
         <section className="mx-auto w-full max-w-page px-4">
@@ -98,6 +95,9 @@ export default async function HomePage() {
       ) : (
         <>
           <ProductSection title="New Arrivals" products={newArrivals} viewAllHref="/products?sort=newest" priority />
+          <div className="mx-auto w-full max-w-page px-4">
+            <TrustBadgesBanner />
+          </div>
           <UgcGallery images={content.gallery} />
           <ProductSection title="Top Selling" products={topSelling} viewAllHref="/products?sort=best-selling" />
           <CollectionTiles

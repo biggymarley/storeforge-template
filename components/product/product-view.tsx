@@ -11,7 +11,6 @@ import { Price } from "@/components/ui/price";
 import { QuantityStepper } from "@/components/ui/quantity-stepper";
 import { StarRating } from "@/components/ui/star-rating";
 import { useToast } from "@/components/ui/toast";
-import { TrustBadgesBanner } from "@/components/ui/trust-badges-banner";
 import type { ResolvedLegalConfig } from "@/lib/config";
 import { trackAddToCart, trackViewContent } from "@/lib/analytics";
 import { addToCart } from "@/lib/shopify/cart-actions";
@@ -247,7 +246,7 @@ export function ProductView({ product, rating, policies, inventory }: ProductVie
         {product.description ? (
           // Long Shopify descriptions get clamped here — the full rich text
           // lives in the Product Details tab below.
-          <p className="mt-4 line-clamp-12 text-sm leading-5 text-muted lg:text-base lg:leading-[22px]">
+          <p className="mt-4 line-clamp-4 text-sm leading-5 text-muted lg:text-base lg:leading-[22px]">
             {product.description}
           </p>
         ) : null}
@@ -303,7 +302,6 @@ export function ProductView({ product, rating, policies, inventory }: ProductVie
         </div>
 
         <TrustStrip policies={policies} className="mt-4" />
-        <TrustBadgesBanner className="mt-4" />
       </div>
 
       {/* Mobile-only: keeps a purchase path reachable once the row above scrolls out of view. */}

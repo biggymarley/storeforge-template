@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IconChevronDown, IconVerified } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { StarRating } from "@/components/ui/star-rating";
@@ -25,6 +25,14 @@ export function ProductTabs({ descriptionHtml, reviews, faqs }: ProductTabsProps
   const [active, setActive] = useState<(typeof TABS)[number]["id"]>("details");
   const [visibleReviews, setVisibleReviews] = useState(REVIEWS_PAGE);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
+  const [detailsExpanded, setDetailsExpanded] = useState(false);
+  const [detailsOverflows, setDetailsOverflows] = useState(false);
+  const detailsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = detailsRef.current;
+    if (el) setDetailsOverflows(el.scrollHeight > el.clientHeight + 1);
+  }, [descriptionHtml]);
 
   return (
     <section className="mt-12 lg:mt-20">
@@ -49,7 +57,27 @@ export function ProductTabs({ descriptionHtml, reviews, faqs }: ProductTabsProps
 
       {active === "details" ? (
         descriptionHtml ? (
-          <div className="prose-store mt-8 lg:mt-10" dangerouslySetInnerHTML={{ __html: descriptionHtml }} />
+          <div className="relative mt-8 lg:mt-10">
+            <div
+              ref={detailsRef}
+              className={`prose-store overflow-hidden ${detailsExpanded ? "" : "max-h-64 lg:max-h-80"}`}
+              dangerouslySetInnerHTML={{ __html: descriptionHtml }}
+            />
+            {!detailsExpanded && detailsOverflows ? (
+              <div className="absolute inset-x-0 bottom-0 flex h-28 items-end justify-center bg-gradient-to-t from-background to-transparent pb-1">
+                <Button variant="primary" size="md" onClick={() => setDetailsExpanded(true)}>
+                  Show More
+                </Button>
+              </div>
+            ) : null}
+            {detailsExpanded && detailsOverflows ? (
+              <div className="mt-6 flex justify-center">
+                <Button variant="secondary" size="md" onClick={() => setDetailsExpanded(false)}>
+                  Show Less
+                </Button>
+              </div>
+            ) : null}
+          </div>
         ) : (
           <p className="mt-8 text-sm text-muted">No additional details for this product.</p>
         )

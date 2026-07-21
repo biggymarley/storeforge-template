@@ -9,6 +9,7 @@ import { ProductTabs } from "@/components/product/product-tabs";
 import { ProductView } from "@/components/product/product-view";
 import { ErrorState } from "@/components/ui/error-state";
 import { ProductCardSkeleton } from "@/components/ui/skeleton";
+import { TrustBadgesBanner } from "@/components/ui/trust-badges-banner";
 import { resolveContentConfig, resolveLegalConfig } from "@/lib/config";
 import { getProductFaqs } from "@/lib/faqs";
 import { getProduct, getProductInventory, getProductRecommendations, getProducts } from "@/lib/shopify/api";
@@ -92,6 +93,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             inventory={inventory}
           />
           <ProductTabs descriptionHtml={product.descriptionHtml} reviews={reviews} faqs={faqs} />
+          <TrustBadgesBanner className="mt-14 lg:mt-20" />
           <Suspense
             fallback={
               <div className="mt-14 grid grid-cols-2 gap-x-3.5 gap-y-6 lg:mt-20 lg:grid-cols-4 lg:gap-5">
