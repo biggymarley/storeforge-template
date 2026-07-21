@@ -8,6 +8,7 @@ import { TestimonialCarousel } from "@/components/home/testimonial-carousel";
 import { TrustBar } from "@/components/home/trust-bar";
 import { UgcGallery } from "@/components/home/ugc-gallery";
 import { BrandStrip } from "@/components/layout/brand-strip";
+import { TrustBadgesBanner } from "@/components/ui/trust-badges-banner";
 import { resolveContentConfig, resolveLegalConfig, resolveStoreConfig } from "@/lib/config";
 import { getAggregateRating } from "@/lib/reviews";
 import { getCollections, getHomeSectionProducts, getProduct } from "@/lib/shopify/api";
@@ -83,6 +84,9 @@ export default async function HomePage() {
       <div>
         <Hero heroProduct={heroProduct} aggregateRating={aggregateRating} carouselProducts={carouselProducts} />
         <TrustBar policies={legal.policies} trustBar={content.trustBar} />
+        <div className="mx-auto mt-6 w-full max-w-page px-4">
+          <TrustBadgesBanner />
+        </div>
       </div>
       {dataError ? (
         <section className="mx-auto w-full max-w-page px-4">
