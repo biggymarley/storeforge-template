@@ -156,4 +156,4 @@ Only two frame widths exist: **1440** and **390**. Plan: mobile-first, `md`/`lg`
 
 ---
 
-*Next: on your confirmation, Phase B (scaffold + contract files + theming + Shopify client). Nothing UI-related is built yet.*
+*Next: on your confirmation, Phase B (scaffold + contract files + theming + Shopify client). Nothing UI-related is built yet.*.
