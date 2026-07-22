@@ -1,119 +1,153 @@
 "use client";
 
-import useEmblaCarousel from "embla-carousel-react";
+import useEmblaCarousel, { type UseEmblaCarouselType } from "embla-carousel-react";
 import {
-  Children,
+  createContext,
   useCallback,
+  useContext,
   useEffect,
   useState,
-  type CSSProperties,
-  type KeyboardEvent,
-  type ReactNode
+  type ComponentProps,
+  type KeyboardEvent
 } from "react";
 import { IconArrow } from "@/components/icons";
 
-interface CarouselProps {
-  children: ReactNode;
-  /** Announced on the scrollable region for screen readers, e.g. "Related Products". */
-  ariaLabel: string;
-  className?: string;
-  /** Each slide's width below the lg breakpoint — controls how many show and the edge peek, e.g. "44%". */
-  itemWidth: string;
-  /** Each slide's width at lg and up. Omit to keep `itemWidth` at every size. */
-  itemWidthLg?: string;
+type CarouselApi = UseEmblaCarouselType[1];
+
+interface CarouselContextValue {
+  scrollPrev: () => void;
+  scrollNext: () => void;
+  canScrollPrev: boolean;
+  canScrollNext: boolean;
+}
+
+const CarouselContext = createContext<CarouselContextValue | null>(null);
+
+function useCarousel(): CarouselContextValue {
+  const context = useContext(CarouselContext);
+  if (!context) throw new Error("Carousel.Content/Previous/Next must be used inside <Carousel>");
+  return context;
 }
 
 function prefersReducedMotion(): boolean {
   return typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 }
 
+interface CarouselRootProps extends ComponentProps<"div"> {
+  ariaLabel: string;
+}
+
 /**
  * Shared horizontal carousel behind every card row on the site (product
- * sections, PDP recommendations) — built on Embla Carousel, the same
- * transform + overflow-hidden mechanism the hero slider already uses. Unlike
- * a hand-rolled flex/grid + overflow-x-auto track, a slide's own content
- * (long title, quick-add button) can never force the viewport wider than the
- * page — overflow-hidden on Embla's viewport clips it unconditionally.
- * Native drag/swipe/momentum comes from Embla; the chevrons are a desktop
- * convenience layered on top, disabled (not unmounted) at each end so
- * focus/layout stay put.
+ * sections, PDP recommendations) — the same Embla Carousel structure
+ * (context + explicit Content/Item/Previous/Next) shadcn/ui's own Carousel
+ * ships, adapted to this template's own button/icon styling instead of
+ * pulling in shadcn's Button/lucide-react. Embla's viewport clips via
+ * overflow-hidden unconditionally, so a card's own content can never force
+ * it wider than the page — the same mechanism the hero slider already uses.
  */
-export function Carousel({ children, ariaLabel, className = "", itemWidth, itemWidthLg }: CarouselProps) {
-  const [emblaRef, emblaApi] = useEmblaCarousel({
-    align: "start",
-    containScroll: "trimSnaps"
-  });
+export function Carousel({ ariaLabel, className = "", children, ...props }: CarouselRootProps) {
+  const [carouselRef, api] = useEmblaCarousel({ align: "start", containScroll: "trimSnaps" });
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
 
-  const onSelect = useCallback((api: NonNullable<typeof emblaApi>) => {
-    setCanScrollPrev(api.canScrollPrev());
-    setCanScrollNext(api.canScrollNext());
+  const onSelect = useCallback((emblaApi: CarouselApi) => {
+    if (!emblaApi) return;
+    setCanScrollPrev(emblaApi.canScrollPrev());
+    setCanScrollNext(emblaApi.canScrollNext());
   }, []);
 
+  const scrollPrev = useCallback(() => api?.scrollPrev(prefersReducedMotion()), [api]);
+  const scrollNext = useCallback(() => api?.scrollNext(prefersReducedMotion()), [api]);
+
   useEffect(() => {
-    if (!emblaApi) return;
-    onSelect(emblaApi);
-    emblaApi.on("select", onSelect).on("reInit", onSelect);
+    if (!api) return;
+    onSelect(api);
+    api.on("select", onSelect).on("reInit", onSelect);
     return () => {
-      emblaApi.off("select", onSelect).off("reInit", onSelect);
+      api.off("select", onSelect).off("reInit", onSelect);
     };
-  }, [emblaApi, onSelect]);
+  }, [api, onSelect]);
 
   const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "ArrowRight") {
       event.preventDefault();
-      emblaApi?.scrollNext(prefersReducedMotion());
+      scrollNext();
     } else if (event.key === "ArrowLeft") {
       event.preventDefault();
-      emblaApi?.scrollPrev(prefersReducedMotion());
+      scrollPrev();
     }
   };
 
   return (
-    <div className={`group/carousel relative ${className}`}>
+    <CarouselContext.Provider value={{ scrollPrev, scrollNext, canScrollPrev, canScrollNext }}>
       <div
-        ref={emblaRef}
         role="region"
+        aria-roledescription="carousel"
         aria-label={ariaLabel}
         tabIndex={0}
         onKeyDown={onKeyDown}
-        className="overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+        className={`group/carousel relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${className}`}
+        {...props}
       >
-        <div className="flex touch-pan-y gap-3.5 lg:gap-5">
-          {Children.map(children, (child) => (
-            <div
-              className="carousel-slide min-w-0 shrink-0 grow-0"
-              style={
-                {
-                  "--carousel-slide-basis": itemWidth,
-                  "--carousel-slide-basis-lg": itemWidthLg
-                } as CSSProperties
-              }
-            >
-              {child}
-            </div>
-          ))}
-        </div>
+        <CarouselViewportContext.Provider value={carouselRef}>{children}</CarouselViewportContext.Provider>
       </div>
-      <button
-        type="button"
-        aria-label="Previous"
-        onClick={() => emblaApi?.scrollPrev(prefersReducedMotion())}
-        disabled={!canScrollPrev}
-        className="absolute left-2 top-1/2 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full bg-background text-foreground opacity-0 shadow-md transition-opacity disabled:invisible group-hover/carousel:opacity-100 group-focus-within/carousel:opacity-100 lg:flex"
-      >
-        <IconArrow width={20} height={20} className="rotate-180" />
-      </button>
-      <button
-        type="button"
-        aria-label="Next"
-        onClick={() => emblaApi?.scrollNext(prefersReducedMotion())}
-        disabled={!canScrollNext}
-        className="absolute right-2 top-1/2 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full bg-background text-foreground opacity-0 shadow-md transition-opacity disabled:invisible group-hover/carousel:opacity-100 group-focus-within/carousel:opacity-100 lg:flex"
-      >
-        <IconArrow width={20} height={20} />
-      </button>
+    </CarouselContext.Provider>
+  );
+}
+
+const CarouselViewportContext = createContext<ReturnType<typeof useEmblaCarousel>[0] | null>(null);
+
+export function CarouselContent({ className = "", ...props }: ComponentProps<"div">) {
+  const carouselRef = useContext(CarouselViewportContext);
+  return (
+    <div ref={carouselRef} className="overflow-hidden">
+      <div className={`flex touch-pan-y gap-3.5 lg:gap-5 ${className}`} {...props} />
     </div>
+  );
+}
+
+/** Each slide's own width, e.g. `className="basis-[44%] lg:basis-[22%]"` — written directly at the call site. */
+export function CarouselItem({ className = "", ...props }: ComponentProps<"div">) {
+  return (
+    <div
+      role="group"
+      aria-roledescription="slide"
+      className={`min-w-0 shrink-0 grow-0 ${className}`}
+      {...props}
+    />
+  );
+}
+
+const ARROW_BUTTON =
+  "absolute top-1/2 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/80 text-foreground opacity-0 shadow-sm backdrop-blur transition-colors transition-opacity disabled:invisible group-hover/carousel:opacity-100 group-focus-within/carousel:opacity-100 hover:bg-background lg:flex";
+
+export function CarouselPrevious() {
+  const { scrollPrev, canScrollPrev } = useCarousel();
+  return (
+    <button
+      type="button"
+      aria-label="Previous"
+      onClick={scrollPrev}
+      disabled={!canScrollPrev}
+      className={`${ARROW_BUTTON} left-2`}
+    >
+      <IconArrow width={20} height={20} className="rotate-180" />
+    </button>
+  );
+}
+
+export function CarouselNext() {
+  const { scrollNext, canScrollNext } = useCarousel();
+  return (
+    <button
+      type="button"
+      aria-label="Next"
+      onClick={scrollNext}
+      disabled={!canScrollNext}
+      className={`${ARROW_BUTTON} right-2`}
+    >
+      <IconArrow width={20} height={20} />
+    </button>
   );
 }
