@@ -80,8 +80,8 @@ export interface StoreConfig {
   socials?: { instagram?: string; tiktok?: string; x?: string; facebook?: string };
   /** Homepage hero content (all optional — sane template defaults apply). */
   hero?: HeroConfig;
-  /** Guarantees/secure-checkout graphic shown on the homepage and PDP. Store-owned asset, e.g. "/branding/trust-badges.jpg". Unset → template default asset + alt text. */
-  trustBadges?: { image?: string; alt?: string };
+  /** Guarantees/secure-checkout graphic shown on the homepage and PDP. Store-owned asset, e.g. "/branding/trust-badges.jpg". Unset → template default asset + alt text. `enabled: false` hides the banner entirely. */
+  trustBadges?: { image?: string; alt?: string; enabled?: boolean };
 }
 
 export interface LegalAddress {

@@ -75,7 +75,7 @@ export interface ResolvedStoreConfig {
     productHandle: string;
     carousel: ResolvedHeroCarousel | null;
   };
-  trustBadges: { image: string; alt: string };
+  trustBadges: { image: string; alt: string; enabled: boolean };
 }
 
 const DEFAULT_TRUST_BADGES_ALT =
@@ -127,7 +127,8 @@ export function resolveStoreConfig(config: StoreConfig = storeConfig): ResolvedS
     },
     trustBadges: {
       image: config.trustBadges?.image || "/branding/trust-badges.jpg",
-      alt: config.trustBadges?.alt ?? DEFAULT_TRUST_BADGES_ALT
+      alt: config.trustBadges?.alt ?? DEFAULT_TRUST_BADGES_ALT,
+      enabled: config.trustBadges?.enabled ?? true
     }
   };
 }

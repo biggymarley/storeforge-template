@@ -20,7 +20,7 @@ interface ProductViewProps {
   rating: { rating: number; count: number } | null;
   /** Variant id -> stock count. Missing/null entries render as available — no data, no badge. */
   inventory: Record<string, number | null>;
-  trustBadges: { image: string; alt: string };
+  trustBadges: { image: string; alt: string; enabled: boolean };
 }
 
 const LOW_STOCK_THRESHOLD = 10;
@@ -301,12 +301,14 @@ export function ProductView({ product, rating, inventory, trustBadges }: Product
           </Button>
         </div>
 
-        <TrustBadgesBanner
-          image={trustBadges.image}
-          alt={trustBadges.alt}
-          className="mt-4"
-          sizes="(max-width: 1024px) 100vw, 40vw"
-        />
+        {trustBadges.enabled ? (
+          <TrustBadgesBanner
+            image={trustBadges.image}
+            alt={trustBadges.alt}
+            className="mt-4"
+            sizes="(max-width: 1024px) 100vw, 40vw"
+          />
+        ) : null}
       </div>
 
       {/* Mobile-only: keeps a purchase path reachable once the row above scrolls out of view. */}
