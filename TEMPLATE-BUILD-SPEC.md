@@ -179,4 +179,4 @@ Global: header w/ nav (collections from API) + cart badge, footer (socials/legal
 - Deployed to Vercel with only env vars set → fully functional store on my dev-store data, visually matching the Figma on desktop + mobile.
 - Changing `config/store.ts` colors/fonts/name restyles the entire site with zero other edits.
 - `grep` for the placeholder brand name returns hits **only** inside `config/` — nothing else in the codebase knows the store's identity.
-- Repo tagged `v1.0.0`, `template.json` at `1.0.0`, README + CHANGELOG + DESIGN-NOTES committed.
+- Repo tagged `v1.0.0`, `template.json` at `1.0.0`, README + CHANGELOG + DESIGN-NOTES committed..
