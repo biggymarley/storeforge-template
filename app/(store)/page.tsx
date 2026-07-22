@@ -31,8 +31,8 @@ export default async function HomePage() {
     // Section convention (README): a `new-arrivals`/`top-selling` collection
     // overrides the default sort-based sourcing.
     [newArrivals, topSelling, tileCollections] = await Promise.all([
-      getHomeSectionProducts("new-arrivals", { sortKey: "CREATED_AT", reverse: true }),
-      getHomeSectionProducts("top-selling", { sortKey: "BEST_SELLING" }),
+      getHomeSectionProducts("new-arrivals", { sortKey: "CREATED_AT", reverse: true }, 8),
+      getHomeSectionProducts("top-selling", { sortKey: "BEST_SELLING" }, 8),
       getCollections()
     ]);
   } catch (error) {

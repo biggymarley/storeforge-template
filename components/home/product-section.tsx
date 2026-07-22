@@ -1,4 +1,5 @@
 import { ProductCard } from "@/components/product/product-card";
+import { Carousel } from "@/components/ui/carousel";
 import { ButtonLink } from "@/components/ui/button";
 import type { ProductCard as ProductCardType } from "@/lib/shopify/types";
 
@@ -11,7 +12,11 @@ interface ProductSectionProps {
   priority?: boolean;
 }
 
-/** Figma "NEW ARRIVALS"/"TOP SELLING" section: centered heading, 4-up grid, View All. */
+// Only the cards visible without scrolling are worth prioritizing — beyond
+// that, eager-loading every card in the row defeats the point of priority.
+const PRIORITY_CARD_COUNT = 4;
+
+/** Figma "NEW ARRIVALS"/"TOP SELLING" section: centered heading, horizontal card carousel, View All. */
 export function ProductSection({ title, products, viewAllHref, priority = false }: ProductSectionProps) {
   if (products.length === 0) return null;
 
@@ -20,11 +25,11 @@ export function ProductSection({ title, products, viewAllHref, priority = false 
       <h2 className="text-center font-heading text-[2rem] uppercase leading-9 lg:text-5xl lg:leading-none">
         {title}
       </h2>
-      <div className="mt-8 grid grid-cols-2 gap-x-3.5 gap-y-6 lg:mt-14 lg:grid-cols-4 lg:gap-5">
-        {products.slice(0, 4).map((product) => (
-          <ProductCard key={product.id} product={product} priority={priority} />
+      <Carousel ariaLabel={title} className="mt-8 lg:mt-14" itemClassName="w-[44%] lg:w-[22%]">
+        {products.map((product, index) => (
+          <ProductCard key={product.id} product={product} priority={priority && index < PRIORITY_CARD_COUNT} />
         ))}
-      </div>
+      </Carousel>
       {viewAllHref ? (
         <div className="mt-6 flex justify-center lg:mt-9">
           <ButtonLink variant="secondary" href={viewAllHref} className="w-full sm:w-auto sm:min-w-54">
