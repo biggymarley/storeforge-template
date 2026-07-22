@@ -20,7 +20,7 @@ export function AnnouncementBar({ items }: AnnouncementBarProps) {
   if (dismissed) return null;
 
   return (
-    <div className="relative bg-announcement-background px-10 py-2.5 text-center text-sm text-announcement-foreground">
+    <div className="relative hidden bg-announcement-background px-10 py-2.5 text-center text-sm text-announcement-foreground lg:block">
       <div
         className={`mx-auto flex max-w-page flex-wrap items-center gap-x-10 gap-y-1 ${
           items.length > 1 ? "justify-center sm:justify-between" : "justify-center"
@@ -53,7 +53,7 @@ export function AnnouncementBar({ items }: AnnouncementBarProps) {
         type="button"
         aria-label="Dismiss announcement"
         onClick={() => setDismissed(true)}
-        className="absolute right-4 top-1/2 hidden -translate-y-1/2 text-announcement-foreground transition-opacity hover:opacity-70 lg:block"
+        className="absolute right-4 top-1/2 -translate-y-1/2 text-announcement-foreground transition-opacity hover:opacity-70"
       >
         <IconClose width={20} height={20} />
       </button>
