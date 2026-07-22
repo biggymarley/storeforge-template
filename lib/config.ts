@@ -76,12 +76,19 @@ export interface ResolvedStoreConfig {
     carousel: ResolvedHeroCarousel | null;
   };
   trustBadges: { image: string; alt: string; enabled: boolean };
+  homeContentImage: { image: string; alt: string; enabled: boolean };
 }
 
 const DEFAULT_TRUST_BADGES_ALT =
   "Lowest price guaranteed, free shipping, authorized dealer, easy returns, 100% satisfaction guaranteed. Guaranteed safe checkout: secure encryption, PayPal, Visa, Mastercard, American Express, Discover.";
 
 export function resolveStoreConfig(config: StoreConfig = storeConfig): ResolvedStoreConfig {
+  const trustBadges = {
+    image: config.trustBadges?.image || "/branding/trust-badges.jpg",
+    alt: config.trustBadges?.alt ?? DEFAULT_TRUST_BADGES_ALT,
+    enabled: config.trustBadges?.enabled ?? true
+  };
+
   return {
     name: config.name || "Store",
     tagline: config.tagline ?? "",
@@ -125,10 +132,13 @@ export function resolveStoreConfig(config: StoreConfig = storeConfig): ResolvedS
       productHandle: config.hero?.productHandle ?? "",
       carousel: resolveHeroCarousel(config.hero?.carousel)
     },
-    trustBadges: {
-      image: config.trustBadges?.image || "/branding/trust-badges.jpg",
-      alt: config.trustBadges?.alt ?? DEFAULT_TRUST_BADGES_ALT,
-      enabled: config.trustBadges?.enabled ?? true
+    trustBadges,
+    // Unset in old/unedited configs → same image/alt/enabled the PDP shows, preserving
+    // today's shared-banner look until a store explicitly sets its own homepage version.
+    homeContentImage: {
+      image: config.homeContentImage?.image || trustBadges.image,
+      alt: config.homeContentImage?.alt ?? trustBadges.alt,
+      enabled: config.homeContentImage?.enabled ?? trustBadges.enabled
     }
   };
 }

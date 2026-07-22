@@ -95,9 +95,9 @@ export default async function HomePage() {
       ) : (
         <>
           <ProductSection title="New Arrivals" products={newArrivals} viewAllHref="/products?sort=newest" priority />
-          {store.trustBadges.enabled ? (
+          {store.homeContentImage.enabled ? (
             <div className="mx-auto w-full max-w-page px-4">
-              <TrustBadgesBanner image={store.trustBadges.image} alt={store.trustBadges.alt} />
+              <TrustBadgesBanner image={store.homeContentImage.image} alt={store.homeContentImage.alt} />
             </div>
           ) : null}
           <UgcGallery images={content.gallery} />
