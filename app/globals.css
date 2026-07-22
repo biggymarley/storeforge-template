@@ -125,7 +125,9 @@ body {
   text-underline-offset: 2px;
 }
 .prose-store :is(img, video, iframe) {
+  display: block;
   margin-block: 1em;
+  margin-inline: auto;
   max-width: 100%;
   height: auto;
   border-radius: var(--radius-card);
