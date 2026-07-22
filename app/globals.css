@@ -33,6 +33,13 @@
   --container-page: 80.5rem;
 }
 
+html {
+  /* Belt-and-suspenders against any component (deliberately-wide carousels
+     included) leaking horizontal scrollable overflow onto the page itself —
+     their own overflow-x-auto tracks stay unaffected by this. */
+  overflow-x: hidden;
+}
+
 body {
   background-color: var(--color-background);
   color: var(--color-foreground);

@@ -21,7 +21,7 @@ export function ProductSection({ title, products, viewAllHref, priority = false 
   if (products.length === 0) return null;
 
   return (
-    <section className="mx-auto max-w-page px-4">
+    <section className="mx-auto min-w-0 max-w-page px-4">
       <h2 className="text-center font-heading text-[2rem] uppercase leading-9 lg:text-5xl lg:leading-none">
         {title}
       </h2>

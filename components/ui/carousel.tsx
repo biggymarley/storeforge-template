@@ -76,14 +76,14 @@ export function Carousel({ children, ariaLabel, className = "", itemClassName = 
   };
 
   return (
-    <div className={`group/carousel relative ${className}`}>
+    <div className={`group/carousel relative min-w-0 ${className}`}>
       <div
         ref={trackRef}
         role="region"
         aria-label={ariaLabel}
         tabIndex={0}
         onKeyDown={onKeyDown}
-        className="flex snap-x snap-mandatory gap-3.5 overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch] [-ms-overflow-style:none] [scrollbar-width:none] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 [&::-webkit-scrollbar]:hidden lg:gap-5"
+        className="flex min-w-0 snap-x snap-mandatory gap-3.5 overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch] [-ms-overflow-style:none] [scrollbar-width:none] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 [&::-webkit-scrollbar]:hidden lg:gap-5"
       >
         {Children.map(children, (child) => (
           <div data-carousel-item className={`shrink-0 snap-start ${itemClassName}`}>
