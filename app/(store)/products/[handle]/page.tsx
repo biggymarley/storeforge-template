@@ -9,7 +9,7 @@ import { ProductTabs } from "@/components/product/product-tabs";
 import { ProductView } from "@/components/product/product-view";
 import { ErrorState } from "@/components/ui/error-state";
 import { ProductCardSkeleton } from "@/components/ui/skeleton";
-import { resolveContentConfig, resolveLegalConfig } from "@/lib/config";
+import { resolveContentConfig, resolveLegalConfig, resolveStoreConfig } from "@/lib/config";
 import { getProductFaqs } from "@/lib/faqs";
 import { getProduct, getProductInventory, getProductRecommendations, getProducts } from "@/lib/shopify/api";
 import { ShopifyError } from "@/lib/shopify/client";
@@ -70,6 +70,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     const faqs = getProductFaqs(handle);
     const legal = resolveLegalConfig();
     const content = resolveContentConfig();
+    const store = resolveStoreConfig();
     // Isolated from getProduct above: a missing Storefront inventory scope only
     // drops the stock badge, never the page (see PRODUCT_INVENTORY_QUERY comment).
     const inventory = await getProductInventory(handle).catch(() => ({}));
@@ -85,7 +86,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
             items={[{ label: "All Products", href: "/products" }, { label: product.title }]}
             className="text-sm lg:text-base"
           />
-          <ProductView product={product} rating={getProductRating(handle)} inventory={inventory} />
+          <ProductView
+            product={product}
+            rating={getProductRating(handle)}
+            inventory={inventory}
+            trustBadges={store.trustBadges}
+          />
           <ProductTabs descriptionHtml={product.descriptionHtml} reviews={reviews} faqs={faqs} />
           <Suspense
             fallback={

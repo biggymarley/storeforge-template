@@ -25,5 +25,9 @@ export const storeConfig: StoreConfig = {
     subtext:
       "Browse through our diverse range of meticulously crafted products, designed to bring out your individuality and cater to your sense of style.",
     stats: []
+  },
+  trustBadges: {
+    image: "/branding/trust-badges.jpg",
+    alt: "Lowest price guaranteed, free shipping, authorized dealer, easy returns, 100% satisfaction guaranteed. Guaranteed safe checkout: secure encryption, PayPal, Visa, Mastercard, American Express, Discover."
   }
 };

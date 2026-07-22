@@ -20,6 +20,7 @@ interface ProductViewProps {
   rating: { rating: number; count: number } | null;
   /** Variant id -> stock count. Missing/null entries render as available — no data, no badge. */
   inventory: Record<string, number | null>;
+  trustBadges: { image: string; alt: string };
 }
 
 const LOW_STOCK_THRESHOLD = 10;
@@ -34,7 +35,7 @@ function isDefaultOnlyOption(option: Product["options"][number]): boolean {
  * title/rating/price/options/qty/add-to-cart right. Selected options resolve
  * to a variant; price, compare-at and image follow it (PAGE-BLUEPRINTS §PDP).
  */
-export function ProductView({ product, rating, inventory }: ProductViewProps) {
+export function ProductView({ product, rating, inventory, trustBadges }: ProductViewProps) {
   const { toast } = useToast();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -300,7 +301,12 @@ export function ProductView({ product, rating, inventory }: ProductViewProps) {
           </Button>
         </div>
 
-        <TrustBadgesBanner className="mt-4" sizes="(max-width: 1024px) 100vw, 40vw" />
+        <TrustBadgesBanner
+          image={trustBadges.image}
+          alt={trustBadges.alt}
+          className="mt-4"
+          sizes="(max-width: 1024px) 100vw, 40vw"
+        />
       </div>
 
       {/* Mobile-only: keeps a purchase path reachable once the row above scrolls out of view. */}

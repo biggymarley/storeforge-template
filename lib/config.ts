@@ -75,7 +75,11 @@ export interface ResolvedStoreConfig {
     productHandle: string;
     carousel: ResolvedHeroCarousel | null;
   };
+  trustBadges: { image: string; alt: string };
 }
+
+const DEFAULT_TRUST_BADGES_ALT =
+  "Lowest price guaranteed, free shipping, authorized dealer, easy returns, 100% satisfaction guaranteed. Guaranteed safe checkout: secure encryption, PayPal, Visa, Mastercard, American Express, Discover.";
 
 export function resolveStoreConfig(config: StoreConfig = storeConfig): ResolvedStoreConfig {
   return {
@@ -120,6 +124,10 @@ export function resolveStoreConfig(config: StoreConfig = storeConfig): ResolvedS
       stats: config.hero?.stats ?? [],
       productHandle: config.hero?.productHandle ?? "",
       carousel: resolveHeroCarousel(config.hero?.carousel)
+    },
+    trustBadges: {
+      image: config.trustBadges?.image || "/branding/trust-badges.jpg",
+      alt: config.trustBadges?.alt ?? DEFAULT_TRUST_BADGES_ALT
     }
   };
 }
