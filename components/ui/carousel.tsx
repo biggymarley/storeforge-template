@@ -1,7 +1,15 @@
 "use client";
 
 import useEmblaCarousel from "embla-carousel-react";
-import { Children, useCallback, useEffect, useState, type KeyboardEvent, type ReactNode } from "react";
+import {
+  Children,
+  useCallback,
+  useEffect,
+  useState,
+  type CSSProperties,
+  type KeyboardEvent,
+  type ReactNode
+} from "react";
 import { IconArrow } from "@/components/icons";
 
 interface CarouselProps {
@@ -9,8 +17,10 @@ interface CarouselProps {
   /** Announced on the scrollable region for screen readers, e.g. "Related Products". */
   ariaLabel: string;
   className?: string;
-  /** Width classes for each slide — controls how many show and the edge peek, e.g. "w-[44%] lg:w-[22%]". */
-  itemClassName?: string;
+  /** Each slide's width below the lg breakpoint — controls how many show and the edge peek, e.g. "44%". */
+  itemWidth: string;
+  /** Each slide's width at lg and up. Omit to keep `itemWidth` at every size. */
+  itemWidthLg?: string;
 }
 
 function prefersReducedMotion(): boolean {
@@ -28,7 +38,7 @@ function prefersReducedMotion(): boolean {
  * convenience layered on top, disabled (not unmounted) at each end so
  * focus/layout stay put.
  */
-export function Carousel({ children, ariaLabel, className = "", itemClassName = "" }: CarouselProps) {
+export function Carousel({ children, ariaLabel, className = "", itemWidth, itemWidthLg }: CarouselProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({
     align: "start",
     containScroll: "trimSnaps"
@@ -72,7 +82,17 @@ export function Carousel({ children, ariaLabel, className = "", itemClassName = 
       >
         <div className="flex touch-pan-y gap-3.5 lg:gap-5">
           {Children.map(children, (child) => (
-            <div className={`min-w-0 shrink-0 grow-0 ${itemClassName}`}>{child}</div>
+            <div
+              className="carousel-slide min-w-0 shrink-0 grow-0"
+              style={
+                {
+                  "--carousel-slide-basis": itemWidth,
+                  "--carousel-slide-basis-lg": itemWidthLg
+                } as CSSProperties
+              }
+            >
+              {child}
+            </div>
           ))}
         </div>
       </div>

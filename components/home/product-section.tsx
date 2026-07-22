@@ -25,7 +25,7 @@ export function ProductSection({ title, products, viewAllHref, priority = false 
       <h2 className="text-center font-heading text-[2rem] uppercase leading-9 lg:text-5xl lg:leading-none">
         {title}
       </h2>
-      <Carousel ariaLabel={title} className="mt-8 lg:mt-14" itemClassName="w-[44%] lg:w-[22%]">
+      <Carousel ariaLabel={title} className="mt-8 lg:mt-14" itemWidth="44%" itemWidthLg="22%">
         {products.map((product, index) => (
           <ProductCard key={product.id} product={product} priority={priority && index < PRIORITY_CARD_COUNT} />
         ))}

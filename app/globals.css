@@ -40,6 +40,21 @@ html {
   overflow-x: hidden;
 }
 
+/*
+ * Carousel slide width (components/ui/carousel.tsx) — set via inline custom
+ * properties rather than a Tailwind arbitrary-value class (w-[44%]) so the
+ * actual percentage is never at the mercy of the content scanner picking up
+ * a class name built from a prop string passed between two component files.
+ */
+.carousel-slide {
+  width: var(--carousel-slide-basis, 100%);
+}
+@media (min-width: 1024px) {
+  .carousel-slide {
+    width: var(--carousel-slide-basis-lg, var(--carousel-slide-basis, 100%));
+  }
+}
+
 body {
   background-color: var(--color-background);
   color: var(--color-foreground);
