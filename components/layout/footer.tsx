@@ -14,6 +14,13 @@ export function Footer({ shopLinks = [] }: FooterProps) {
   const store = resolveStoreConfig();
   const legal = resolveLegalConfig();
 
+  const addressLines = [
+    legal.address.line1,
+    legal.address.line2,
+    [legal.address.city, legal.address.region, legal.address.postalCode].filter(Boolean).join(", "),
+    legal.address.country
+  ].filter(Boolean);
+
   const socials = [
     { href: store.socials.x, label: "X", Icon: IconX },
     { href: store.socials.facebook, label: "Facebook", Icon: IconFacebook },
@@ -70,6 +77,23 @@ export function Footer({ shopLinks = [] }: FooterProps) {
               </Link>
               {store.tagline ? <p className="text-sm leading-[22px] text-muted">{store.tagline}</p> : null}
             </div>
+            {addressLines.length > 0 || legal.phone || legal.emails.support ? (
+              <div className="flex flex-col gap-1 text-sm leading-[22px] text-muted">
+                {addressLines.map((line) => (
+                  <p key={line}>{line}</p>
+                ))}
+                {legal.phone ? (
+                  <a href={`tel:${legal.phone}`} className="transition-colors hover:text-foreground">
+                    {legal.phone}
+                  </a>
+                ) : null}
+                {legal.emails.support ? (
+                  <a href={`mailto:${legal.emails.support}`} className="transition-colors hover:text-foreground">
+                    {legal.emails.support}
+                  </a>
+                ) : null}
+              </div>
+            ) : null}
             {socials.length > 0 ? (
               <div className="flex gap-3">
                 {socials.map(({ href, label, Icon }) => (
