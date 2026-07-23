@@ -39,7 +39,7 @@ export function Price({ price, compareAt, size = "md", variant = "badge", classN
 
   return (
     <div className={className}>
-      <div className="flex items-center gap-2.5">
+      <div className="flex flex-wrap items-center gap-2.5">
         <span className={`font-bold ${sizeClass}`}>{formatPrice(price.amount, price.currencyCode)}</span>
         {discounted ? <DiscountBadge>{percentOff}%</DiscountBadge> : null}
       </div>

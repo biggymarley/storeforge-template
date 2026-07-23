@@ -56,7 +56,7 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
         ) : null}
       </div>
       <Link href={`/products/${product.handle}`} className="flex flex-col gap-2">
-        <h3 className="mt-1 text-xl font-bold">{product.title}</h3>
+        <h3 className="mt-1 break-words text-xl font-bold">{product.title}</h3>
         {rating ? <StarRating rating={rating.rating} /> : null}
         <Price price={product.priceRange.minVariantPrice} compareAt={compareAt} />
       </Link>
