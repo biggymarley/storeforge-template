@@ -21,14 +21,14 @@ export function ProductSection({ title, products, viewAllHref, priority = false 
   if (products.length === 0) return null;
 
   return (
-    <section className="min-w-0 max-w-page px-4">
+    <section className="min-w-0 max-w-full">
       <h2 className="text-center font-heading text-[2rem] uppercase leading-9 lg:text-5xl lg:leading-none">
         {title}
       </h2>
-      <Carousel ariaLabel={title} className="mt-8 lg:mt-14">
+      <Carousel ariaLabel={title} className="mt-8 lg:mt-14 mx-auto max-w-6xl px-4">
         <CarouselContent>
           {products.map((product, index) => (
-            <CarouselItem key={product.id} className="basis-[44%] lg:basis-[22%]">
+            <CarouselItem key={product.id} className="basis-[70%] lg:basis-[22%]">
               <ProductCard product={product} priority={priority && index < PRIORITY_CARD_COUNT} />
             </CarouselItem>
           ))}
