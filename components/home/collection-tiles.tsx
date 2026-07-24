@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { IconArrow } from "@/components/icons";
 import type { Collection } from "@/lib/shopify/types";
 
 /** Figma tile widths alternate 407/684 in a 2×2 layout (node 22:672). */
@@ -24,7 +25,7 @@ export function CollectionTiles({ collections }: CollectionTilesProps) {
         <h2 className="text-center font-heading text-[2rem] uppercase leading-9 lg:text-5xl lg:leading-none">
           Browse by Category
         </h2>
-        <div className="mt-7 grid gap-4 sm:grid-cols-2 lg:mt-16 lg:grid-cols-5 lg:gap-5">
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:mt-12 lg:grid-cols-5 lg:gap-5">
           {tiles.map((collection, index) => (
             <Link
               key={collection.id}
@@ -37,12 +38,17 @@ export function CollectionTiles({ collections }: CollectionTilesProps) {
                   alt={collection.image.altText ?? collection.title}
                   fill
                   sizes="(max-width: 1024px) 100vw, 40vw"
-                  className="object-cover object-right transition-transform duration-300 group-hover:scale-105"
+                  className="object-cover object-center transition-transform duration-500 ease-out group-hover:scale-105"
                 />
               ) : null}
-              <span className="absolute left-6 top-4 text-2xl font-bold lg:left-9 lg:top-6 lg:text-4xl">
-                {collection.title}
-              </span>
+              {/* Scrim keeps the label legible on any photo, light or dark. */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent transition-opacity duration-300 group-hover:from-black/70" />
+              <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-3 p-5 lg:p-7">
+                <span className="text-2xl font-bold text-white lg:text-4xl">{collection.title}</span>
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white/90 text-black opacity-0 transition-all duration-300 group-hover:opacity-100 lg:-translate-x-1 lg:group-hover:translate-x-0">
+                  <IconArrow width={18} height={18} />
+                </span>
+              </div>
             </Link>
           ))}
         </div>

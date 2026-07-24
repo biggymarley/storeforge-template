@@ -41,14 +41,14 @@ export function UgcGallery({ images }: UgcGalleryProps) {
             href={socials.instagram}
             target="_blank"
             rel="noopener noreferrer"
-            className="mb-1 flex items-center gap-2 text-sm font-medium transition-opacity hover:opacity-60"
+            className="mb-1 inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-primary hover:text-background"
           >
             <IconInstagram width={18} height={18} />
             Follow us
           </a>
         ) : null}
       </div>
-      <div className="mt-6 grid grid-cols-2 gap-3 lg:mt-10 lg:h-[440px] lg:grid-cols-4 lg:grid-rows-2 lg:gap-4">
+      <div className="mt-8 grid grid-cols-2 gap-3 lg:mt-12 lg:h-[440px] lg:grid-cols-4 lg:grid-rows-2 lg:gap-4">
         {tiles.map((tile, index) => {
           const content = (
             <>
@@ -57,12 +57,12 @@ export function UgcGallery({ images }: UgcGalleryProps) {
                 alt={tile.alt ?? ""}
                 fill
                 sizes="(max-width: 1024px) 50vw, 25vw"
-                className="object-cover transition-transform duration-500 group-hover:scale-105"
+                className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent transition-opacity duration-300 group-hover:from-black/45" />
             </>
           );
-          const className = `group relative block overflow-hidden rounded-lg bg-secondary ${TILE_SPAN[index]}`;
+          const className = `group relative block overflow-hidden rounded-card bg-secondary ${TILE_SPAN[index]}`;
           return tile.href ? (
             <a key={`${tile.image}-${index}`} href={tile.href} className={className}>
               {content}

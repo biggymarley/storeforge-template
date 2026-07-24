@@ -37,7 +37,7 @@ export function ProductSection({ title, products, viewAllHref, priority = false,
           {title}
         </h2>
       )}
-      <Carousel ariaLabel={title} className={`${compact ? "mt-6 lg:mt-8" : "mt-8 lg:mt-14"} mx-auto max-w-page px-4`}>
+      <Carousel ariaLabel={title} className={`${compact ? "mt-6 lg:mt-8" : "mt-8 lg:mt-12"} mx-auto max-w-page px-4`}>
         <CarouselContent>
           {products.map((product, index) => (
             <CarouselItem key={product.id} className="basis-[70%] lg:basis-[22%]">

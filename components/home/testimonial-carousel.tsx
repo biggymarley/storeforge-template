@@ -29,10 +29,11 @@ export function TestimonialCarousel({ testimonials }: TestimonialCarouselProps) 
 
   return (
     <section>
-      <h2 className="mx-auto max-w-page px-4 text-center font-heading text-[2rem] uppercase leading-9 lg:text-5xl lg:leading-none">
-        Our Happy Customers
-      </h2>
-      <div className="group relative mt-6 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)] lg:mt-10">
+      <div className="mx-auto max-w-page px-4 text-center">
+        <h2 className="font-heading text-[2rem] uppercase leading-9 lg:text-5xl lg:leading-none">Our Happy Customers</h2>
+        <p className="mt-3 text-sm text-muted lg:text-base">Real reviews from verified buyers</p>
+      </div>
+      <div className="group relative mt-8 overflow-hidden [mask-image:linear-gradient(to_right,transparent,black_6%,black_94%,transparent)] lg:mt-12">
         <div className="marquee flex w-max gap-4 lg:gap-5" style={{ animationDuration: `${durationSeconds}s` }}>
           {loop.map((testimonial, index) => (
             <ReviewCard
@@ -42,7 +43,7 @@ export function TestimonialCarousel({ testimonials }: TestimonialCarouselProps) 
               rating={testimonial.rating}
               date={testimonial.date}
               verified={testimonial.verified}
-              className="w-[315px] shrink-0 bg-background lg:w-100"
+              className="w-[315px] shrink-0 bg-background shadow-sm lg:w-100"
             />
           ))}
         </div>

@@ -60,26 +60,26 @@ export function Hero({ heroProduct = null, aggregateRating = null, carouselProdu
       : null;
 
   return (
-    <section className="overflow-hidden bg-hero-background">
+    <section className="overflow-hidden bg-gradient-to-b from-hero-background via-hero-background to-background">
       <div
         className={`mx-auto grid max-w-page gap-8 px-4 pt-10 lg:items-center lg:gap-4 lg:pt-0 ${
           visual ? "lg:grid-cols-[minmax(0,577px)_minmax(0,1fr)]" : ""
         }`}
       >
-        <div className="flex flex-col items-start gap-5 lg:gap-8 lg:py-26">
+        <div className="flex flex-col items-start gap-5 lg:gap-7 lg:py-26">
+          {aggregateRating ? (
+            <div className="inline-flex items-center gap-2 rounded-full border border-border bg-background/60 px-3 py-1.5 backdrop-blur">
+              <StarRating rating={aggregateRating.rating} showLabel={false} size={15} />
+              <span className="text-xs font-medium">
+                Rated {aggregateRating.rating} by {aggregateRating.count}+ happy customers
+              </span>
+            </div>
+          ) : null}
           <h1 className="font-heading text-4xl uppercase leading-[0.95] lg:text-6xl lg:leading-16">
             {hero.headline}
           </h1>
           {hero.subtext ? (
-            <p className="text-sm leading-5 text-muted lg:text-base lg:leading-[22px]">{hero.subtext}</p>
-          ) : null}
-          {aggregateRating ? (
-            <div className="flex items-center gap-2">
-              <StarRating rating={aggregateRating.rating} showLabel={false} size={18} />
-              <span className="text-sm text-muted">
-                {aggregateRating.rating} from {aggregateRating.count}+ happy customers
-              </span>
-            </div>
+            <p className="max-w-xl text-sm leading-5 text-muted lg:text-base lg:leading-[22px]">{hero.subtext}</p>
           ) : null}
           {visual?.kind === "product" ? (
             <Price
@@ -130,18 +130,24 @@ export function Hero({ heroProduct = null, aggregateRating = null, carouselProdu
                 className="object-cover object-top"
               />
             ) : (
-              <div className="hero-float relative aspect-square w-[80%] max-w-[440px] sm:w-[70%] lg:w-full lg:max-w-[560px]">
-                {visual.product.featuredImage ? (
-                  <Image
-                    src={visual.product.featuredImage.url}
-                    alt={visual.product.featuredImage.altText ?? visual.product.title}
-                    fill
-                    priority
-                    sizes="(max-width: 1024px) 80vw, 45vw"
-                    className="object-contain drop-shadow-2xl"
-                  />
-                ) : null}
-              </div>
+              <>
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute left-1/2 top-1/2 size-[70%] -translate-x-1/2 -translate-y-1/2 rounded-full bg-accent/10 blur-3xl"
+                />
+                <div className="hero-float relative aspect-square w-[80%] max-w-[440px] sm:w-[70%] lg:w-full lg:max-w-[560px]">
+                  {visual.product.featuredImage ? (
+                    <Image
+                      src={visual.product.featuredImage.url}
+                      alt={visual.product.featuredImage.altText ?? visual.product.title}
+                      fill
+                      priority
+                      sizes="(max-width: 1024px) 80vw, 45vw"
+                      className="object-contain drop-shadow-2xl"
+                    />
+                  ) : null}
+                </div>
+              </>
             )}
           </div>
         ) : null}

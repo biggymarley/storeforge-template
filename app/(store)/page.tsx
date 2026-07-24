@@ -80,7 +80,7 @@ export default async function HomePage() {
   const aggregateRating = getAggregateRating(homepageHandles);
 
   return (
-    <div className="flex flex-col gap-10 pb-2 lg:gap-16">
+    <div className="flex flex-col gap-14 pb-2 lg:gap-24">
       <div>
         <Hero heroProduct={heroProduct} aggregateRating={aggregateRating} carouselProducts={carouselProducts} />
         <TrustBar policies={legal.policies} trustBar={content.trustBar} />
@@ -95,16 +95,17 @@ export default async function HomePage() {
       ) : (
         <>
           <ProductSection title="New Arrivals" products={newArrivals} viewAllHref="/products?sort=newest" priority />
+          {/* Category discovery surfaced early — shop-by-collection before the second product row. */}
+          <CollectionTiles
+            collections={tileCollections.filter((collection) => !HOME_SECTION_HANDLES.includes(collection.handle))}
+          />
           {store.homeContentImage.enabled ? (
             <div className="mx-auto w-full max-w-page px-4">
               <TrustBadgesBanner image={store.homeContentImage.image} alt={store.homeContentImage.alt} />
             </div>
           ) : null}
-          <UgcGallery images={content.gallery} />
           <ProductSection title="Top Selling" products={topSelling} viewAllHref="/products?sort=best-selling" />
-          <CollectionTiles
-            collections={tileCollections.filter((collection) => !HOME_SECTION_HANDLES.includes(collection.handle))}
-          />
+          <UgcGallery images={content.gallery} />
         </>
       )}
       <FeatureCards legal={legal} cards={content.featureCards} />

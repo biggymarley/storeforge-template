@@ -77,8 +77,9 @@ export function Footer({ shopLinks = [] }: FooterProps) {
               </Link>
               {store.tagline ? <p className="text-sm leading-[22px] text-muted">{store.tagline}</p> : null}
             </div>
-            {addressLines.length > 0 || legal.phone || legal.emails.support ? (
+            {legal.companyName || addressLines.length > 0 || legal.phone || legal.emails.support ? (
               <div className="flex flex-col gap-1 text-sm leading-[22px] text-muted">
+                {legal.companyName ? <p className="font-medium text-foreground">{legal.companyName}</p> : null}
                 {addressLines.map((line) => (
                   <p key={line}>{line}</p>
                 ))}
@@ -95,7 +96,7 @@ export function Footer({ shopLinks = [] }: FooterProps) {
               </div>
             ) : null}
             {socials.length > 0 ? (
-              <div className="flex gap-3">
+              <div className="flex gap-2.5">
                 {socials.map(({ href, label, Icon }) => (
                   <a
                     key={label}
@@ -103,9 +104,9 @@ export function Footer({ shopLinks = [] }: FooterProps) {
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={label}
-                    className="flex size-7 items-center justify-center rounded-full bg-primary text-background transition-opacity hover:opacity-75"
+                    className="flex size-9 items-center justify-center rounded-full bg-primary text-background transition-transform hover:-translate-y-0.5 hover:opacity-90"
                   >
-                    <Icon width={13} height={13} />
+                    <Icon width={16} height={16} />
                   </a>
                 ))}
               </div>
