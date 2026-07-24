@@ -219,13 +219,17 @@ export interface ResolvedMarketingConfig {
   googleAdsConversionId: string;
   googleAdsConversionLabel: string;
   metaPixelId: string;
+  tawkToPropertyId: string;
+  tawkToWidgetId: string;
 }
 
 export function resolveMarketingConfig(config: MarketingConfig = marketingConfig): ResolvedMarketingConfig {
   return {
     googleAdsConversionId: config.googleAdsConversionId ?? "",
     googleAdsConversionLabel: config.googleAdsConversionLabel ?? "",
-    metaPixelId: config.metaPixelId ?? ""
+    metaPixelId: config.metaPixelId ?? "",
+    tawkToPropertyId: config.tawkToPropertyId ?? "",
+    tawkToWidgetId: config.tawkToWidgetId ?? ""
   };
 }
 

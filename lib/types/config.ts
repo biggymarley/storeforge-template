@@ -143,6 +143,10 @@ export interface MarketingConfig {
   googleAdsConversionLabel?: string;
   /** Meta (Facebook) Pixel id. Loads the Pixel base code (PageView/ViewContent/AddToCart — no Purchase; checkout is off-site). */
   metaPixelId?: string;
+  /** tawk.to Property ID, from the embed URL https://embed.tawk.to/<propertyId>/<widgetId>. Unset/empty → widget omitted. */
+  tawkToPropertyId?: string;
+  /** tawk.to Widget ID (defaults to "default" in tawk.to). Required alongside tawkToPropertyId. */
+  tawkToWidgetId?: string;
 }
 
 export interface Testimonial {
