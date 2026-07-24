@@ -259,10 +259,16 @@ function Slide({ item, priority = false }: { item: HeroCarouselItem; priority?: 
 }
 
 /**
- * Banner slide at the image's natural aspect ratio — never cropped. The
- * width/height props are only a pre-load aspect hint (typical wide banner);
- * `h-auto w-full` hands sizing to the image's real intrinsic ratio once loaded.
+ * Banner slide at a fixed hero height, filled edge-to-edge with `object-cover`.
+ *
+ * Every image slide is forced to the same height (matching ProductSlide's
+ * min-heights) so slides of different aspect ratios can't make the track taller
+ * than the current image — which used to leave a dark `bg-hero-background` gap
+ * below shorter images. Trade-off: tall/portrait images are cropped to fill,
+ * which is the expected behaviour for a full-bleed carousel.
  */
+const IMAGE_SLIDE_HEIGHT = "h-[440px] sm:h-[500px] lg:h-[663px]";
+
 function ImageSlide({
   item,
   priority
@@ -274,17 +280,23 @@ function ImageSlide({
     <Image
       src={item.src}
       alt={item.alt}
-      width={2000}
-      height={650}
+      fill
       priority={priority}
       sizes="100vw"
-      className="h-auto w-full"
+      className="object-cover"
       draggable={false}
     />
   );
-  if (!item.href) return image;
+  if (!item.href) {
+    return <div className={`relative w-full ${IMAGE_SLIDE_HEIGHT}`}>{image}</div>;
+  }
   return (
-    <Link href={item.href} aria-label={item.alt || "View slide"} className="block" draggable={false}>
+    <Link
+      href={item.href}
+      aria-label={item.alt || "View slide"}
+      className={`relative block w-full ${IMAGE_SLIDE_HEIGHT}`}
+      draggable={false}
+    >
       {image}
     </Link>
   );
