@@ -85,6 +85,13 @@ export function ProductView({ product, rating, inventory, trustBadges }: Product
         )
     );
 
+  /** A representative variant image for an option value (first variant carrying that value with a photo). */
+  const optionValueImage = (optionName: string, value: string): string | undefined =>
+    variants.find(
+      (variant) =>
+        variant.image?.url && variant.selectedOptions.some((so) => so.name === optionName && so.value === value)
+    )?.image?.url;
+
   const add = () => {
     if (!currentVariant) return;
     setActiveAction("cart");
@@ -297,25 +304,67 @@ export function ProductView({ product, rating, inventory, trustBadges }: Product
           </p>
         ) : null}
 
-        {options.map((option) => (
-          <div key={option.name} className="mt-6 border-t border-border pt-6">
-            <h2 className="text-sm uppercase tracking-wide text-muted">{option.name}</h2>
-            <div className="mt-4 flex flex-wrap gap-3">
-              {option.optionValues.map((value) => (
-                <Chip
-                  key={value.name}
-                  size="lg"
-                  variant="outline"
-                  selected={selected[option.name] === value.name}
-                  onClick={() => setSelected((prev) => ({ ...prev, [option.name]: value.name }))}
-                  className={isValueAvailable(option.name, value.name) ? "" : "text-muted line-through opacity-40"}
-                >
-                  {value.name}
-                </Chip>
-              ))}
+        {options.map((option) => {
+          // Image-swatch mode only when values map to genuinely different photos
+          // (color/bundle/style). Same-image options (e.g. size) stay text chips.
+          const valueImages = new Map(
+            option.optionValues.map((value) => [value.name, optionValueImage(option.name, value.name)])
+          );
+          const useImages = new Set([...valueImages.values()].filter(Boolean)).size >= 2;
+          const selectedValue = selected[option.name];
+
+          return (
+            <div key={option.name} className="mt-6 border-t border-border pt-6">
+              <div className="flex items-baseline gap-2">
+                <h2 className="text-sm uppercase tracking-wide text-muted">{option.name}</h2>
+                {useImages && selectedValue ? <span className="text-sm font-medium">{selectedValue}</span> : null}
+              </div>
+              <div className="mt-4 flex flex-wrap gap-3">
+                {option.optionValues.map((value) => {
+                  const available = isValueAvailable(option.name, value.name);
+                  const isSelected = selectedValue === value.name;
+
+                  if (useImages) {
+                    const image = valueImages.get(value.name);
+                    return (
+                      <button
+                        key={value.name}
+                        type="button"
+                        aria-pressed={isSelected}
+                        onClick={() => setSelected((prev) => ({ ...prev, [option.name]: value.name }))}
+                        className={`flex max-w-full items-center gap-3 rounded-card border p-2 pr-3.5 text-left transition ${
+                          isSelected ? "border-primary ring-1 ring-primary" : "border-border hover:border-foreground/30"
+                        } ${available ? "" : "opacity-40"}`}
+                      >
+                        <span className="relative size-11 shrink-0 overflow-hidden rounded-md bg-secondary">
+                          {image ? (
+                            <Image src={image} alt="" fill sizes="44px" className="object-contain p-1" />
+                          ) : null}
+                        </span>
+                        <span className={`text-sm font-medium leading-snug ${available ? "" : "line-through"}`}>
+                          {value.name}
+                        </span>
+                      </button>
+                    );
+                  }
+
+                  return (
+                    <Chip
+                      key={value.name}
+                      size="lg"
+                      variant="outline"
+                      selected={isSelected}
+                      onClick={() => setSelected((prev) => ({ ...prev, [option.name]: value.name }))}
+                      className={available ? "" : "text-muted line-through opacity-40"}
+                    >
+                      {value.name}
+                    </Chip>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         {/* Buy box — quantity, primary actions, and reassurance grouped in one card. */}
         <div ref={ctaRef} className="mt-6 flex flex-col gap-4 rounded-card border border-border p-4 lg:p-5">
