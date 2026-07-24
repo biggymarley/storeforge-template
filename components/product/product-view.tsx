@@ -3,14 +3,14 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
-import { IconArrow } from "@/components/icons";
+import { IconArrow, IconCart, IconShield } from "@/components/icons";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
+import { PaymentBadges } from "@/components/ui/payment-badges";
 import { Price } from "@/components/ui/price";
 import { QuantityStepper } from "@/components/ui/quantity-stepper";
 import { StarRating } from "@/components/ui/star-rating";
 import { useToast } from "@/components/ui/toast";
-import { TrustBadgesBanner } from "@/components/ui/trust-badges-banner";
 import { trackAddToCart, trackViewContent } from "@/lib/analytics";
 import { addToCart } from "@/lib/shopify/cart-actions";
 import { flattenConnection, type Product, type ProductVariant, type ShopifyImage } from "@/lib/shopify/types";
@@ -20,6 +20,7 @@ interface ProductViewProps {
   rating: { rating: number; count: number } | null;
   /** Variant id -> stock count. Missing/null entries render as available — no data, no badge. */
   inventory: Record<string, number | null>;
+  /** `enabled` gates the reassurance row; `image`/`alt` retained for config/store-bulk compatibility. */
   trustBadges: { image: string; alt: string; enabled: boolean };
 }
 
@@ -137,10 +138,20 @@ export function ProductView({ product, rating, inventory, trustBadges }: Product
   }, []);
 
   const main = images[activeImage] ?? images[0];
-  // Match the box to the actual photo's aspect ratio so object-contain never letterboxes
-  // (which would push the visible image down, out of alignment with the title).
-  const mainAspectRatio = main?.width && main?.height ? `${main.width} / ${main.height}` : "444 / 530";
+  // Fixed square frame regardless of the photo's own dimensions — object-contain
+  // centers each image inside the bg-secondary frame, so tall or wide product shots
+  // stay perfectly aligned across the catalog instead of stretching the box.
+  const mainAspectRatio = 1;
   const outOfStock = currentVariant && !currentVariant.availableForSale;
+
+  // Discount % for the gallery badge — derived from the active variant's compare-at.
+  const activePrice = currentVariant?.price ?? product.priceRange.minVariantPrice;
+  const activeCompareAt = currentVariant?.compareAtPrice ?? null;
+  const discountPercent =
+    activeCompareAt && Number(activeCompareAt.amount) > Number(activePrice.amount)
+      ? Math.round(((Number(activeCompareAt.amount) - Number(activePrice.amount)) / Number(activeCompareAt.amount)) * 100)
+      : 0;
+
   const cartLabel = outOfStock ? "Out of Stock" : pending && activeAction === "cart" ? "Adding…" : "Add to Cart";
   const buyNowLabel = outOfStock ? "Out of Stock" : pending && activeAction === "buy" ? "Adding…" : "Buy Now";
 
@@ -157,19 +168,35 @@ export function ProductView({ product, rating, inventory, trustBadges }: Product
       {/* Gallery — main image on top, thumbnail rail below (min-w-0 so it can't widen the grid track).
           Sticky on desktop so it stays in view while the (usually taller) details column scrolls. */}
       <div className="min-w-0 flex flex-col gap-3.5 lg:sticky lg:top-24 lg:self-start">
-        <div className="relative w-full overflow-hidden" style={{ aspectRatio: mainAspectRatio }}>
-          {main ? (
-            <Image
-              src={main.url}
-              alt={main.altText ?? product.title}
-              fill
-              priority
-              sizes="(max-width: 1024px) 100vw, 40vw"
-              className="object-contain"
-            />
-          ) : (
-            <div className="flex size-full items-center justify-center text-sm text-muted">No image</div>
-          )}
+        <div className="group relative w-full overflow-hidden rounded-card border border-border bg-secondary">
+          <div className="relative w-full" style={{ aspectRatio: mainAspectRatio }}>
+            {main ? (
+              <Image
+                src={main.url}
+                alt={main.altText ?? product.title}
+                fill
+                priority
+                sizes="(max-width: 1024px) 100vw, 40vw"
+                className="object-contain transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+              />
+            ) : (
+              <div className="flex size-full items-center justify-center text-sm text-muted">No image</div>
+            )}
+          </div>
+          {outOfStock ? (
+            <div className="absolute left-4 top-4 rounded-full bg-primary/85 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-background">
+              Sold out
+            </div>
+          ) : discountPercent > 0 ? (
+            <div className="absolute left-4 top-4 rounded-full bg-accent px-3 py-1 text-xs font-semibold text-background">
+              -{discountPercent}%
+            </div>
+          ) : null}
+          {images.length > 1 ? (
+            <div className="absolute bottom-4 right-4 rounded-full bg-primary/70 px-2.5 py-1 text-xs font-medium text-background backdrop-blur-sm">
+              {activeImage + 1} / {images.length}
+            </div>
+          ) : null}
         </div>
         {images.length > 1 ? (
           <div className="flex items-center gap-2">
@@ -192,8 +219,10 @@ export function ProductView({ product, rating, inventory, trustBadges }: Product
                   aria-label={`View image ${index + 1}`}
                   aria-pressed={index === activeImage}
                   onClick={() => setActiveImage(index)}
-                  className={`relative aspect-square w-16 shrink-0 overflow-hidden rounded-card bg-secondary lg:w-20 ${
-                    index === activeImage ? "border border-primary" : ""
+                  className={`relative aspect-square w-16 shrink-0 overflow-hidden rounded-card bg-secondary transition lg:w-20 ${
+                    index === activeImage
+                      ? "ring-2 ring-inset ring-primary"
+                      : "border border-border opacity-70 hover:opacity-100"
                   }`}
                 >
                   <Image
@@ -201,7 +230,7 @@ export function ProductView({ product, rating, inventory, trustBadges }: Product
                     alt={image.altText ?? product.title}
                     fill
                     sizes="80px"
-                    className="object-cover"
+                    className="object-contain p-1.5"
                   />
                 </button>
               ))}
@@ -220,13 +249,16 @@ export function ProductView({ product, rating, inventory, trustBadges }: Product
 
       {/* Details */}
       <div className="min-w-0 flex flex-col">
-        <h1 className="font-heading text-xl uppercase leading-tight lg:text-[2rem] lg:leading-none">
+        <h1 className="mt-1.5 font-heading text-xl uppercase leading-tight lg:text-[2rem] lg:leading-none">
           {product.title}
         </h1>
         {rating ? (
-          <div className="mt-3 flex items-center gap-2">
+          <div className="mt-3 flex flex-wrap items-center gap-x-2.5 gap-y-1">
             <StarRating rating={rating.rating} showLabel={false} />
-            <span className="text-sm text-muted">({rating.count})</span>
+            <span className="text-sm font-semibold">{rating.rating.toFixed(1)}</span>
+            <span className="text-sm text-muted">
+              ({rating.count} review{rating.count === 1 ? "" : "s"})
+            </span>
           </div>
         ) : null}
         {currentVariant ? (
@@ -235,14 +267,28 @@ export function ProductView({ product, rating, inventory, trustBadges }: Product
             compareAt={currentVariant.compareAtPrice}
             size="lg"
             variant="save"
-            className="mt-3"
+            className="mt-4"
           />
         ) : (
-          <Price price={product.priceRange.minVariantPrice} size="lg" variant="save" className="mt-3" />
+          <Price price={product.priceRange.minVariantPrice} size="lg" variant="save" className="mt-4" />
         )}
-        {showLowStock ? (
-          <p className="mt-2 text-sm font-medium text-accent">Only {quantityAvailable} left in stock</p>
-        ) : null}
+
+        {/* Availability pill — green when in stock, accent when running low. */}
+        {!outOfStock ? (
+          <div className="mt-3 inline-flex w-fit items-center gap-2 text-sm font-medium">
+            <span className="relative flex size-2.5">
+              <span className={`absolute inline-flex size-full rounded-full ${showLowStock ? "bg-accent" : "bg-success"}`} />
+            </span>
+            {showLowStock ? (
+              <span className="text-accent">Only {quantityAvailable} left in stock</span>
+            ) : (
+              <span className="text-success">In stock, ready to ship</span>
+            )}
+          </div>
+        ) : (
+          <p className="mt-3 text-sm font-medium text-muted">Currently out of stock</p>
+        )}
+
         {product.description ? (
           // Long Shopify descriptions get clamped here — the full rich text
           // lives in the Product Details tab below.
@@ -271,19 +317,20 @@ export function ProductView({ product, rating, inventory, trustBadges }: Product
           </div>
         ))}
 
-        <div ref={ctaRef} className="mt-6 flex flex-col gap-3 border-t border-border pt-6">
-          <div className="flex gap-4 lg:gap-5">
+        {/* Buy box — quantity, primary actions, and reassurance grouped in one card. */}
+        <div ref={ctaRef} className="mt-6 flex flex-col gap-4 rounded-card border border-border p-4 lg:p-5">
+          <div className="flex flex-col gap-3 sm:flex-row sm:gap-4 lg:gap-5">
             <QuantityStepper
               quantity={quantity}
               onDecrement={() => setQuantity((q) => Math.max(1, q - 1))}
               onIncrement={() => setQuantity((q) => q + 1)}
               disabled={pending}
-              className="w-[130px] shrink-0 lg:w-[170px]"
+              className="w-full shrink-0 sm:w-[130px] lg:w-[170px]"
             />
             <Button
               size="md"
               variant="primary"
-              className="h-[52px] min-w-0 flex-1"
+              className="h-[52px] min-w-0 flex-1 whitespace-nowrap"
               onClick={buyNow}
               disabled={pending || !currentVariant || !currentVariant.availableForSale}
             >
@@ -297,23 +344,27 @@ export function ProductView({ product, rating, inventory, trustBadges }: Product
             onClick={add}
             disabled={pending || !currentVariant || !currentVariant.availableForSale}
           >
+            <IconCart width={20} height={20} />
             {cartLabel}
           </Button>
+          <div className="flex items-center justify-center gap-2 text-xs text-muted">
+            <IconShield width={16} height={16} className="shrink-0" />
+            <span>Secure checkout — encrypted &amp; protected</span>
+          </div>
         </div>
 
+        {/* Reassurance row — config-gated via trustBadges.enabled (store-bulk owns that flag);
+            content is the payment-method marks rather than a config image. */}
         {trustBadges.enabled ? (
-          <TrustBadgesBanner
-            image={trustBadges.image}
-            alt={trustBadges.alt}
-            className="mt-4"
-            sizes="(max-width: 1024px) 100vw, 40vw"
-          />
+          <div className="mt-6 border-t border-border pt-6">
+            <PaymentBadges className="mt-3 justify-center" badgeWidth={44} badgeHeight={28} />
+          </div>
         ) : null}
       </div>
 
       {/* Mobile-only: keeps a purchase path reachable once the row above scrolls out of view. */}
       {!ctaVisible ? (
-        <div className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-3 border-t border-border bg-background p-4 lg:hidden">
+        <div className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-3 border-t border-border bg-background/95 p-4 shadow-[0_-8px_24px_rgba(0,0,0,0.08)] backdrop-blur-sm lg:hidden">
           <div className="min-w-0 flex-1">
             <p className="truncate text-sm font-medium">{product.title}</p>
             {currentVariant ? <Price price={currentVariant.price} /> : null}

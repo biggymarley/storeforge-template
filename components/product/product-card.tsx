@@ -23,7 +23,7 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
   const quickAddVariant = variants.length === 1 && variants[0].availableForSale ? variants[0] : null;
 
   return (
-    <div className="group flex flex-col gap-2">
+    <div className="group flex h-full flex-col gap-3">
       <div className="relative aspect-square w-full overflow-hidden rounded-card bg-secondary">
         <Link href={`/products/${product.handle}`} className="absolute inset-0 z-0" tabIndex={-1} aria-hidden="true">
           {product.featuredImage ? (
@@ -33,7 +33,7 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
               fill
               sizes="(max-width: 768px) 50vw, 25vw"
               priority={priority}
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
             />
           ) : (
             <div className="flex size-full items-center justify-center text-sm text-muted">No image</div>
@@ -55,10 +55,14 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
           </div>
         ) : null}
       </div>
-      <Link href={`/products/${product.handle}`} className="flex flex-col gap-2">
-        <h3 className="mt-1 break-words text-xl font-bold">{product.title}</h3>
-        {rating ? <StarRating rating={rating.rating} /> : null}
-        <Price price={product.priceRange.minVariantPrice} compareAt={compareAt} />
+      {/* Fixed-height title (always reserves 2 lines) + mt-auto price keeps ratings and
+          prices on a shared baseline across every card in a row, regardless of title length. */}
+      <Link href={`/products/${product.handle}`} className="flex flex-1 flex-col gap-2">
+        <h3 className="line-clamp-2 min-h-[2.75rem] text-base font-semibold leading-snug transition-colors group-hover:text-muted">
+          {product.title}
+        </h3>
+        {rating ? <StarRating rating={rating.rating} size={16} /> : null}
+        <Price price={product.priceRange.minVariantPrice} compareAt={compareAt} className="mt-auto" />
       </Link>
     </div>
   );

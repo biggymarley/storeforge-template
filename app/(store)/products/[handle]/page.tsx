@@ -54,7 +54,7 @@ async function Recommendations({ productId }: { productId: string }) {
   if (products.length === 0) return null;
   return (
     <div className="mt-14 lg:mt-20">
-      <ProductSection title="Related Products" products={products} />
+      <ProductSection title="Related Products" products={products} compact />
     </div>
   );
 }
@@ -105,7 +105,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
             <Recommendations productId={product.id} />
           </Suspense>
         </div>
-        <FeatureCards legal={legal} cards={content.featureCards} className="mt-14 lg:mt-20" />
+        <FeatureCards legal={legal} cards={content.featureCards} className="mt-10 lg:mt-14" />
         <BrandStrip />
       </>
     );

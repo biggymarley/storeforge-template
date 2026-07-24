@@ -10,6 +10,12 @@ interface ProductSectionProps {
   viewAllHref?: string;
   /** First section on the page should prioritize its images. */
   priority?: boolean;
+  /**
+   * Secondary-context heading: smaller, left-aligned, aligned to the card rail.
+   * Used on the PDP ("Related Products") so it doesn't compete with the H1 the
+   * way the homepage's loud centered section heads do.
+   */
+  compact?: boolean;
 }
 
 // Only the cards visible without scrolling are worth prioritizing — beyond
@@ -17,15 +23,21 @@ interface ProductSectionProps {
 const PRIORITY_CARD_COUNT = 4;
 
 /** Figma "NEW ARRIVALS"/"TOP SELLING" section: centered heading, horizontal card carousel, View All. */
-export function ProductSection({ title, products, viewAllHref, priority = false }: ProductSectionProps) {
+export function ProductSection({ title, products, viewAllHref, priority = false, compact = false }: ProductSectionProps) {
   if (products.length === 0) return null;
 
   return (
     <section className="min-w-0 max-w-full">
-      <h2 className="text-center font-heading text-[2rem] uppercase leading-9 lg:text-5xl lg:leading-none">
-        {title}
-      </h2>
-      <Carousel ariaLabel={title} className="mt-8 lg:mt-14 mx-auto max-w-6xl px-4">
+      {compact ? (
+        <div className="mx-auto max-w-6xl px-4">
+          <h2 className="font-heading text-2xl uppercase leading-tight lg:text-[2rem]">{title}</h2>
+        </div>
+      ) : (
+        <h2 className="text-center font-heading text-[2rem] uppercase leading-9 lg:text-5xl lg:leading-none">
+          {title}
+        </h2>
+      )}
+      <Carousel ariaLabel={title} className={`${compact ? "mt-6 lg:mt-8" : "mt-8 lg:mt-14"} mx-auto max-w-page px-4`}>
         <CarouselContent>
           {products.map((product, index) => (
             <CarouselItem key={product.id} className="basis-[70%] lg:basis-[22%]">

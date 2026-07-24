@@ -65,11 +65,15 @@ export function FeatureCards({ legal, cards = [], className }: FeatureCardsProps
           return (
             <li
               key={card.title}
-              className="flex w-full max-w-70 grow basis-56 flex-col items-center gap-2 rounded-card bg-secondary px-5 py-8 text-center"
+              className="group flex w-full max-w-96 grow basis-72 items-start gap-4 rounded-card border border-border bg-background p-5 text-left transition-all duration-300 hover:border-transparent hover:shadow-lg"
             >
-              <Icon width={32} height={32} className="shrink-0 text-foreground" />
-              <h3 className="text-base font-bold leading-tight">{card.title}</h3>
-              <p className="text-sm leading-relaxed text-muted">{card.text}</p>
+              <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-accent/10 text-accent transition-colors duration-300 group-hover:bg-accent group-hover:text-background">
+                <Icon width={24} height={24} className="shrink-0" />
+              </span>
+              <div className="min-w-0">
+                <h3 className="text-base font-bold leading-tight">{card.title}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted">{card.text}</p>
+              </div>
             </li>
           );
         })}

@@ -120,7 +120,7 @@ export function CarouselItem({ className = "", ...props }: ComponentProps<"div">
 }
 
 const ARROW_BUTTON =
-  "absolute top-1/2 z-10 hidden size-10 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background/80 text-foreground opacity-0 shadow-sm backdrop-blur transition-colors transition-opacity disabled:invisible group-hover/carousel:opacity-100 group-focus-within/carousel:opacity-100 hover:bg-background lg:flex";
+  "absolute top-1/2 z-10 hidden size-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background text-foreground shadow-lg transition-colors hover:bg-primary hover:text-background disabled:pointer-events-none disabled:opacity-40 lg:flex";
 
 export function CarouselPrevious() {
   const { scrollPrev, canScrollPrev } = useCarousel();

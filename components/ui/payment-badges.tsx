@@ -1,11 +1,16 @@
 import Image from "next/image";
 
+// Flat-rounded card-brand marks (aaronfagan/svg-credit-card-payment-icons).
+// Template-owned assets in /public/payments — 780×500 cards (~1.56 ratio).
 const PAYMENT_BADGES = [
   { src: "/payments/visa.svg", alt: "Visa" },
   { src: "/payments/mastercard.svg", alt: "Mastercard" },
-  { src: "/payments/paypal.svg", alt: "PayPal" },
-  { src: "/payments/applepay.svg", alt: "Apple Pay" },
-  { src: "/payments/gpay.svg", alt: "Google Pay" }
+  { src: "/payments/maestro.svg", alt: "Maestro" },
+  { src: "/payments/amex.svg", alt: "American Express" },
+  { src: "/payments/discover.svg", alt: "Discover" },
+  { src: "/payments/diners.svg", alt: "Diners Club" },
+  { src: "/payments/unionpay.svg", alt: "UnionPay" },
+  { src: "/payments/elo.svg", alt: "Elo" }
 ] as const;
 
 interface PaymentBadgesProps {
