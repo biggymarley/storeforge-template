@@ -37,7 +37,7 @@ const DEFAULT_COLORS: StoreColors = {
 /** Normalized hero carousel — null means "no carousel configured / nothing usable in it", i.e. render the standard hero. */
 export type ResolvedHeroCarousel =
   | { type: "products"; productHandles: string[] }
-  | { type: "images"; images: Array<{ image: string; alt: string; href: string }> };
+  | { type: "images"; images: Array<{ image: string; alt: string; href: string; mobileImage: string }> };
 
 const HERO_CAROUSEL_MAX_ITEMS = 6;
 
@@ -50,7 +50,7 @@ function resolveHeroCarousel(carousel: HeroConfig["carousel"]): ResolvedHeroCaro
     const images = (carousel.images ?? [])
       .filter((item) => item.image)
       .slice(0, HERO_CAROUSEL_MAX_ITEMS)
-      .map((item) => ({ image: item.image, alt: item.alt ?? "", href: item.href ?? "" }));
+      .map((item) => ({ image: item.image, alt: item.alt ?? "", href: item.href ?? "", mobileImage: item.mobileImage ?? "" }));
     return images.length > 0 ? { type: "images", images } : null;
   }
   return null;

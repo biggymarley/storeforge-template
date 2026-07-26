@@ -55,7 +55,7 @@ export interface HeroConfig {
     /** Shopify product handles, up to 6, shown as a sliding carousel of product photos. */
     productHandles?: string[];
     /** Store-owned asset paths, up to 6, e.g. "/branding/hero/173..." — shown as a sliding image carousel. */
-    images?: Array<{ image: string; alt?: string; href?: string }>;
+    images?: Array<{ image: string; alt?: string; href?: string; mobileImage?: string }>;
   };
 }
 

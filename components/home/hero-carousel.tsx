@@ -17,6 +17,8 @@ export type HeroCarouselItem =
       alt: string;
       /** Empty → slide is not clickable. */
       href: string;
+      /** Portrait crop for phones. Empty → use `src` at every viewport (unchanged default). */
+      mobileSrc: string;
     }
   | {
       kind: "product";
@@ -276,7 +278,30 @@ function ImageSlide({
   item: Extract<HeroCarouselItem, { kind: "image" }>;
   priority: boolean;
 }) {
-  const image = (
+  // With a mobile crop, show it below `md` (≤767px) and the wide crop at `md`+ (≥768px);
+  // without one, render the single wide image exactly as before.
+  const image = item.mobileSrc ? (
+    <>
+      <Image
+        src={item.mobileSrc}
+        alt={item.alt}
+        fill
+        priority={priority}
+        sizes="100vw"
+        className="object-cover md:hidden"
+        draggable={false}
+      />
+      <Image
+        src={item.src}
+        alt={item.alt}
+        fill
+        priority={priority}
+        sizes="100vw"
+        className="hidden object-cover md:block"
+        draggable={false}
+      />
+    </>
+  ) : (
     <Image
       src={item.src}
       alt={item.alt}

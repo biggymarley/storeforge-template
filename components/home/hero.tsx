@@ -49,7 +49,7 @@ export function Hero({ heroProduct = null, aggregateRating = null, carouselProdu
           ];
         })
       : hero.carousel?.type === "images"
-        ? hero.carousel.images.map((item) => ({ kind: "image", src: item.image, alt: item.alt, href: item.href }))
+        ? hero.carousel.images.map((item) => ({ kind: "image", src: item.image, alt: item.alt, href: item.href, mobileSrc: item.mobileImage }))
         : [];
   if (carouselItems.length > 0) return <HeroCarousel items={carouselItems} />;
 
