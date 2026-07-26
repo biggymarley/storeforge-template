@@ -68,12 +68,13 @@ Semantic color roles: `primary` (buttons/emphasis), `secondary` (surfaces/inputs
 | `/products`, `/collections/[handle]` | Shared PLP shell — filters sidebar (desktop) / drawer (mobile), sort, cursor pagination |
 | `/products/[handle]` | Gallery, variant selection, add to cart, tabs (Details/Reviews — Reviews hidden with no config data), recommendations |
 | `/cart` | Line items, promo code, checkout → `cart.checkoutUrl`; mini-cart slide-over on every page (header cart icon) |
-| `/search` | Same PLP shell + predictive dropdown (debounced, `/api/predictive-search`) |
 | `/pages/[handle]` | Shopify pages (About etc.), prose layout |
 | `/policies/{privacy,terms,shipping,refund}` | Template-owned text (`lib/policies.ts`) interpolating `config/legal.ts` |
 | `/404`, error boundaries | On-brand `ErrorHero`; the root `not-found.tsx`/`error.tsx` carry their own chrome (no `CartProvider`) so unmatched URLs return a real HTTP 404 |
 
-**PLP URL contract** (`lib/plp.ts`, shared by all three grid routes): `?sort=&price_min=&price_max=&instock=1&f.<OptionName>=v1,v2&after=/before=`. `f.*` is generic per variant option (Color, Size, Material, …) rather than hardcoded — it renders whatever facets `collection.products.filters` returns. Non-PLP params (e.g. `/search`'s `q`) always survive filter/sort changes (`isPlpParam()`).
+**PLP URL contract** (`lib/plp.ts`, shared by `/products` and `/collections/[handle]`): `?sort=&price_min=&price_max=&instock=1&f.<OptionName>=v1,v2&after=/before=`. `f.*` is generic per variant option (Color, Size, Material, …) rather than hardcoded — it renders whatever facets `collection.products.filters` returns. Any param not owned by the filter/sort/paging state always survives filter/sort changes (`isPlpParam()`).
+
+> **No search feature.** There is intentionally no `/search` route, header search bar, or predictive-search API — these were deliberately removed. Don't re-add them as a side effect of a nav/PLP redesign; reintroducing search is a deliberate feature decision.
 
 **Home section convention:** a collection with handle `new-arrivals` or `top-selling` overrides the default product sort for that homepage section (`CREATED_AT desc` / `BEST_SELLING` respectively) — create those collections to control the sections directly instead of relying on the sort fallback.
 

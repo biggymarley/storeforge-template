@@ -59,7 +59,7 @@ function resolveHeroCarousel(carousel: HeroConfig["carousel"]): ResolvedHeroCaro
 export interface ResolvedStoreConfig {
   name: string;
   tagline: string;
-  logo: { src: string; alt: string };
+  logo: { src: string; alt: string; text: boolean };
   favicon: string;
   colors: StoreColors;
   fonts: { heading: string; body: string };
@@ -94,7 +94,8 @@ export function resolveStoreConfig(config: StoreConfig = storeConfig): ResolvedS
     tagline: config.tagline ?? "",
     logo: {
       src: config.logo?.src ?? "/branding/logo.svg",
-      alt: config.logo?.alt ?? config.name ?? "Store"
+      alt: config.logo?.alt ?? config.name ?? "Store",
+      text: config.logo?.text ?? false
     },
     favicon: config.favicon ?? "/favicon.ico",
     colors: {

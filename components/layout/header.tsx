@@ -20,14 +20,21 @@ export function Header({ links = [], withCart = true }: HeaderProps) {
     <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="mx-auto flex h-16 max-w-page items-center gap-6 px-4 lg:h-20 lg:gap-10">
         <Link href="/" className="flex min-w-0 shrink-0 items-center">
-          <Image
-            src={store.logo.src}
-            alt={store.logo.alt}
-            width={160}
-            height={44}
-            priority
-            className="h-7 w-auto object-contain lg:h-9"
-          />
+          {/* image logo unless the store opted into a text wordmark (or has no asset) */}
+          {store.logo.src && !store.logo.text ? (
+            <Image
+              src={store.logo.src}
+              alt={store.logo.alt}
+              width={160}
+              height={44}
+              priority
+              className="h-7 w-auto object-contain lg:h-9"
+            />
+          ) : (
+            <span className="truncate font-heading text-xl uppercase leading-none text-foreground lg:text-2xl">
+              {store.name}
+            </span>
+          )}
         </Link>
         <nav aria-label="Main" className="hidden items-center gap-6 lg:flex">
           {links.map((link) => (

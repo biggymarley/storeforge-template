@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.0.33] — 2026-07-26
+
+- New optional `storeConfig.logo.text` boolean. When `true`, the header renders the store name as a text wordmark (heading font, foreground color) instead of the image logo; when unset/`false` it shows the image logo exactly as before. Resolved to `false` by default in `resolveStoreConfig()`, so stores whose config predates this field are unaffected. Additive-only (one optional field), mirrored across templates.
+
 ## [1.2.1] — 2026-07-19
 
 - Fix hydration mismatch on every page: `app/layout.tsx`'s `<head>` rendered `customFontFaceCss && <style .../>` — when no store-owned custom font is uploaded, `customFontFaceCss` is `""`, and `"" && X` evaluates to `""`, which React renders as a stray whitespace text node (unlike `null`/`false`, which it skips). An empty text node is not a valid child of `<head>`, so React discarded the server-rendered tree and re-hydrated client-side on every load. Switched to a ternary so the falsy case renders `null` instead.

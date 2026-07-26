@@ -62,7 +62,7 @@ export interface HeroConfig {
 export interface StoreConfig {
   name: string;
   tagline?: string;
-  logo?: { src: string; alt?: string };
+  logo?: { src: string; alt?: string; text?: boolean };
   /** Store-owned asset, e.g. "/branding/favicon.png". Empty → template's static app/favicon.ico. */
   favicon?: string;
   colors?: Partial<StoreColors>;
