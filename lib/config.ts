@@ -37,9 +37,20 @@ const DEFAULT_COLORS: StoreColors = {
 /** Normalized hero carousel — null means "no carousel configured / nothing usable in it", i.e. render the standard hero. */
 export type ResolvedHeroCarousel =
   | { type: "products"; productHandles: string[] }
-  | { type: "images"; images: Array<{ image: string; alt: string; href: string; mobileImage: string }> };
+  | {
+      type: "images";
+      images: Array<{ image: string; alt: string; href: string; mobileImage: string }>;
+      /** Positive ratio → image slides size to it (no crop); null → fixed-height cover (legacy default). */
+      aspectRatio: number | null;
+      mobileAspectRatio: number | null;
+    };
 
 const HERO_CAROUSEL_MAX_ITEMS = 6;
+
+/** Accept only a finite, positive ratio; anything else falls back to the legacy fixed-height crop. */
+function sanitizeAspectRatio(value: number | undefined): number | null {
+  return typeof value === "number" && Number.isFinite(value) && value > 0 ? value : null;
+}
 
 function resolveHeroCarousel(carousel: HeroConfig["carousel"]): ResolvedHeroCarousel | null {
   if (carousel?.type === "products") {
@@ -51,7 +62,10 @@ function resolveHeroCarousel(carousel: HeroConfig["carousel"]): ResolvedHeroCaro
       .filter((item) => item.image)
       .slice(0, HERO_CAROUSEL_MAX_ITEMS)
       .map((item) => ({ image: item.image, alt: item.alt ?? "", href: item.href ?? "", mobileImage: item.mobileImage ?? "" }));
-    return images.length > 0 ? { type: "images", images } : null;
+    const aspectRatio = sanitizeAspectRatio(carousel.aspectRatio);
+    return images.length > 0
+      ? { type: "images", images, aspectRatio, mobileAspectRatio: sanitizeAspectRatio(carousel.mobileAspectRatio) ?? aspectRatio }
+      : null;
   }
   return null;
 }

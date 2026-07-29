@@ -49,7 +49,15 @@ export function Hero({ heroProduct = null, aggregateRating = null, carouselProdu
           ];
         })
       : hero.carousel?.type === "images"
-        ? hero.carousel.images.map((item) => ({ kind: "image", src: item.image, alt: item.alt, href: item.href, mobileSrc: item.mobileImage }))
+        ? hero.carousel.images.map((item) => ({
+            kind: "image",
+            src: item.image,
+            alt: item.alt,
+            href: item.href,
+            mobileSrc: item.mobileImage,
+            aspectRatio: hero.carousel?.type === "images" ? hero.carousel.aspectRatio : null,
+            mobileAspectRatio: hero.carousel?.type === "images" ? hero.carousel.mobileAspectRatio : null
+          }))
         : [];
   if (carouselItems.length > 0) return <HeroCarousel items={carouselItems} />;
 

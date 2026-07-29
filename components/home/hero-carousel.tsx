@@ -19,6 +19,10 @@ export type HeroCarouselItem =
       href: string;
       /** Portrait crop for phones. Empty → use `src` at every viewport (unchanged default). */
       mobileSrc: string;
+      /** Positive ratio → slide sizes to it (no crop); null → fixed-height cover (legacy default). */
+      aspectRatio: number | null;
+      /** Ratio for the `mobileSrc` crop; falls back to `aspectRatio`. */
+      mobileAspectRatio: number | null;
     }
   | {
       kind: "product";
@@ -261,13 +265,17 @@ function Slide({ item, priority = false }: { item: HeroCarouselItem; priority?: 
 }
 
 /**
- * Banner slide at a fixed hero height, filled edge-to-edge with `object-cover`.
+ * Banner slide. Two sizing modes:
  *
- * Every image slide is forced to the same height (matching ProductSlide's
- * min-heights) so slides of different aspect ratios can't make the track taller
- * than the current image — which used to leave a dark `bg-hero-background` gap
- * below shorter images. Trade-off: tall/portrait images are cropped to fill,
- * which is the expected behaviour for a full-bleed carousel.
+ * - Default (no `aspectRatio`): a fixed hero height, filled edge-to-edge with
+ *   `object-cover`. Every slide shares the height (matching ProductSlide's
+ *   min-heights) so slides of different aspect ratios can't make the track
+ *   taller than the current image — which used to leave a dark
+ *   `bg-hero-background` gap below shorter images. Trade-off: images whose ratio
+ *   differs from the box are cropped to fill.
+ * - With `aspectRatio` set (the store's banner ratio): the slide sizes to that
+ *   ratio instead of a fixed height, so the whole banner shows edge-to-edge with
+ *   no cropping. A separate `mobileAspectRatio` covers the portrait `mobileSrc`.
  */
 const IMAGE_SLIDE_HEIGHT = "h-[440px] sm:h-[500px] lg:h-[663px]";
 
@@ -278,6 +286,19 @@ function ImageSlide({
   item: Extract<HeroCarouselItem, { kind: "image" }>;
   priority: boolean;
 }) {
+  // A configured ratio drives the box height (no crop); otherwise fall back to
+  // the fixed hero height. `--hero-ar` / `--hero-ar-m` let the desktop and phone
+  // crops carry different ratios through a single responsive class.
+  const ratioStyle = item.aspectRatio
+    ? ({
+        "--hero-ar": String(item.aspectRatio),
+        "--hero-ar-m": String(item.mobileAspectRatio ?? item.aspectRatio)
+      } as React.CSSProperties)
+    : undefined;
+  const sizeClass = item.aspectRatio
+    ? "[aspect-ratio:var(--hero-ar-m)] md:[aspect-ratio:var(--hero-ar)]"
+    : IMAGE_SLIDE_HEIGHT;
+
   // With a mobile crop, show it below `md` (≤767px) and the wide crop at `md`+ (≥768px);
   // without one, render the single wide image exactly as before.
   const image = item.mobileSrc ? (
@@ -313,13 +334,18 @@ function ImageSlide({
     />
   );
   if (!item.href) {
-    return <div className={`relative w-full ${IMAGE_SLIDE_HEIGHT}`}>{image}</div>;
+    return (
+      <div className={`relative w-full ${sizeClass}`} style={ratioStyle}>
+        {image}
+      </div>
+    );
   }
   return (
     <Link
       href={item.href}
       aria-label={item.alt || "View slide"}
-      className={`relative block w-full ${IMAGE_SLIDE_HEIGHT}`}
+      className={`relative block w-full ${sizeClass}`}
+      style={ratioStyle}
       draggable={false}
     >
       {image}

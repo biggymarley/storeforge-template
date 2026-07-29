@@ -56,6 +56,15 @@ export interface HeroConfig {
     productHandles?: string[];
     /** Store-owned asset paths, up to 6, e.g. "/branding/hero/173..." — shown as a sliding image carousel. */
     images?: Array<{ image: string; alt?: string; href?: string; mobileImage?: string }>;
+    /**
+     * Aspect ratio (width ÷ height, e.g. 1.7778 for 16:9) for image slides. Set
+     * it to the ratio of your banners and the full-bleed slide sizes itself to
+     * match, so the whole image shows edge-to-edge with no cropping. Unset →
+     * slides use a fixed height and crop to fill (the previous default).
+     */
+    aspectRatio?: number;
+    /** Aspect ratio for the phone (`mobileImage`) crop; falls back to `aspectRatio` when unset. */
+    mobileAspectRatio?: number;
   };
 }
 
