@@ -62,7 +62,7 @@ export function CartPageContent({ policies, marketing }: CartPageContentProps) {
         </div>
       ) : (
         <>
-          <div className="mt-6 grid items-start gap-5 lg:grid-cols-[1.4fr_1fr]">
+          <div className="mt-6 grid grid-cols-1 items-start gap-5 lg:grid-cols-[1.4fr_1fr]">
             <div className="min-w-0 divide-y divide-border rounded-card border border-border px-4 sm:px-6">
               {lines.map((line) => (
                 <div key={line.id} className="py-5">

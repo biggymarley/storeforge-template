@@ -97,7 +97,7 @@ export function CartLineRow({ line, compact = false, onNavigate }: CartLineRowPr
         ) : null}
       </Link>
       <div className="flex min-w-0 flex-1 flex-col justify-between gap-3">
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
           <div className="min-w-0">
             <Link
               href={`/products/${merchandise.product.handle}`}
@@ -113,7 +113,7 @@ export function CartLineRow({ line, compact = false, onNavigate }: CartLineRowPr
               </p>
             ))}
           </div>
-          <span className="shrink-0 text-lg font-bold sm:text-2xl">{price}</span>
+          <span className="text-lg font-bold sm:shrink-0 sm:text-2xl">{price}</span>
         </div>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <QuantityStepper
