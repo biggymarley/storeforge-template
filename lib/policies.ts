@@ -242,7 +242,89 @@ const POLICY_BUILDERS: Record<PolicyHandle, (legal: ResolvedLegalConfig) => Poli
 
 export const POLICY_HANDLES = Object.keys(POLICY_BUILDERS) as PolicyHandle[];
 
+const HEADING_RE = /^#{1,2}\s+(.+)$/;
+const LIST_ITEM_RE = /^[-*]\s+(.+)$/;
+
+/**
+ * Parse a StoreForge dashboard page-override body (markdown-ish) into the
+ * template's existing PolicySection[] shape, so custom copy flows through the
+ * same ProsePage renderer as the generated policies. Format:
+ *   - `# ` / `## ` starts a new section (rest of the line is its heading)
+ *   - consecutive `- ` / `* ` lines become the section's bullet list
+ *   - a blank line ends the current paragraph
+ *   - other consecutive non-blank lines join (with spaces) into one paragraph
+ *   - text before the first heading forms a leading, heading-less section
+ * Empty sections/paragraphs/lists are dropped.
+ */
+export function parseMarkdownSections(body: string): PolicySection[] {
+  const sections: PolicySection[] = [];
+  let heading: string | undefined;
+  let paragraphs: string[] = [];
+  let list: string[] = [];
+  let paragraphBuffer: string[] = [];
+
+  const flushParagraph = () => {
+    const text = paragraphBuffer.join(" ").trim();
+    if (text) paragraphs.push(text);
+    paragraphBuffer = [];
+  };
+
+  const flushSection = () => {
+    flushParagraph();
+    const hasContent = Boolean(heading) || paragraphs.length > 0 || list.length > 0;
+    if (hasContent) {
+      const section: PolicySection = { paragraphs };
+      if (heading) section.heading = heading;
+      if (list.length > 0) section.list = list;
+      sections.push(section);
+    }
+    heading = undefined;
+    paragraphs = [];
+    list = [];
+  };
+
+  for (const rawLine of body.split(/\r?\n/)) {
+    const line = rawLine.trim();
+
+    const headingMatch = line.match(HEADING_RE);
+    if (headingMatch) {
+      flushSection();
+      heading = headingMatch[1].trim();
+      continue;
+    }
+
+    const listMatch = line.match(LIST_ITEM_RE);
+    if (listMatch) {
+      flushParagraph();
+      list.push(listMatch[1].trim());
+      continue;
+    }
+
+    if (line === "") {
+      flushParagraph();
+      continue;
+    }
+
+    paragraphBuffer.push(line);
+  }
+
+  flushSection();
+  return sections;
+}
+
 export function getPolicy(handle: string): Policy | null {
   const builder = POLICY_BUILDERS[handle as PolicyHandle];
-  return builder ? builder(resolveLegalConfig()) : null;
+  if (!builder) return null;
+
+  const legal = resolveLegalConfig();
+  const policy = builder(legal);
+
+  // A non-empty dashboard override replaces the generated sections; the
+  // generated title/description are kept so metadata and headers are unchanged.
+  const override = legal.pageOverrides?.[handle as PolicyHandle]?.trim();
+  if (override) {
+    return { ...policy, sections: parseMarkdownSections(override) };
+  }
+
+  return policy;
 }

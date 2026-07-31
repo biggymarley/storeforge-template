@@ -176,6 +176,8 @@ export interface ResolvedLegalConfig {
     damageReportHours: number;
     refundProcessingEstimate: string;
   };
+  /** Per-policy-handle custom page bodies; a non-empty value overrides the generated copy for that page. */
+  pageOverrides: { privacy?: string; terms?: string; shipping?: string; refund?: string; payment?: string };
 }
 
 export function resolveLegalConfig(config: LegalConfig = legalConfig): ResolvedLegalConfig {
@@ -206,7 +208,8 @@ export function resolveLegalConfig(config: LegalConfig = legalConfig): ResolvedL
       orderCutoffTime: config.policies?.orderCutoffTime ?? "",
       damageReportHours: config.policies?.damageReportHours ?? 48,
       refundProcessingEstimate: config.policies?.refundProcessingEstimate ?? ""
-    }
+    },
+    pageOverrides: config.pageOverrides ?? {}
   };
 }
 

@@ -131,6 +131,15 @@ export interface LegalConfig {
     /** Free-text refund processing estimate once approved, e.g. "5-10 business days". Unset → generic wording. */
     refundProcessingEstimate?: string;
   };
+  /** Per-page custom body text for /policies/*; overrides the generated copy when non-empty. */
+  pageOverrides?: {
+    privacy?: string;
+    terms?: string;
+    shipping?: string;
+    refund?: string;
+    /** Only meaningful for templates that have a /policies/payment page; ignored otherwise. */
+    payment?: string;
+  };
 }
 
 export interface SeoConfig {
