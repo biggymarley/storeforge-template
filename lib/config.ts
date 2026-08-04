@@ -176,8 +176,8 @@ export interface ResolvedLegalConfig {
     damageReportHours: number;
     refundProcessingEstimate: string;
   };
-  /** Per-policy-handle custom page bodies; a non-empty value overrides the generated copy for that page. */
-  pageOverrides: { privacy?: string; terms?: string; shipping?: string; refund?: string; payment?: string };
+  /** Custom page bodies (policies + about); a non-empty value overrides the generated/placeholder copy for that page. */
+  pageOverrides: { privacy?: string; terms?: string; shipping?: string; refund?: string; payment?: string; about?: string };
 }
 
 export function resolveLegalConfig(config: LegalConfig = legalConfig): ResolvedLegalConfig {

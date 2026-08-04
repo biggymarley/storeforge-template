@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ProsePage } from "@/components/layout/prose-page";
 import { resolveLegalConfig, resolveStoreConfig } from "@/lib/config";
+import { parseMarkdownSections } from "@/lib/policies";
 
 export const metadata: Metadata = {
   title: "About Us"
@@ -10,10 +11,39 @@ export const metadata: Metadata = {
  * /about — template-owned story/mission copy with the store's name and
  * location interpolated in (config/store.ts, config/legal.ts). Same pattern
  * as lib/policies.ts: static text, no live fetch, no hardcoded store info.
+ *
+ * When StoreForge writes `config/legal.ts` `pageOverrides.about`, that custom
+ * body replaces the placeholder below — parsed by the same markdown-ish helper
+ * the /policies/* override pages use (lib/policies.ts).
  */
 export default function AboutPage() {
   const store = resolveStoreConfig();
   const legal = resolveLegalConfig();
+
+  const override = legal.pageOverrides?.about?.trim();
+  if (override) {
+    return (
+      <ProsePage title={`About ${store.name}`} breadcrumbLabel="About Us">
+        <div className="prose-store">
+          {parseMarkdownSections(override).map((section, index) => (
+            <section key={index}>
+              {section.heading ? <h2>{section.heading}</h2> : null}
+              {section.paragraphs.map((paragraph, pIndex) => (
+                <p key={pIndex}>{paragraph}</p>
+              ))}
+              {section.list ? (
+                <ul>
+                  {section.list.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              ) : null}
+            </section>
+          ))}
+        </div>
+      </ProsePage>
+    );
+  }
 
   const location = [legal.address.city, legal.address.region].filter(Boolean).join(", ");
 
